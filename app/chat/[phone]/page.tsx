@@ -61,7 +61,7 @@ export default function CustomerChatPage() {
   // Business is now loaded via SWR hook, handle errors
   useEffect(() => {
     if (!businessLoading && !business && phone) {
-      setError("Business not found")
+        setError("Business not found")
     }
   }, [businessLoading, business, phone])
 

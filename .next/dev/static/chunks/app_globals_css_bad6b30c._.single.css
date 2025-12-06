@@ -1296,6 +1296,10 @@
     min-width: 12rem;
   }
 
+  .min-w-\[20px\] {
+    min-width: 20px;
+  }
+
   .min-w-\[var\(--radix-select-trigger-width\)\] {
     min-width: var(--radix-select-trigger-width);
   }
@@ -1775,6 +1779,11 @@
     border-left-width: 1px;
   }
 
+  .border-l-4 {
+    border-left-style: var(--tw-border-style);
+    border-left-width: 4px;
+  }
+
   .border-dashed {
     --tw-border-style: dashed;
     border-style: dashed;
@@ -1840,6 +1849,10 @@
 
   .border-t-transparent {
     border-top-color: #0000;
+  }
+
+  .border-l-primary {
+    border-left-color: var(--primary);
   }
 
   .border-l-transparent {
@@ -1982,6 +1995,16 @@
 
   .bg-primary {
     background-color: var(--primary);
+  }
+
+  .bg-primary\/5 {
+    background-color: var(--primary);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-primary\/5 {
+      background-color: color-mix(in oklab, var(--primary) 5%, transparent);
+    }
   }
 
   .bg-primary\/20 {
@@ -5059,6 +5082,16 @@
   @supports (color: color-mix(in lab, red, red)) {
     .dark\:bg-input\/30:is(.dark *) {
       background-color: color-mix(in oklab, var(--input) 30%, transparent);
+    }
+  }
+
+  .dark\:bg-primary\/10:is(.dark *) {
+    background-color: var(--primary);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .dark\:bg-primary\/10:is(.dark *) {
+      background-color: color-mix(in oklab, var(--primary) 10%, transparent);
     }
   }
 

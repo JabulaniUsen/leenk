@@ -34,9 +34,9 @@ export default function DashboardPage() {
   // Handle auth redirects
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/login")
+          router.push("/login")
     } else if (!authLoading && user && !isOnboardingComplete(user.business)) {
-      router.push("/onboarding")
+          router.push("/onboarding")
     }
   }, [authLoading, user, router])
 
@@ -60,7 +60,7 @@ export default function DashboardPage() {
           type: 'application/json'
         })
         navigator.sendBeacon('/api/update-online-status', blob)
-      }
+    }
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)
@@ -175,17 +175,17 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : user ? (
-            <div className="flex items-center gap-3 text-sm">
+          <div className="flex items-center gap-3 text-sm">
               <Avatar 
                 src={user.business?.businessLogo} 
                 name={user.business?.businessName} 
                 size="md"
               />
-              <div>
-                <p className="font-medium text-foreground">{user.business?.businessName}</p>
-                <p className="text-muted-foreground text-xs">{user.email}</p>
-              </div>
+            <div>
+              <p className="font-medium text-foreground">{user.business?.businessName}</p>
+              <p className="text-muted-foreground text-xs">{user.email}</p>
             </div>
+          </div>
           ) : null}
         </div>
 

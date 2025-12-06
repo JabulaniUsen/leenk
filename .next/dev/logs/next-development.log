@@ -10423,3 +10423,229 @@ Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
 [01:21:46.325] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:56:01.797005+00:00","id":"10b2f617-a4df-4566-86b4-8c9c8692b0df","senderId":"customer","senderType":"customer","status":"delivered","text":"What do you think about the logo"}
 [01:21:46.325] Browser LOG     ✅ Calling onMessageUpdate callback
 [01:21:46.325] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:56:01.797005+00:00","id":"10b2f617-a4df-4566-86b4-8c9c8692b0df","senderId":"customer","senderType":"customer","status":"delivered","text":"What do you think about the logo"}
+[01:25:38.557] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:25:38.558] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:25:42.557] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:25:42.557] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 2/5) in 4000ms
+[01:25:42.557] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:25:43.938] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:00:00.017Z","errors":null,"eventType":"UPDATE","new":{"content":"Hello","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T22:55:15.397326+00:00","id":"f090fc25-ed00-459e-8fea-0d3ac5b72586","image_url":null,"sender_id":"customer","sender_type":"customer","status":"read"},"old":{"id":"f090fc25-ed00-459e-8fea-0d3ac5b72586"},"schema":"public","table":"messages"}
+[01:25:43.938] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:15.397326+00:00","id":"f090fc25-ed00-459e-8fea-0d3ac5b72586","senderId":"customer","senderType":"customer","status":"read","text":"Hello"}
+[01:25:43.938] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:25:43.938] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:15.397326+00:00","id":"f090fc25-ed00-459e-8fea-0d3ac5b72586","senderId":"customer","senderType":"customer","status":"read","text":"Hello"}
+[01:25:43.938] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:00:00.017Z","errors":null,"eventType":"UPDATE","new":{"content":"Testing","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T22:55:24.670212+00:00","id":"f37cbfdc-7be8-4946-bbc1-d827de0a4913","image_url":null,"sender_id":"customer","sender_type":"customer","status":"read"},"old":{"id":"f37cbfdc-7be8-4946-bbc1-d827de0a4913"},"schema":"public","table":"messages"}
+[01:25:43.938] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:24.670212+00:00","id":"f37cbfdc-7be8-4946-bbc1-d827de0a4913","senderId":"customer","senderType":"customer","status":"read","text":"Testing"}
+[01:25:43.938] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:25:43.938] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:24.670212+00:00","id":"f37cbfdc-7be8-4946-bbc1-d827de0a4913","senderId":"customer","senderType":"customer","status":"read","text":"Testing"}
+[01:25:43.938] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:00:00.017Z","errors":null,"eventType":"UPDATE","new":{"content":null,"conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T22:55:54.029026+00:00","id":"ab931f6d-9fe3-4f9b-b329-f38f070f78a8","sender_id":"customer","sender_type":"customer","status":"read"},"old":{"id":"ab931f6d-9fe3-4f9b-b329-f38f070f78a8"},"schema":"public","table":"messages"}
+[01:25:43.938] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:54.029026+00:00","id":"ab931f6d-9fe3-4f9b-b329-f38f070f78a8","senderId":"customer","senderType":"customer","status":"read"}
+[01:25:43.938] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:25:43.938] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:54.029026+00:00","id":"ab931f6d-9fe3-4f9b-b329-f38f070f78a8","senderId":"customer","senderType":"customer","status":"read"}
+[01:25:43.938] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:00:00.017Z","errors":null,"eventType":"UPDATE","new":{"content":"What do you think about the logo","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T22:56:01.797005+00:00","id":"10b2f617-a4df-4566-86b4-8c9c8692b0df","image_url":null,"sender_id":"customer","sender_type":"customer","status":"read"},"old":{"id":"10b2f617-a4df-4566-86b4-8c9c8692b0df"},"schema":"public","table":"messages"}
+[01:25:43.938] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:56:01.797005+00:00","id":"10b2f617-a4df-4566-86b4-8c9c8692b0df","senderId":"customer","senderType":"customer","status":"read","text":"What do you think about the logo"}
+[01:25:43.938] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:25:43.938] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:56:01.797005+00:00","id":"10b2f617-a4df-4566-86b4-8c9c8692b0df","senderId":"customer","senderType":"customer","status":"read","text":"What do you think about the logo"}
+[01:25:44.557] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:00:00.017Z","errors":null,"eventType":"UPDATE","new":{"content":"Hello","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T22:55:15.397326+00:00","id":"f090fc25-ed00-459e-8fea-0d3ac5b72586","image_url":null,"sender_id":"customer","sender_type":"customer","status":"read"},"old":{"id":"f090fc25-ed00-459e-8fea-0d3ac5b72586"},"schema":"public","table":"messages"}
+[01:25:44.557] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:15.397326+00:00","id":"f090fc25-ed00-459e-8fea-0d3ac5b72586","senderId":"customer","senderType":"customer","status":"read","text":"Hello"}
+[01:25:44.557] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:25:44.557] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:15.397326+00:00","id":"f090fc25-ed00-459e-8fea-0d3ac5b72586","senderId":"customer","senderType":"customer","status":"read","text":"Hello"}
+[01:25:44.557] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:00:00.017Z","errors":null,"eventType":"UPDATE","new":{"content":"Testing","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T22:55:24.670212+00:00","id":"f37cbfdc-7be8-4946-bbc1-d827de0a4913","image_url":null,"sender_id":"customer","sender_type":"customer","status":"read"},"old":{"id":"f37cbfdc-7be8-4946-bbc1-d827de0a4913"},"schema":"public","table":"messages"}
+[01:25:44.557] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:24.670212+00:00","id":"f37cbfdc-7be8-4946-bbc1-d827de0a4913","senderId":"customer","senderType":"customer","status":"read","text":"Testing"}
+[01:25:44.557] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:25:44.557] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:24.670212+00:00","id":"f37cbfdc-7be8-4946-bbc1-d827de0a4913","senderId":"customer","senderType":"customer","status":"read","text":"Testing"}
+[01:25:44.557] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:00:00.017Z","errors":null,"eventType":"UPDATE","new":{"content":null,"conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T22:55:54.029026+00:00","id":"ab931f6d-9fe3-4f9b-b329-f38f070f78a8","sender_id":"customer","sender_type":"customer","status":"read"},"old":{"id":"ab931f6d-9fe3-4f9b-b329-f38f070f78a8"},"schema":"public","table":"messages"}
+[01:25:44.557] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:54.029026+00:00","id":"ab931f6d-9fe3-4f9b-b329-f38f070f78a8","senderId":"customer","senderType":"customer","status":"read"}
+[01:25:44.557] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:25:44.557] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:54.029026+00:00","id":"ab931f6d-9fe3-4f9b-b329-f38f070f78a8","senderId":"customer","senderType":"customer","status":"read"}
+[01:25:44.557] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:00:00.017Z","errors":null,"eventType":"UPDATE","new":{"content":"What do you think about the logo","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T22:56:01.797005+00:00","id":"10b2f617-a4df-4566-86b4-8c9c8692b0df","image_url":null,"sender_id":"customer","sender_type":"customer","status":"read"},"old":{"id":"10b2f617-a4df-4566-86b4-8c9c8692b0df"},"schema":"public","table":"messages"}
+[01:25:44.557] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:56:01.797005+00:00","id":"10b2f617-a4df-4566-86b4-8c9c8692b0df","senderId":"customer","senderType":"customer","status":"read","text":"What do you think about the logo"}
+[01:25:44.557] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:25:44.557] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:56:01.797005+00:00","id":"10b2f617-a4df-4566-86b4-8c9c8692b0df","senderId":"customer","senderType":"customer","status":"read","text":"What do you think about the logo"}
+[01:25:56.691] Browser LOG     🔔 Real-time event received: INSERT {"commit_timestamp":"2025-12-06T23:00:12.691Z","errors":null,"eventType":"INSERT","new":{"content":"Cool stuff bro","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"sent"},"old":{},"schema":"public","table":"messages"}
+[01:25:56.691] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"Cool stuff bro"}
+[01:25:57.557] Browser LOG     🔔 Real-time event received: INSERT {"commit_timestamp":"2025-12-06T23:00:12.691Z","errors":null,"eventType":"INSERT","new":{"content":"Cool stuff bro","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"sent"},"old":{},"schema":"public","table":"messages"}
+[01:25:57.557] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"Cool stuff bro"}
+[01:25:57.557] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:25:57.557] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"Cool stuff bro"}
+[01:26:08.686] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:26:08.686] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"Cool stuff bro"}
+[01:28:39.927] Server  LOG      ✓ Compiled in 170ms
+[01:28:40.033] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:28:40.033] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:28:40.271] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:28:40.557] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:28:40.557] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:28:40.557] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:28:46.346] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:28:46.825] Server  LOG      ✓ Compiled in 225ms
+[01:28:47.010] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:28:47.014] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:28:47.014] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:28:47.182] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:28:47.376] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[01:28:47.376] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","route":"/dashboard/[conversationId]"}
+[01:28:47.376] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765062183054}
+[01:28:48.792] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:28:50.765] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:28:50.765] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:28:51.043] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:28:56.682] Server  LOG      ✓ Compiled in 189ms
+[01:29:05.589] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:29:05.884] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:29:06.028] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:29:06.028] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:29:06.028] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/69572c28-d52b-466b-868e-82feab862b7d color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/69572c28-d52b-466b-868e-82feab862b7d","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765062201700}
+[01:29:06.252] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d undefined
+[01:29:06.252] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 1/5) in 2000ms
+[01:29:06.252] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d {}
+[01:29:06.252] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 2/5) in 4000ms
+[01:29:06.380] Server  LOG      ✓ Compiled in 139ms
+[01:29:06.695] Browser LOG     ✅ Real-time connected: conversation:69572c28-d52b-466b-868e-82feab862b7d
+[01:29:06.993] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d undefined
+[01:29:06.993] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 1/5) in 2000ms
+[01:29:07.211] Browser LOG     ✅ Real-time connected: conversation:69572c28-d52b-466b-868e-82feab862b7d
+[01:29:08.250] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d undefined
+[01:29:08.250] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 1/5) in 2000ms
+[01:29:08.461] Browser LOG     ✅ Real-time connected: conversation:69572c28-d52b-466b-868e-82feab862b7d
+[01:29:09.478] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:29:09.685] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d undefined
+[01:29:09.685] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 1/5) in 2000ms
+[01:29:09.685] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765062205360}
+[01:29:09.911] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:29:09.911] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:29:09.911] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 {}
+[01:29:09.911] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 2/5) in 4000ms
+[01:29:12.206] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:29:28.562] Server  LOG      ✓ Compiled in 65ms
+[01:29:28.673] Browser ERROR   The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [c795a09f-d8e6-4440-a38f-c5b09b6aeec9, 66e61944-18e6-4a27-9d44-c385188d49c4] [c795a09f-d8e6-4440-a38f-c5b09b6aeec9, 66e61944-18e6-4a27-9d44-c385188d49c4, (...args)=>{
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$_internal$2f$config$2d$context$2d$12s$2d$Dh3trQsc$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__n__as__internalMutate$3e$__["internalMutate"])(cache, keyRef.current, ...args);
+        }, (...args)=>{
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$_internal$2f$config$2d$context$2d$12s$2d$Dh3trQsc$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__n__as__internalMutate$3e$__["internalMutate"])(cache, keyRef.current, ...args);
+        }]
+[01:29:28.673] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:29:28.673] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:29:28.920] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:29:45.273] Browser LOG     🔔 Real-time event received: INSERT {"commit_timestamp":"2025-12-06T23:04:01.331Z","errors":null,"eventType":"INSERT","new":{"content":"How's it going man?","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"sent"},"old":{},"schema":"public","table":"messages"}
+[01:29:45.273] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"How's it going man?"}
+[01:29:45.276] Browser LOG     🔔 Real-time event received: INSERT {"commit_timestamp":"2025-12-06T23:04:01.331Z","errors":null,"eventType":"INSERT","new":{"content":"How's it going man?","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"sent"},"old":{},"schema":"public","table":"messages"}
+[01:29:45.276] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"How's it going man?"}
+[01:29:45.276] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:29:45.276] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"How's it going man?"}
+[01:29:45.836] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:29:45.836] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"How's it going man?"}
+[01:29:45.836] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:04:01.906Z","errors":null,"eventType":"UPDATE","new":{"content":"How's it going man?","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"delivered"},"old":{"id":"0e504329-0a40-49ec-be4b-8939cdfc44ca"},"schema":"public","table":"messages"}
+[01:29:45.836] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"How's it going man?"}
+[01:29:45.836] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:29:45.836] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"How's it going man?"}
+[01:29:45.836] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:04:01.906Z","errors":null,"eventType":"UPDATE","new":{"content":"How's it going man?","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"delivered"},"old":{"id":"0e504329-0a40-49ec-be4b-8939cdfc44ca"},"schema":"public","table":"messages"}
+[01:29:45.837] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"How's it going man?"}
+[01:29:45.837] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:29:45.837] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"How's it going man?"}
+[01:29:53.948] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:29:58.030] Server  LOG      ✓ Compiled in 60ms
+[01:29:58.275] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:29:58.275] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:29:58.442] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:29:58.557] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:29:58.557] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:29:58.557] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:30:19.038] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:30:19.197] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:30:19.197] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:30:19.197] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/69572c28-d52b-466b-868e-82feab862b7d color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/69572c28-d52b-466b-868e-82feab862b7d","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765062274865}
+[01:30:19.421] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d undefined
+[01:30:19.421] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 1/5) in 2000ms
+[01:30:19.421] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d {}
+[01:30:19.421] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 2/5) in 4000ms
+[01:30:21.647] Browser LOG     ✅ Real-time connected: conversation:69572c28-d52b-466b-868e-82feab862b7d
+[01:30:36.436] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:30:36.659] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d undefined
+[01:30:36.659] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 1/5) in 2000ms
+[01:30:36.659] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765062292301}
+[01:30:36.829] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:30:36.829] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:30:36.829] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 {}
+[01:30:36.829] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 2/5) in 4000ms
+[01:30:39.072] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:30:55.899] Server  LOG      ✓ Compiled in 252ms
+[01:30:56.044] Browser ERROR   The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [c795a09f-d8e6-4440-a38f-c5b09b6aeec9, 66e61944-18e6-4a27-9d44-c385188d49c4, (...args)=>{
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$_internal$2f$config$2d$context$2d$12s$2d$Dh3trQsc$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__n__as__internalMutate$3e$__["internalMutate"])(cache, keyRef.current, ...args);
+        }, (...args)=>{
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$swr$2f$dist$2f$_internal$2f$config$2d$context$2d$12s$2d$Dh3trQsc$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__n__as__internalMutate$3e$__["internalMutate"])(cache, keyRef.current, ...args);
+        }] [c795a09f-d8e6-4440-a38f-c5b09b6aeec9, 66e61944-18e6-4a27-9d44-c385188d49c4]
+[01:30:56.044] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:30:56.044] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:30:56.241] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:30:57.156] Server  LOG      ✓ Compiled in 246ms
+[01:30:57.234] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:30:57.234] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:30:57.243] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:30:57.243] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:30:57.478] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:30:57.479] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:30:58.505] Server  LOG      ✓ Compiled in 51ms
+[01:31:43.266] Server  LOG      ✓ Compiled in 67ms
+[01:31:43.398] Browser ERROR   uncaughtError: ReferenceError: Can't find variable: getStatusIcon
+[01:31:43.399] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:31:43.399] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:31:43.564] Browser ERROR   uncaughtError: ReferenceError: getStatusIcon is not defined
+[01:31:43.564] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:31:43.564] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:32:03.026] Server  WARN     ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[01:32:03.053] Server  LOG      ✓ Compiled in 55ms
+[01:32:03.083] Server  WARN     ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[01:32:03.278] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/chat/09078222769 color: rgb(120, 120, 120) color: inherit {"dp":"/chat/[phone]","o":"http://localhost:3000/chat/09078222769","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765062378971}
+[01:32:03.468] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /chat/[phone]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:32:03.742] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765062378892}
+[01:32:04.386] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:32:04.561] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:32:04.720] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:32:05.464] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[01:32:05.464] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/chat/09078222769","route":"/chat/[phone]"}
+[01:32:05.464] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/chat/09078222769 color: rgb(120, 120, 120) color: inherit {"dp":"/chat/[phone]","o":"http://localhost:3000/chat/09078222769","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765062381147}
+[01:32:05.559] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[01:32:05.559] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","route":"/dashboard/[conversationId]"}
+[01:32:05.559] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765062380711}
+[01:32:06.557] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:32:08.558] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:32:08.558] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:32:08.558] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:33:12.405] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:33:13.042] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:07:29.168Z","errors":null,"eventType":"UPDATE","new":{"content":"Looks like realtime works","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T22:55:33.793104+00:00","id":"2c02ea85-725c-44a7-befa-9d15a71c5783","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"read"},"old":{"id":"2c02ea85-725c-44a7-befa-9d15a71c5783"},"schema":"public","table":"messages"}
+[01:33:13.042] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:33.793104+00:00","id":"2c02ea85-725c-44a7-befa-9d15a71c5783","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"Looks like realtime works"}
+[01:33:13.042] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:33:13.042] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:33.793104+00:00","id":"2c02ea85-725c-44a7-befa-9d15a71c5783","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"Looks like realtime works"}
+[01:33:13.042] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:07:29.168Z","errors":null,"eventType":"UPDATE","new":{"content":"Cool stuff bro","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"read"},"old":{"id":"b82aeb9e-339d-46d1-a674-cd661a0d5547"},"schema":"public","table":"messages"}
+[01:33:13.042] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"Cool stuff bro"}
+[01:33:13.042] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:33:13.042] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"Cool stuff bro"}
+[01:33:13.042] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:07:29.168Z","errors":null,"eventType":"UPDATE","new":{"content":"How's it going man?","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"read"},"old":{"id":"0e504329-0a40-49ec-be4b-8939cdfc44ca"},"schema":"public","table":"messages"}
+[01:33:13.042] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"How's it going man?"}
+[01:33:13.042] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:33:13.042] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"How's it going man?"}
+[01:33:13.151] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:07:29.168Z","errors":null,"eventType":"UPDATE","new":{"content":"Looks like realtime works","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T22:55:33.793104+00:00","id":"2c02ea85-725c-44a7-befa-9d15a71c5783","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"read"},"old":{"id":"2c02ea85-725c-44a7-befa-9d15a71c5783"},"schema":"public","table":"messages"}
+[01:33:13.151] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:33.793104+00:00","id":"2c02ea85-725c-44a7-befa-9d15a71c5783","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"Looks like realtime works"}
+[01:33:13.151] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:33:13.151] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T22:55:33.793104+00:00","id":"2c02ea85-725c-44a7-befa-9d15a71c5783","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"Looks like realtime works"}
+[01:33:13.151] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:07:29.168Z","errors":null,"eventType":"UPDATE","new":{"content":"Cool stuff bro","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"read"},"old":{"id":"b82aeb9e-339d-46d1-a674-cd661a0d5547"},"schema":"public","table":"messages"}
+[01:33:13.151] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"Cool stuff bro"}
+[01:33:13.151] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:33:13.151] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:00:12.689643+00:00","id":"b82aeb9e-339d-46d1-a674-cd661a0d5547","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"Cool stuff bro"}
+[01:33:13.151] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-06T23:07:29.168Z","errors":null,"eventType":"UPDATE","new":{"content":"How's it going man?","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","image_url":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"read"},"old":{"id":"0e504329-0a40-49ec-be4b-8939cdfc44ca"},"schema":"public","table":"messages"}
+[01:33:13.151] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"How's it going man?"}
+[01:33:13.151] Browser LOG     ✅ Calling onMessageUpdate callback
+[01:33:13.151] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-06T23:04:01.327182+00:00","id":"0e504329-0a40-49ec-be4b-8939cdfc44ca","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"How's it going man?"}

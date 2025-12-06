@@ -30,9 +30,9 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/login")
-      return
-    }
+        router.push("/login")
+        return
+      }
 
     if (!authLoading && user) {
       // If onboarding is already complete, redirect to dashboard
@@ -47,7 +47,7 @@ export default function OnboardingPage() {
         setPhone(user.business.phone || "")
         setAddress(user.business.address || "")
         setInitialized(true)
-      }
+    }
     }
   }, [authLoading, user, router, initialized])
 
@@ -104,7 +104,7 @@ export default function OnboardingPage() {
         phone: phone.trim(),
         address: address.trim(),
       })
-      
+
       const updatedBusiness = await storage.updateBusiness(user.business.id, {
         businessName: businessName.trim(),
         phone: phone.trim(),
@@ -143,7 +143,7 @@ export default function OnboardingPage() {
         // Force another refresh
         await mutateAuth()
         // Redirect anyway - the dashboard will handle the check
-        router.push("/dashboard")
+      router.push("/dashboard")
       }
     } catch (err) {
       console.error("Error completing onboarding:", err)

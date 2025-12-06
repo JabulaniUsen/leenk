@@ -486,7 +486,7 @@ export default function ChatPage() {
         {/* Header - Same as dashboard */}
         <div className="p-3 md:p-4 border-b border-border bg-card/80 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-3 md:mb-4">
-            <Link href="/dashboard">
+          <Link href="/dashboard">
               <Image src="/logo.png" alt="Leenk" width={80} height={80} className="object-contain" />
             </Link>
             <div className="flex gap-1 md:gap-2">
@@ -495,7 +495,7 @@ export default function ChatPage() {
                 <Button variant="ghost" size="sm">
                   <Settings className="w-4 h-4" />
                 </Button>
-              </Link>
+          </Link>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="w-4 h-4" />
               </Button>

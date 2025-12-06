@@ -305,7 +305,7 @@ export const db = {
       .eq("conversation_id", id)
       .order("created_at", { ascending: false })
       .limit(100)
-    
+
     // Reverse to get chronological order (oldest first)
     const sortedMessages = messages ? [...messages].reverse() : []
 

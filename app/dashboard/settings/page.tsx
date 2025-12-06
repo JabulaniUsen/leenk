@@ -40,15 +40,15 @@ export default function SettingsPage() {
   // Handle auth redirects and initialize form data
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/login")
+          router.push("/login")
       return
     }
     
     if (!authLoading && user && !isOnboardingComplete(user.business)) {
-      router.push("/onboarding")
-      return
-    }
-    
+        router.push("/onboarding")
+        return
+      }
+      
     if (user?.business && !initialized) {
       setBusinessName(user.business.businessName)
       setPhone(user.business.phone)
@@ -79,8 +79,8 @@ export default function SettingsPage() {
       // Invalidate and refresh auth cache to get updated business data
       await mutateAuth()
       
-      setSuccess("Settings saved successfully!")
-      setTimeout(() => setSuccess(""), 3000)
+        setSuccess("Settings saved successfully!")
+        setTimeout(() => setSuccess(""), 3000)
     } catch (err) {
       setError("Failed to save settings")
     } finally {

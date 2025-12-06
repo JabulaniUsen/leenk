@@ -3,7 +3,7 @@
 import type { Message } from "@/lib/types"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import { CheckCircle2, CircleCheck,  } from "lucide-react"
+import { CheckCircle2, CircleCheck } from "lucide-react"
 
 interface ChatBubbleProps {
   message: Message
@@ -12,7 +12,7 @@ interface ChatBubbleProps {
 }
 
 export function ChatBubble({ message, isOwn, index }: ChatBubbleProps) {
-  const getStatusIcon = () => {
+  const getStatusIndicator = () => {
     if (!isOwn) return null
 
     switch (message.status) {
@@ -21,7 +21,7 @@ export function ChatBubble({ message, isOwn, index }: ChatBubbleProps) {
       case "delivered":
         return <CheckCircle2 className="w-3.5 h-3.5 opacity-70" />
       case "read":
-        return <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+        return <span className="text-xs opacity-70 text-primary">Seen</span>
       default:
         return <CircleCheck className="w-3 h-3 opacity-70" />
     }
@@ -60,7 +60,7 @@ export function ChatBubble({ message, isOwn, index }: ChatBubbleProps) {
               minute: "2-digit",
             })}
           </p>
-          {getStatusIcon()}
+          {getStatusIndicator()}
         </div>
       </div>
     </motion.div>
