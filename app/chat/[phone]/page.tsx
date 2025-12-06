@@ -10,13 +10,14 @@ import { TypingIndicator } from "@/components/typing-indicator"
 import { motion } from "framer-motion"
 import { storage } from "@/lib/storage"
 import { db } from "@/lib/supabase/db"
-import type { Business, Message } from "@/lib/types"
+import type { Business, Message, Conversation } from "@/lib/types"
 import { v4 as uuidv4 } from "uuid"
 import { AlertCircle, Mail, User, Loader2 } from "lucide-react"
 import { Wallpaper } from "@/components/wallpaper"
 import { Avatar } from "@/components/avatar"
-import { useConversationsStore } from "@/lib/stores/conversations-store"
-import { useRealtimeStore } from "@/lib/stores/realtime-store"
+import { useRealtime } from "@/lib/hooks/use-realtime"
+import { useBusinessByPhone } from "@/lib/hooks/use-business"
+import { createClient } from "@/lib/supabase/client"
 import Image from "next/image"
 
 const CUSTOMER_EMAIL_STORAGE_KEY = "leenk_customer_email"
@@ -25,29 +26,22 @@ export default function CustomerChatPage() {
   const params = useParams()
   const phone = params.phone as string
 
-  const [business, setBusiness] = useState<Business | null>(null)
+  const { business, isLoading: businessLoading, mutate: mutateBusiness } = useBusinessByPhone(phone)
   const [customerEmail, setCustomerEmail] = useState("")
   const [customerName, setCustomerName] = useState("")
   const [showEmailPrompt, setShowEmailPrompt] = useState(true)
   const [showNameInput, setShowNameInput] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [otherUserTyping, setOtherUserTyping] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const otherUserTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  const { 
-    currentConversation, 
-    setCurrentConversation, 
-    loadConversation,
-    addMessage,
-    updateConversation
-  } = useConversationsStore()
-  const { connectionStatus, setupConversationChannel, broadcastTyping } = useRealtimeStore()
+  const { connectionStatus, setupConversationChannel, broadcastTyping } = useRealtime()
 
   // Load email from localStorage on mount
   useEffect(() => {
@@ -64,19 +58,49 @@ export default function CustomerChatPage() {
     }
   }, [customerEmail])
 
+  // Business is now loaded via SWR hook, handle errors
   useEffect(() => {
-    const loadBusiness = async () => {
-      const biz = await storage.getBusinessByPhone(phone)
-      if (!biz) {
-        setError("Business not found")
-        setLoading(false)
-        return
-      }
-      setBusiness(biz)
-      setLoading(false)
+    if (!businessLoading && !business && phone) {
+      setError("Business not found")
     }
-    loadBusiness()
-  }, [phone])
+  }, [businessLoading, business, phone])
+
+  // Set up real-time subscription for business online status updates
+  useEffect(() => {
+    if (!business?.id) return
+
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`business-status:${business.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "businesses",
+          filter: `id=eq.${business.id}`,
+        },
+        (payload) => {
+          // Update business data when online status changes
+          const updatedBusiness = payload.new as any
+          if (updatedBusiness && business) {
+            // Update the cached business data
+            mutateBusiness(
+              {
+                ...business,
+                online: updatedBusiness.online ?? false,
+              },
+              false
+            )
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [business?.id, business, mutateBusiness])
 
   // Search for existing conversation when email is entered
   const handleEmailSearch = async (email: string) => {
@@ -192,14 +216,77 @@ export default function CustomerChatPage() {
       }
     }
 
+    const handleMessageUpdate = (message: Message) => {
+      console.log("📨 Real-time message update received (customer):", message)
+      
+      // Use functional update to always work with latest state
+      setCurrentConversation((prev) => {
+        if (!prev) return prev
+        
+        // Check if message already exists (might be from optimistic update)
+        const existingIndex = prev.messages.findIndex((m) => m.id === message.id)
+        
+        let updatedMessages: Message[]
+        if (existingIndex >= 0) {
+          // Update existing message (replace optimistic with real)
+          updatedMessages = [...prev.messages]
+          updatedMessages[existingIndex] = message
+        } else {
+          // Add new message (from other user or real-time sync)
+          updatedMessages = [...prev.messages, message]
+        }
+        
+        // Sort by creation time
+        updatedMessages.sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+        
+        return {
+          ...prev,
+          messages: updatedMessages,
+          lastMessageAt: message.createdAt,
+        }
+      })
+    }
+
+    const handleMessageDelete = (messageId: string) => {
+      console.log("🗑️ Real-time message delete received (customer):", messageId)
+      
+      setCurrentConversation((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          messages: prev.messages.filter((m) => m.id !== messageId),
+        }
+      })
+    }
+
+    const handleConversationUpdate = async () => {
+      if (!currentConversation?.id) return
+      const updated = await storage.getConversationById(currentConversation.id)
+      if (updated) {
+        setCurrentConversation(updated)
+      }
+    }
+
     const cleanup = setupConversationChannel(
       currentConversation.id,
       "customer",
       "customer",
-      handleTyping
+      handleTyping,
+      handleMessageUpdate,
+      handleMessageDelete,
+      handleConversationUpdate
     )
     return cleanup
   }, [currentConversation?.id, setupConversationChannel])
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (currentConversation?.messages) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [currentConversation?.messages])
 
   // Fallback: Poll for new messages if WebSocket fails
   const lastMessageCountRef = useRef(0)
@@ -212,20 +299,20 @@ export default function CustomerChatPage() {
     const pollInterval = setInterval(async () => {
       if (!currentConversation.id) return
       try {
-        const { loadConversation } = useConversationsStore.getState()
-        const updated = await loadConversation(currentConversation.id)
+        const updated = await storage.getConversationById(currentConversation.id)
         if (updated && updated.messages.length > lastMessageCountRef.current) {
           lastMessageCountRef.current = updated.messages.length
+          setCurrentConversation(updated)
         }
       } catch (error) {
         console.error("Error polling for messages:", error)
       }
-    }, 5000)
+    }, 2000) // Poll every 2 seconds as fallback
 
     return () => {
       clearInterval(pollInterval)
     }
-  }, [currentConversation?.id, connectionStatus])
+  }, [currentConversation?.id, connectionStatus, currentConversation?.messages.length])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -238,8 +325,10 @@ export default function CustomerChatPage() {
     const markAsRead = async () => {
       try {
         await db.markMessagesAsRead(currentConversation.id, "business")
-        const { loadConversation } = useConversationsStore.getState()
-        await loadConversation(currentConversation.id)
+        const updated = await storage.getConversationById(currentConversation.id)
+        if (updated) {
+          setCurrentConversation(updated)
+        }
       } catch (error) {
         console.error("Error marking messages as read:", error)
       }
@@ -278,16 +367,53 @@ export default function CustomerChatPage() {
       createdAt: new Date().toISOString(),
     }
 
-    // Optimistically update UI
-    addMessage(newMessage)
+    // Optimistic update: Show message immediately using functional update
+    setCurrentConversation((prev) => {
+      if (!prev) return prev
+      const updatedMessages = [...prev.messages, newMessage].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+      return {
+        ...prev,
+        messages: updatedMessages,
+        lastMessageAt: newMessage.createdAt,
+      }
+    })
     setIsTyping(false)
 
     try {
-      await db.createMessage(newMessage)
+      // Send message to server
+      const createdMessage = await db.createMessage(newMessage)
+      console.log("✅ Message created on server:", createdMessage)
+      
+      // Replace temp message with real message (with server ID) using functional update
+      // The real-time handler will also receive this, but we update immediately to avoid flicker
+      setCurrentConversation((prev) => {
+        if (!prev) return prev
+        const updatedMessages = prev.messages.map(m => 
+          m.id === tempId ? createdMessage : m
+        ).sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+        return {
+          ...prev,
+          messages: updatedMessages,
+          lastMessageAt: createdMessage.createdAt,
+        }
+      })
     } catch (error) {
-      console.error("Failed to send message:", error)
-      const { removeMessage } = useConversationsStore.getState()
-      removeMessage(tempId)
+      console.error("❌ Failed to send message:", error)
+      // Rollback optimistic update on error using functional update
+      setCurrentConversation((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          messages: prev.messages.filter(m => m.id !== tempId),
+        }
+      })
+      // Show error to user
+      setError("Failed to send message. Please try again.")
+      setTimeout(() => setError(""), 3000)
     } finally {
       setIsSending(false)
     }
@@ -310,16 +436,50 @@ export default function CustomerChatPage() {
       createdAt: new Date().toISOString(),
     }
 
-    // Optimistically update UI
-    addMessage(newMessage)
+    // Optimistic update: Show image immediately using functional update
+    setCurrentConversation((prev) => {
+      if (!prev) return prev
+      const updatedMessages = [...prev.messages, newMessage].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+      return {
+        ...prev,
+        messages: updatedMessages,
+        lastMessageAt: newMessage.createdAt,
+      }
+    })
     setIsTyping(false)
 
     try {
-      await db.createMessage(newMessage)
+      const createdMessage = await db.createMessage(newMessage)
+      console.log("✅ Image message created on server:", createdMessage)
+      
+      // Replace temp message with real message (with server ID) using functional update
+      setCurrentConversation((prev) => {
+        if (!prev) return prev
+        const updatedMessages = prev.messages.map(m => 
+          m.id === tempId ? createdMessage : m
+        ).sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+        return {
+          ...prev,
+          messages: updatedMessages,
+          lastMessageAt: createdMessage.createdAt,
+        }
+      })
     } catch (error) {
-      console.error("Failed to send image:", error)
-      const { removeMessage } = useConversationsStore.getState()
-      removeMessage(tempId)
+      console.error("❌ Failed to send image:", error)
+      // Rollback optimistic update on error using functional update
+      setCurrentConversation((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          messages: prev.messages.filter(m => m.id !== tempId),
+        }
+      })
+      setError("Failed to send image. Please try again.")
+      setTimeout(() => setError(""), 3000)
     } finally {
       setIsSending(false)
     }
@@ -340,8 +500,15 @@ export default function CustomerChatPage() {
     }
   }
 
-  if (loading) {
-    return null
+  if (businessLoading) {
+    return (
+      <main className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      </main>
+    )
   }
 
   if (error || !business) {
@@ -544,11 +711,11 @@ export default function CustomerChatPage() {
   return (
     <main className="h-screen flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
       <Wallpaper />
-      {/* Header */}
+      {/* Header - Fixed at top */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4 relative z-10"
+        className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4"
       >
         <div className="flex items-center gap-3">
           <Avatar src={business.businessLogo} name={business.businessName} size="md" />
@@ -588,8 +755,8 @@ export default function CustomerChatPage() {
         <div ref={messagesEndRef} />
       </motion.div>
 
-      {/* Message Input */}
-      <div className="bg-card/80 backdrop-blur-sm border-t border-border relative z-10">
+      {/* Message Input - Fixed at bottom */}
+      <div className="sticky bottom-0 z-20 bg-card/80 backdrop-blur-sm border-t border-border">
         <MessageInput 
           onSendMessage={handleSendMessage} 
           onSendImage={handleSendImage}

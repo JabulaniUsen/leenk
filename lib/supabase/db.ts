@@ -10,6 +10,7 @@ interface DBBusiness {
   phone: string | null
   address: string | null
   business_logo: string | null
+  online: boolean | null
   created_at: string
   updated_at: string
 }
@@ -44,21 +45,39 @@ function dbBusinessToApp(db: DBBusiness): Business {
     businessName: db.business_name || "",
     businessLogo: db.business_logo || undefined,
     address: db.address || "",
-    online: false, // This would need to be tracked separately or in another table
+    online: db.online ?? false, // Read actual online status from database
     createdAt: db.created_at,
   }
 }
 
 // Convert App Business to DB Business
 function appBusinessToDB(business: Partial<Business>, passwordHash?: string): Partial<DBBusiness> {
-  return {
-    email: business.email,
-    password_hash: passwordHash || "",
-    business_name: business.businessName || null,
-    phone: business.phone || null,
-    address: business.address || null,
-    business_logo: business.businessLogo || null,
+  const dbData: Partial<DBBusiness> = {}
+  
+  // Only include fields that are actually provided (not undefined)
+  if (business.email !== undefined) {
+    dbData.email = business.email
   }
+  if (passwordHash !== undefined && passwordHash !== "") {
+    dbData.password_hash = passwordHash
+  }
+  if (business.businessName !== undefined) {
+    // Convert empty string to null for database
+    dbData.business_name = business.businessName.trim() || null
+  }
+  if (business.phone !== undefined) {
+    // Convert empty string to null for database
+    dbData.phone = business.phone.trim() || null
+  }
+  if (business.address !== undefined) {
+    // Convert empty string to null for database
+    dbData.address = business.address.trim() || null
+  }
+  if (business.businessLogo !== undefined) {
+    dbData.business_logo = business.businessLogo || null
+  }
+  
+  return dbData
 }
 
 // Convert DB Conversation to App Conversation (with messages)
@@ -175,6 +194,15 @@ export const db = {
     if (updates.businessLogo !== undefined) {
       dbData.business_logo = updates.businessLogo || null
     }
+    
+    // Try to include online status if it's being updated
+    // If the column doesn't exist yet, we'll skip it and continue with other updates
+    if (updates.online !== undefined) {
+      // Check if online column exists by trying a test query first
+      // For now, we'll include it and let the error be caught if column doesn't exist
+      dbData.online = updates.online
+    }
+    
     const { data, error } = await supabase
       .from("businesses")
       .update(dbData)
@@ -182,7 +210,34 @@ export const db = {
       .select()
       .single()
 
-    if (error || !data) return null
+    if (error) {
+      // If error is about missing 'online' column, try again without it
+      if (error.message?.includes("online") && error.code === "PGRST204") {
+        console.warn("Online column not found, updating without online status. Please run migration 008_add_online_status.sql")
+        delete dbData.online
+        const { data: retryData, error: retryError } = await supabase
+          .from("businesses")
+          .update(dbData)
+          .eq("id", id)
+          .select()
+          .single()
+        
+        if (retryError) {
+          console.error("Error updating business:", retryError)
+          throw new Error(retryError.message || "Failed to update business")
+        }
+        if (!retryData) {
+          throw new Error("No data returned from update")
+        }
+        return dbBusinessToApp(retryData as DBBusiness)
+      }
+      
+      console.error("Error updating business:", error)
+      throw new Error(error.message || "Failed to update business")
+    }
+    if (!data) {
+      throw new Error("No data returned from update")
+    }
     return dbBusinessToApp(data as DBBusiness)
   },
 
@@ -243,13 +298,18 @@ export const db = {
 
     if (error || !conversation) return null
 
+    // Limit initial message fetch to 100 most recent messages for performance
     const { data: messages } = await supabase
       .from("messages")
       .select("*")
       .eq("conversation_id", id)
-      .order("created_at", { ascending: true })
+      .order("created_at", { ascending: false })
+      .limit(100)
+    
+    // Reverse to get chronological order (oldest first)
+    const sortedMessages = messages ? [...messages].reverse() : []
 
-    return dbConversationToApp(conversation as DBConversation, (messages as DBMessage[]) || [])
+    return dbConversationToApp(conversation as DBConversation, (sortedMessages as DBMessage[]) || [])
   },
 
   async getConversationByBusinessAndEmail(

@@ -44,7 +44,13 @@ export function ChatBubble({ message, isOwn, index }: ChatBubbleProps) {
         {message.text && <p className="text-sm md:text-base break-words">{message.text}</p>}
         {message.imageUrl && (
           <div className="relative w-48 h-48 rounded-lg overflow-hidden mb-2">
-            <Image src={message.imageUrl || "/placeholder.svg"} alt="Chat image" fill className="object-cover" />
+            <Image 
+              src={message.imageUrl || "/placeholder.svg"} 
+              alt="Chat image" 
+              fill 
+              className="object-cover"
+              priority={index < 3} // Priority for first 3 images (above fold)
+            />
           </div>
         )}
         <div className="flex items-center gap-1.5 mt-1 justify-end">

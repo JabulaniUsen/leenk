@@ -47,6 +47,7 @@ export function Avatar({ src, name, size = "md", className }: AvatarProps) {
           alt={name || "Avatar"}
           fill
           className="object-cover"
+          priority={size === "md" || size === "lg" || size === "xl"} // Priority for visible avatars
         />
       </div>
     )

@@ -7,10 +7,10 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { storage } from "@/lib/storage"
+import { useAuth } from "@/lib/hooks/use-auth"
 import type { AuthUser } from "@/lib/types"
 import Image from "next/image"
 import { Building2, Phone, MapPin, Loader2, AlertCircle } from "lucide-react"
-import { useAuthStore } from "@/lib/stores/auth-store"
 
 // Helper function to check if onboarding is complete
 function isOnboardingComplete(business: AuthUser["business"] | null | undefined): boolean {
@@ -20,39 +20,36 @@ function isOnboardingComplete(business: AuthUser["business"] | null | undefined)
 
 export default function OnboardingPage() {
   const router = useRouter()
-  const { user, loadAuth } = useAuthStore()
+  const { user, isLoading: authLoading, mutate: mutateAuth } = useAuth()
   const [businessName, setBusinessName] = useState("")
   const [phone, setPhone] = useState("")
   const [address, setAddress] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const [initializing, setInitializing] = useState(true)
+  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    const initialize = async () => {
-      const authUser = await loadAuth()
-      if (!authUser) {
-        router.push("/login")
-        return
-      }
+    if (!authLoading && !user) {
+      router.push("/login")
+      return
+    }
 
+    if (!authLoading && user) {
       // If onboarding is already complete, redirect to dashboard
-      if (isOnboardingComplete(authUser.business)) {
+      if (isOnboardingComplete(user.business)) {
         router.push("/dashboard")
         return
       }
 
       // Pre-fill form with existing data if available
-      if (authUser.business) {
-        setBusinessName(authUser.business.businessName || "")
-        setPhone(authUser.business.phone || "")
-        setAddress(authUser.business.address || "")
+      if (user.business && !initialized) {
+        setBusinessName(user.business.businessName || "")
+        setPhone(user.business.phone || "")
+        setAddress(user.business.address || "")
+        setInitialized(true)
       }
-
-      setInitializing(false)
     }
-    initialize()
-  }, [router, loadAuth])
+  }, [authLoading, user, router, initialized])
 
   const handleComplete = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -102,17 +99,52 @@ export default function OnboardingPage() {
       }
 
       // Update business with all required information
-      await storage.updateBusiness(user.business.id, {
+      console.log("Updating business with:", {
+        businessName: businessName.trim(),
+        phone: phone.trim(),
+        address: address.trim(),
+      })
+      
+      const updatedBusiness = await storage.updateBusiness(user.business.id, {
         businessName: businessName.trim(),
         phone: phone.trim(),
         address: address.trim(),
       })
 
-      // Reload auth to get updated business data
-      await loadAuth()
+      console.log("Update result:", updatedBusiness)
 
-      // Redirect to dashboard
-      router.push("/dashboard")
+      if (!updatedBusiness) {
+        throw new Error("Failed to update business details. Please try again.")
+      }
+
+      // Verify the update was successful by checking the returned data
+      if (!updatedBusiness.businessName || !updatedBusiness.phone || !updatedBusiness.address) {
+        console.error("Update verification failed:", updatedBusiness)
+        throw new Error("Business details were not saved correctly. Please try again.")
+      }
+
+      console.log("Update verified successfully, refreshing cache...")
+
+      // Invalidate and refresh auth cache to get updated business data
+      await mutateAuth()
+
+      // Wait a moment for the cache to update
+      await new Promise(resolve => setTimeout(resolve, 200))
+      
+      // Verify the cache was updated before redirecting
+      const refreshedUser = await storage.getAuth()
+      console.log("Refreshed user after update:", refreshedUser)
+      
+      if (refreshedUser && isOnboardingComplete(refreshedUser.business)) {
+        console.log("Onboarding complete, redirecting to dashboard")
+        router.push("/dashboard")
+      } else {
+        console.warn("Onboarding not complete after update, forcing refresh...")
+        // Force another refresh
+        await mutateAuth()
+        // Redirect anyway - the dashboard will handle the check
+        router.push("/dashboard")
+      }
     } catch (err) {
       console.error("Error completing onboarding:", err)
       setError(err instanceof Error ? err.message : "Failed to complete setup. Please try again.")
@@ -120,7 +152,7 @@ export default function OnboardingPage() {
     }
   }
 
-  if (initializing) {
+  if (authLoading || !initialized) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
         <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
@@ -131,7 +163,9 @@ export default function OnboardingPage() {
     )
   }
 
-  if (!user) return null
+  if (!user) {
+    return null
+  }
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 p-4">

@@ -25,8 +25,12 @@ export const storage = {
     await db.createBusiness(business, "")
   },
 
-  updateBusiness: async (id: string, updates: Partial<Business>): Promise<void> => {
-    await db.updateBusiness(id, updates)
+  updateBusiness: async (id: string, updates: Partial<Business>): Promise<Business> => {
+    const result = await db.updateBusiness(id, updates)
+    if (!result) {
+      throw new Error("Failed to update business")
+    }
+    return result
   },
 
   // Conversations

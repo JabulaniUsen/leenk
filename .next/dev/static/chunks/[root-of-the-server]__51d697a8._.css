@@ -597,6 +597,10 @@
     visibility: hidden;
   }
 
+  .visible {
+    visibility: visible;
+  }
+
   .sr-only {
     clip-path: inset(50%);
     white-space: nowrap;
@@ -1096,8 +1100,16 @@
     height: calc(var(--spacing) * 16);
   }
 
+  .h-20 {
+    height: calc(var(--spacing) * 20);
+  }
+
   .h-24 {
     height: calc(var(--spacing) * 24);
+  }
+
+  .h-32 {
+    height: calc(var(--spacing) * 32);
   }
 
   .h-48 {
@@ -4886,6 +4898,18 @@
   @media (min-width: 48rem) {
     .md\:bg-card {
       background-color: var(--card);
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .md\:bg-card\/80 {
+      background-color: var(--card);
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .md\:bg-card\/80 {
+        background-color: color-mix(in oklab, var(--card) 80%, transparent);
+      }
     }
   }
 

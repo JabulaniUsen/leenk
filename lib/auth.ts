@@ -80,10 +80,14 @@ export const auth = {
         return { user: null, error: new Error("Business profile not found") }
       }
 
+      // Set business as online when they log in
+      await db.updateBusiness(authData.user.id, { online: true })
+      const updatedBusiness = await db.getBusinessById(authData.user.id)
+
       const authUser: AuthUser = {
         id: authData.user.id,
         email: authData.user.email!,
-        business,
+        business: updatedBusiness || business,
       }
 
       return { user: authUser, error: null }
@@ -96,6 +100,20 @@ export const auth = {
   async signOut(): Promise<{ error: Error | null }> {
     try {
       const supabase = createClient()
+      
+      // Get current user before signing out
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      // Set business as offline when they log out
+      if (user?.id) {
+        try {
+          await db.updateBusiness(user.id, { online: false })
+        } catch (updateError) {
+          // Don't fail logout if online status update fails
+          console.error("Failed to update online status:", updateError)
+        }
+      }
+      
       const { error } = await supabase.auth.signOut()
       return { error: error as Error | null }
     } catch (error) {

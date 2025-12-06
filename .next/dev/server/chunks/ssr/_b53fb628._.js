@@ -105,7 +105,7 @@ function dbBusinessToApp(db) {
         businessName: db.business_name || "",
         businessLogo: db.business_logo || undefined,
         address: db.address || "",
-        online: false,
+        online: db.online ?? false,
         createdAt: db.created_at
     };
 }
@@ -203,8 +203,35 @@ const db = {
         if (updates.businessLogo !== undefined) {
             dbData.business_logo = updates.businessLogo || null;
         }
+        // Try to include online status if it's being updated
+        // If the column doesn't exist yet, we'll skip it and continue with other updates
+        if (updates.online !== undefined) {
+            // Check if online column exists by trying a test query first
+            // For now, we'll include it and let the error be caught if column doesn't exist
+            dbData.online = updates.online;
+        }
         const { data, error } = await supabase.from("businesses").update(dbData).eq("id", id).select().single();
-        if (error || !data) return null;
+        if (error) {
+            // If error is about missing 'online' column, try again without it
+            if (error.message?.includes("online") && error.code === "PGRST204") {
+                console.warn("Online column not found, updating without online status. Please run migration 008_add_online_status.sql");
+                delete dbData.online;
+                const { data: retryData, error: retryError } = await supabase.from("businesses").update(dbData).eq("id", id).select().single();
+                if (retryError) {
+                    console.error("Error updating business:", retryError);
+                    throw new Error(retryError.message || "Failed to update business");
+                }
+                if (!retryData) {
+                    throw new Error("No data returned from update");
+                }
+                return dbBusinessToApp(retryData);
+            }
+            console.error("Error updating business:", error);
+            throw new Error(error.message || "Failed to update business");
+        }
+        if (!data) {
+            throw new Error("No data returned from update");
+        }
         return dbBusinessToApp(data);
     },
     // Conversations
@@ -247,10 +274,15 @@ const db = {
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
         const { data: conversation, error } = await supabase.from("conversations").select("*").eq("id", id).single();
         if (error || !conversation) return null;
+        // Limit initial message fetch to 100 most recent messages for performance
         const { data: messages } = await supabase.from("messages").select("*").eq("conversation_id", id).order("created_at", {
-            ascending: true
-        });
-        return dbConversationToApp(conversation, messages || []);
+            ascending: false
+        }).limit(100);
+        // Reverse to get chronological order (oldest first)
+        const sortedMessages = messages ? [
+            ...messages
+        ].reverse() : [];
+        return dbConversationToApp(conversation, sortedMessages || []);
     },
     async getConversationByBusinessAndEmail (businessId, customerEmail) {
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
@@ -458,10 +490,15 @@ const auth = {
                     error: new Error("Business profile not found")
                 };
             }
+            // Set business as online when they log in
+            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].updateBusiness(authData.user.id, {
+                online: true
+            });
+            const updatedBusiness = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].getBusinessById(authData.user.id);
             const authUser = {
                 id: authData.user.id,
                 email: authData.user.email,
-                business
+                business: updatedBusiness || business
             };
             return {
                 user: authUser,
@@ -478,6 +515,19 @@ const auth = {
     async signOut () {
         try {
             const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
+            // Get current user before signing out
+            const { data: { user } } = await supabase.auth.getUser();
+            // Set business as offline when they log out
+            if (user?.id) {
+                try {
+                    await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].updateBusiness(user.id, {
+                        online: false
+                    });
+                } catch (updateError) {
+                    // Don't fail logout if online status update fails
+                    console.error("Failed to update online status:", updateError);
+                }
+            }
             const { error } = await supabase.auth.signOut();
             return {
                 error: error

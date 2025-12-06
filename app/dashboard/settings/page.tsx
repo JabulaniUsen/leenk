@@ -8,17 +8,18 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { storage } from "@/lib/storage"
 import { uploadBusinessLogo, deleteBusinessLogo } from "@/lib/storage-upload"
+import { useAuth } from "@/lib/hooks/use-auth"
 import Link from "next/link"
 import { ChevronLeft, Camera, User, Copy, Check } from "lucide-react"
 import Image from "next/image"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useAuthStore } from "@/lib/stores/auth-store"
-import type { Business } from "@/lib/types"
+import type { Business, AuthUser } from "@/lib/types"
 
 export default function SettingsPage() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { user, loading: authLoading, initialized, loadAuth, updateBusiness } = useAuthStore()
+  const { user, isLoading: authLoading, mutate: mutateAuth } = useAuth()
+  const [initialized, setInitialized] = useState(false)
   const [businessName, setBusinessName] = useState("")
   const [phone, setPhone] = useState("")
   const [address, setAddress] = useState("")
@@ -36,31 +37,27 @@ export default function SettingsPage() {
     return !!(business.businessName && business.phone && business.address)
   }
 
+  // Handle auth redirects and initialize form data
   useEffect(() => {
-    if (!initialized) {
-      loadAuth().then((authUser) => {
-        if (!authUser) {
-          router.push("/login")
-        } else if (!isOnboardingComplete(authUser.business)) {
-          router.push("/onboarding")
-        }
-      })
-    } else if (user?.business) {
-      // Check if onboarding is complete
-      if (!isOnboardingComplete(user.business)) {
-        router.push("/onboarding")
-        return
-      }
-      
+    if (!authLoading && !user) {
+      router.push("/login")
+      return
+    }
+    
+    if (!authLoading && user && !isOnboardingComplete(user.business)) {
+      router.push("/onboarding")
+      return
+    }
+    
+    if (user?.business && !initialized) {
       setBusinessName(user.business.businessName)
       setPhone(user.business.phone)
       setAddress(user.business.address)
-      setOnline(user.business.online)
+      setOnline(user.business.online ?? true)
       setProfilePicture(user.business.businessLogo || "")
-    } else if (!user) {
-      router.push("/login")
+      setInitialized(true)
     }
-  }, [initialized, user, loadAuth, router])
+  }, [authLoading, user, router, initialized])
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,12 +76,11 @@ export default function SettingsPage() {
         businessLogo: profilePicture || undefined,
       })
 
-      const updated = await storage.getBusinessById(user.business.id)
-      if (updated) {
-        updateBusiness(updated)
-        setSuccess("Settings saved successfully!")
-        setTimeout(() => setSuccess(""), 3000)
-      }
+      // Invalidate and refresh auth cache to get updated business data
+      await mutateAuth()
+      
+      setSuccess("Settings saved successfully!")
+      setTimeout(() => setSuccess(""), 3000)
     } catch (err) {
       setError("Failed to save settings")
     } finally {

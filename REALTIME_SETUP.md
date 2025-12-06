@@ -4,15 +4,41 @@
 
 If messages require a page refresh to appear, it's likely because **Supabase Real-time replication is not enabled** for your tables.
 
-## Quick Fix
+## ✅ Complete Setup Steps
 
-### Enable Real-time Replication in Supabase
+### 1. Enable Real-time Replication in Supabase Dashboard
 
 1. Go to your Supabase project dashboard
 2. Navigate to **Database → Replication**
 3. Find the `messages` table
 4. Click the toggle to **enable replication** for the `messages` table
 5. Also enable replication for the `conversations` table
+
+### 2. Add Tables to Replication Publication (REQUIRED)
+
+**This is the most common missing step!** Even if you enable replication in the UI, you must add tables to the publication.
+
+Run this SQL in your Supabase SQL Editor:
+
+```sql
+-- Add messages table to replication publication
+ALTER PUBLICATION supabase_realtime ADD TABLE messages;
+
+-- Add conversations table to replication publication
+ALTER PUBLICATION supabase_realtime ADD TABLE conversations;
+```
+
+**Or use the migration file:** `app/database schema/009_enable_realtime_replication.sql`
+
+### 3. Fix RLS Policies for Real-time
+
+Real-time subscriptions require proper SELECT policies. Run:
+
+```sql
+-- See: app/database schema/010_fix_rls_for_realtime.sql
+```
+
+This ensures both businesses and customers can receive real-time updates.
 
 ### Verify Real-time is Working
 

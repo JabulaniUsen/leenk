@@ -9,15 +9,24 @@ import { ConversationList } from "@/components/conversation-list"
 import { TypingIndicator } from "@/components/typing-indicator"
 import { motion } from "framer-motion"
 import { db } from "@/lib/supabase/db"
-import type { Message } from "@/lib/types"
+import { storage } from "@/lib/storage"
+import type { Message, Conversation, AuthUser } from "@/lib/types"
 import { v4 as uuidv4 } from "uuid"
 import { ChevronLeft, MoreVertical } from "lucide-react"
 import Link from "next/link"
 import { Wallpaper } from "@/components/wallpaper"
 import { Avatar } from "@/components/avatar"
-import { useAuthStore } from "@/lib/stores/auth-store"
-import { useConversationsStore } from "@/lib/stores/conversations-store"
-import { useRealtimeStore } from "@/lib/stores/realtime-store"
+import { ConversationSkeleton } from "@/components/conversation-skeleton"
+import { ChatSkeleton } from "@/components/chat-skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
+import Image from "next/image"
+import { useAuth } from "@/lib/hooks/use-auth"
+import { useConversation } from "@/lib/hooks/use-conversation"
+import { useConversations } from "@/lib/hooks/use-conversations"
+import { useRealtime } from "@/lib/hooks/use-realtime"
+import { createClient } from "@/lib/supabase/client"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { LogOut, Settings } from "lucide-react"
 import type { Business } from "@/lib/types"
 
 export default function ChatPage() {
@@ -25,16 +34,10 @@ export default function ChatPage() {
   const params = useParams()
   const conversationId = params.conversationId as string
 
-  const { user, initialized, loadAuth } = useAuthStore()
-  const { 
-    currentConversation, 
-    conversations, 
-    loading, 
-    loadConversation, 
-    loadConversations,
-    addMessage 
-  } = useConversationsStore()
-  const { connectionStatus, setupConversationChannel, broadcastTyping } = useRealtimeStore()
+  const { user, isLoading: authLoading, mutate: mutateAuth } = useAuth()
+  const { conversation: currentConversation, isLoading: conversationLoading, mutate: mutateConversation } = useConversation(conversationId)
+  const { conversations, mutate: mutateConversations } = useConversations(user?.id)
+  const { connectionStatus, setupConversationChannel, broadcastTyping } = useRealtime()
 
   const [isTyping, setIsTyping] = useState(false)
   const [otherUserTyping, setOtherUserTyping] = useState(false)
@@ -49,38 +52,8 @@ export default function ChatPage() {
     return !!(business.businessName && business.phone && business.address)
   }
 
-  // Load auth and conversation data
-  useEffect(() => {
-    if (!initialized) {
-      loadAuth().then((authUser) => {
-        if (!authUser) {
-          router.push("/login")
-        } else if (!isOnboardingComplete(authUser.business)) {
-          router.push("/onboarding")
-        }
-      })
-    } else if (user) {
-      // Check if onboarding is complete
-      if (!isOnboardingComplete(user.business)) {
-        router.push("/onboarding")
-        return
-      }
-      
-      if (conversationId) {
-        loadConversation(conversationId).then((conv) => {
-          if (!conv) {
-            router.push("/dashboard")
-          } else {
-            loadConversations(user.id)
-          }
-        })
-      }
-    } else if (!user) {
-      router.push("/login")
-    }
-  }, [initialized, user, conversationId, loadAuth, loadConversation, loadConversations, router])
 
-  // Set up real-time subscription
+  // Set up real-time subscription - use SWR mutate for cache updates
   useEffect(() => {
     if (!conversationId || !user) return
 
@@ -96,9 +69,103 @@ export default function ChatPage() {
       }
     }
 
-    const cleanup = setupConversationChannel(conversationId, "business", user.id, handleTyping)
+    const handleMessageUpdate = (message: Message) => {
+      console.log("📨 Real-time message update received:", message)
+      
+      // Update SWR cache optimistically - use true to trigger re-render
+      mutateConversation((current: Conversation | null | undefined) => {
+        if (!current) return current
+        
+        const existingIndex = current.messages.findIndex((m: Message) => m.id === message.id)
+        let updatedMessages: Message[]
+        
+        if (existingIndex >= 0) {
+          updatedMessages = [...current.messages]
+          updatedMessages[existingIndex] = message
+        } else {
+          updatedMessages = [...current.messages, message]
+        }
+        
+        return {
+          ...current,
+          messages: updatedMessages.sort(
+            (a: Message, b: Message) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          ),
+          lastMessageAt: message.createdAt,
+        }
+      }, true) // true = trigger re-render immediately
+      
+      // Also update conversations list cache
+      mutateConversations((current: Conversation[] | undefined) => {
+        if (!current) return current
+        
+        const conversationIndex = current.findIndex((c: Conversation) => c.id === message.conversationId)
+        if (conversationIndex >= 0) {
+          const updated = [...current]
+          const conv = updated[conversationIndex]
+          const existingMessageIndex = conv.messages.findIndex((m: Message) => m.id === message.id)
+          
+          let updatedMessages: Message[]
+          if (existingMessageIndex >= 0) {
+            updatedMessages = [...conv.messages]
+            updatedMessages[existingMessageIndex] = message
+          } else {
+            updatedMessages = [...conv.messages, message]
+          }
+          
+          updated[conversationIndex] = {
+            ...conv,
+            messages: updatedMessages.sort(
+              (a: Message, b: Message) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            ),
+            lastMessageAt: message.createdAt,
+          }
+          updated.sort(
+            (a: Conversation, b: Conversation) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+          )
+          return updated
+        }
+        return current
+      }, true) // true = trigger re-render immediately
+    }
+
+    const handleMessageDelete = (messageId: string) => {
+      console.log("🗑️ Real-time message delete received:", messageId)
+      
+      // Update SWR cache - use true to trigger re-render
+      mutateConversation((current: Conversation | null | undefined) => {
+        if (!current) return current
+        return {
+          ...current,
+          messages: current.messages.filter((m: Message) => m.id !== messageId),
+        }
+      }, true)
+      
+      mutateConversations((current: Conversation[] | undefined) => {
+        if (!current) return current
+        return current.map((conv: Conversation) => ({
+          ...conv,
+          messages: conv.messages.filter((m: Message) => m.id !== messageId),
+        }))
+      }, true)
+    }
+
+    const handleConversationUpdate = () => {
+      // Revalidate conversation cache
+      mutateConversation()
+    }
+
+    const cleanup = setupConversationChannel(
+      conversationId,
+      "business",
+      user.id,
+      handleTyping,
+      handleMessageUpdate,
+      handleMessageDelete,
+      handleConversationUpdate
+    )
     return cleanup
-  }, [conversationId, user?.id, setupConversationChannel])
+  }, [conversationId, user?.id, setupConversationChannel, mutateConversation, mutateConversations, currentConversation?.id])
 
   // Fallback: Poll for new messages if WebSocket fails
   const lastMessageCountRef = useRef(0)
@@ -111,14 +178,9 @@ export default function ChatPage() {
     const pollInterval = setInterval(async () => {
       if (!currentConversation.id || !user) return
       try {
-        const { loadConversation } = useConversationsStore.getState()
-        const updated = await loadConversation(currentConversation.id)
-        if (updated && updated.messages.length > lastMessageCountRef.current) {
-          lastMessageCountRef.current = updated.messages.length
-          if (user) {
-            loadConversations(user.id)
-          }
-        }
+        // Use SWR mutate to refresh cache
+        mutateConversation()
+        mutateConversations()
       } catch (error) {
         console.error("Error polling for messages:", error)
       }
@@ -127,7 +189,7 @@ export default function ChatPage() {
     return () => {
       clearInterval(pollInterval)
     }
-  }, [currentConversation?.id, connectionStatus, user, loadConversations])
+  }, [currentConversation?.id, connectionStatus, user])
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -141,8 +203,8 @@ export default function ChatPage() {
     const markAsRead = async () => {
       try {
         await db.markMessagesAsRead(conversationId, "customer")
-        const { loadConversation } = useConversationsStore.getState()
-        await loadConversation(conversationId)
+        // Refresh conversation cache
+        mutateConversation()
       } catch (error) {
         console.error("Error marking messages as read:", error)
       }
@@ -181,12 +243,37 @@ export default function ChatPage() {
       createdAt: new Date().toISOString(),
     }
 
-    // Optimistically update UI
-    addMessage(newMessage)
+    // Optimistically update UI using SWR
+    mutateConversation((current: Conversation | null | undefined) => {
+      if (!current) return current
+      const updatedMessages = [...current.messages, newMessage].sort(
+        (a: Message, b: Message) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+      return {
+        ...current,
+        messages: updatedMessages,
+        lastMessageAt: newMessage.createdAt,
+      }
+    }, false) // false = don't revalidate yet
     setIsTyping(false)
 
     try {
       const createdMessage = await db.createMessage(newMessage)
+      
+      // Update with real message ID
+      mutateConversation((current: Conversation | null | undefined) => {
+        if (!current) return current
+        const updatedMessages = current.messages.map((m: Message) => 
+          m.id === tempId ? createdMessage : m
+        ).sort(
+          (a: Message, b: Message) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+        return {
+          ...current,
+          messages: updatedMessages,
+          lastMessageAt: createdMessage.createdAt,
+        }
+      }, false)
       
       // Send email notification to customer
       try {
@@ -203,15 +290,18 @@ export default function ChatPage() {
         // Don't fail the message send if email fails
       }
       
-      // Refresh conversations list
-      setTimeout(() => {
-        loadConversations(user.id)
-      }, 500)
+      // Update conversations list cache
+      mutateConversations()
     } catch (error) {
       console.error("Failed to send message:", error)
       // Remove optimistic message on error
-      const { removeMessage } = useConversationsStore.getState()
-      removeMessage(tempId)
+      mutateConversation((current: Conversation | null | undefined) => {
+        if (!current) return current
+        return {
+          ...current,
+          messages: current.messages.filter((m: Message) => m.id !== tempId),
+        }
+      }, false)
     } finally {
       setIsSending(false)
     }
@@ -234,12 +324,37 @@ export default function ChatPage() {
       createdAt: new Date().toISOString(),
     }
 
-    // Optimistically update UI
-    addMessage(newMessage)
+    // Optimistically update UI using SWR
+    mutateConversation((current: Conversation | null | undefined) => {
+      if (!current) return current
+      const updatedMessages = [...current.messages, newMessage].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+      return {
+        ...current,
+        messages: updatedMessages,
+        lastMessageAt: newMessage.createdAt,
+      }
+    }, false)
     setIsTyping(false)
 
     try {
       const createdMessage = await db.createMessage(newMessage)
+      
+      // Update with real message ID
+      mutateConversation((current: Conversation | null | undefined) => {
+        if (!current) return current
+        const updatedMessages = current.messages.map((m: Message) => 
+          m.id === tempId ? createdMessage : m
+        ).sort(
+          (a: Message, b: Message) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+        return {
+          ...current,
+          messages: updatedMessages,
+          lastMessageAt: createdMessage.createdAt,
+        }
+      }, false)
       
       // Send email notification to customer
       try {
@@ -256,13 +371,17 @@ export default function ChatPage() {
         // Don't fail the message send if email fails
       }
       
-      setTimeout(() => {
-        loadConversations(user.id)
-      }, 500)
+      // Update conversations list cache
+      mutateConversations()
     } catch (error) {
       console.error("Failed to send image:", error)
-      const { removeMessage } = useConversationsStore.getState()
-      removeMessage(tempId)
+      mutateConversation((current: Conversation | null | undefined) => {
+        if (!current) return current
+        return {
+          ...current,
+          messages: current.messages.filter((m: Message) => m.id !== tempId),
+        }
+      }, false)
     } finally {
       setIsSending(false)
     }
@@ -283,35 +402,130 @@ export default function ChatPage() {
     }
   }
 
-  if (!initialized || !user) return null
+  const handleLogout = async () => {
+    // Set business as offline before logging out
+    if (user?.business?.id) {
+      try {
+        await storage.updateBusiness(user.business.id, { online: false })
+      } catch (error) {
+        console.error("Failed to update online status:", error)
+      }
+    }
+    await storage.clearAuth()
+    mutateAuth(null, false) // Clear auth cache
+    router.push("/")
+  }
+
+  // Render UI immediately - show skeleton for loading parts
+  // This makes the app feel instant even while data loads
+  if (authLoading || conversationLoading) {
+    return (
+      <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
+        <Wallpaper />
+        <div className="hidden md:flex w-80 border-r border-border flex-col bg-card/80 backdrop-blur-sm z-10">
+          <div className="p-4 border-b border-border">
+            <Skeleton className="h-8 w-24" />
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            <ConversationSkeleton />
+          </div>
+        </div>
+        <div className="flex-1 flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative z-10">
+          <div className="border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4">
+            <div className="flex items-center gap-3">
+              <Skeleton className="w-10 h-10 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-3 md:p-4">
+            <ChatSkeleton />
+          </div>
+          <div className="bg-card/80 backdrop-blur-sm border-t border-border p-4">
+            <Skeleton className="h-12 w-full rounded-lg" />
+          </div>
+        </div>
+      </main>
+    )
+  }
 
   if (!currentConversation) {
-    return null
+    return (
+      <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
+        <Wallpaper />
+        <div className="hidden md:flex w-80 border-r border-border flex-col bg-card/80 backdrop-blur-sm z-10">
+          <div className="p-4 border-b border-border">
+            <Link href="/dashboard">
+              <h1 className="text-2xl font-bold text-primary cursor-pointer hover:opacity-80">Leenk</h1>
+            </Link>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            <ConversationList conversations={conversations} selectedId={conversationId} />
+          </div>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-muted-foreground">Loading conversation...</p>
+          </div>
+        </div>
+      </main>
+    )
   }
 
   return (
     <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
       <Wallpaper businessLogo={user?.business?.businessLogo} />
-      {/* Sidebar */}
+      {/* Sidebar - Same structure as dashboard */}
       <motion.aside
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="hidden md:flex w-80 border-r border-border flex-col bg-card/80 backdrop-blur-sm z-10"
+        className="w-full md:w-80 border-r border-[#313d45] md:border-border flex flex-col bg-[#111b21] md:bg-card/80 backdrop-blur-sm z-10"
       >
-        <div className="p-4 border-b border-border">
-          <Link href="/dashboard">
-            <h1 className="text-2xl font-bold text-primary cursor-pointer hover:opacity-80">Leenk</h1>
-          </Link>
+        {/* Header - Same as dashboard */}
+        <div className="p-3 md:p-4 border-b border-border bg-card/80 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-3 md:mb-4">
+            <Link href="/dashboard">
+              <Image src="/logo.png" alt="Leenk" width={80} height={80} className="object-contain" />
+            </Link>
+            <div className="flex gap-1 md:gap-2">
+              <ThemeToggle />
+              <Link href="/dashboard/settings">
+                <Button variant="ghost" size="sm">
+                  <Settings className="w-4 h-4" />
+                </Button>
+              </Link>
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          {user ? (
+            <div className="flex items-center gap-3 text-sm">
+              <Avatar 
+                src={user.business?.businessLogo} 
+                name={user.business?.businessName} 
+                size="md"
+              />
+              <div>
+                <p className="font-medium text-foreground">{user.business?.businessName}</p>
+                <p className="text-muted-foreground text-xs">{user.email}</p>
+              </div>
+            </div>
+          ) : null}
         </div>
-        <div className="flex-1 overflow-y-auto">
+
+        {/* Conversations List */}
+        <div className="flex-1 overflow-y-auto bg-background">
           <ConversationList conversations={conversations} selectedId={conversationId} />
         </div>
       </motion.aside>
 
       {/* Chat Area */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative z-10">
-        {/* Chat Header */}
-        <div className="border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4 flex items-center justify-between">
+        {/* Chat Header - Fixed at top */}
+        <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/dashboard" className="md:hidden">
               <Button variant="ghost" size="sm">
@@ -345,7 +559,7 @@ export default function ChatPage() {
             </div>
           ) : (
             <>
-              {currentConversation.messages.map((msg, idx) => (
+              {currentConversation.messages.map((msg: Message, idx: number) => (
                 <ChatBubble key={msg.id} message={msg} isOwn={msg.senderType === "business"} index={idx} />
               ))}
               {otherUserTyping && <TypingIndicator isOwn={false} />}
@@ -354,8 +568,8 @@ export default function ChatPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Message Input */}
-        <div className="bg-card/80 backdrop-blur-sm border-t border-border relative z-10">
+        {/* Message Input - Fixed at bottom */}
+        <div className="sticky bottom-0 z-20 bg-card/80 backdrop-blur-sm border-t border-border">
           <MessageInput 
             onSendMessage={handleSendMessage} 
             onSendImage={handleSendImage} 

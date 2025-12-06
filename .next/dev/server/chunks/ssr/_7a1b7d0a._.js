@@ -103,8 +103,9 @@ function dbBusinessToApp(db) {
         email: db.email,
         phone: db.phone || "",
         businessName: db.business_name || "",
+        businessLogo: db.business_logo || undefined,
         address: db.address || "",
-        online: false,
+        online: db.online ?? false,
         createdAt: db.created_at
     };
 }
@@ -115,7 +116,8 @@ function appBusinessToDB(business, passwordHash) {
         password_hash: passwordHash || "",
         business_name: business.businessName || null,
         phone: business.phone || null,
-        address: business.address || null
+        address: business.address || null,
+        business_logo: business.businessLogo || null
     };
 }
 // Convert DB Conversation to App Conversation (with messages)
@@ -127,13 +129,14 @@ async function dbConversationToApp(db, messages = []) {
             senderId: m.sender_id,
             text: m.content || undefined,
             imageUrl: m.image_url || undefined,
-            status: "sent",
+            status: m.status || "sent",
             createdAt: m.created_at
         }));
     return {
         id: db.id,
         businessId: db.business_id,
-        customerEmail: db.customer_email || undefined,
+        customerEmail: db.customer_email,
+        customerName: db.customer_name || undefined,
         createdAt: db.created_at,
         lastMessageAt: db.updated_at,
         messages: appMessages
@@ -144,7 +147,7 @@ function appConversationToDB(conversation, customerPhone) {
     return {
         business_id: conversation.businessId,
         customer_phone: customerPhone || "",
-        customer_email: conversation.customerEmail || null
+        customer_email: conversation.customerEmail || undefined
     };
 }
 // Convert App Message to DB Message
@@ -154,7 +157,8 @@ function appMessageToDB(message) {
         sender_type: message.senderType,
         sender_id: message.senderId || "",
         content: message.text || null,
-        image_url: message.imageUrl || null
+        image_url: message.imageUrl || null,
+        status: message.status || "sent"
     };
 }
 const db = {
@@ -185,7 +189,8 @@ const db = {
             password_hash: passwordHash,
             business_name: business.businessName || null,
             phone: business.phone || null,
-            address: business.address || null
+            address: business.address || null,
+            business_logo: business.businessLogo || null
         };
         const { data, error } = await supabase.from("businesses").insert(dbData).select().single();
         if (error) throw error;
@@ -194,8 +199,39 @@ const db = {
     async updateBusiness (id, updates) {
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
         const dbData = appBusinessToDB(updates);
+        // Make sure to include business_logo if it's being updated
+        if (updates.businessLogo !== undefined) {
+            dbData.business_logo = updates.businessLogo || null;
+        }
+        // Try to include online status if it's being updated
+        // If the column doesn't exist yet, we'll skip it and continue with other updates
+        if (updates.online !== undefined) {
+            // Check if online column exists by trying a test query first
+            // For now, we'll include it and let the error be caught if column doesn't exist
+            dbData.online = updates.online;
+        }
         const { data, error } = await supabase.from("businesses").update(dbData).eq("id", id).select().single();
-        if (error || !data) return null;
+        if (error) {
+            // If error is about missing 'online' column, try again without it
+            if (error.message?.includes("online") && error.code === "PGRST204") {
+                console.warn("Online column not found, updating without online status. Please run migration 008_add_online_status.sql");
+                delete dbData.online;
+                const { data: retryData, error: retryError } = await supabase.from("businesses").update(dbData).eq("id", id).select().single();
+                if (retryError) {
+                    console.error("Error updating business:", retryError);
+                    throw new Error(retryError.message || "Failed to update business");
+                }
+                if (!retryData) {
+                    throw new Error("No data returned from update");
+                }
+                return dbBusinessToApp(retryData);
+            }
+            console.error("Error updating business:", error);
+            throw new Error(error.message || "Failed to update business");
+        }
+        if (!data) {
+            throw new Error("No data returned from update");
+        }
         return dbBusinessToApp(data);
     },
     // Conversations
@@ -204,17 +240,33 @@ const db = {
         const { data: conversations, error } = await supabase.from("conversations").select("*").eq("business_id", businessId).order("updated_at", {
             ascending: false
         });
-        if (error || !conversations) return [];
-        // Get messages for all conversations
+        if (error || !conversations || conversations.length === 0) return [];
+        // Performance optimization: Only load the last message per conversation
+        // For the conversation list view, we only need the most recent message as a preview
+        // This dramatically reduces data transfer and improves load times
         const conversationIds = conversations.map((c)=>c.id);
-        const { data: messages } = await supabase.from("messages").select("*").in("conversation_id", conversationIds).order("created_at", {
-            ascending: true
+        // Batch fetch last messages in parallel for better performance
+        // Using Promise.all ensures all queries run concurrently
+        const lastMessagesPromises = conversationIds.map(async (conversationId)=>{
+            const { data: messages, error: msgError } = await supabase.from("messages").select("*").eq("conversation_id", conversationId).order("created_at", {
+                ascending: false
+            }).limit(1);
+            // Return empty array on error (conversation might have no messages yet)
+            if (msgError || !messages) return {
+                conversationId,
+                messages: []
+            };
+            return {
+                conversationId,
+                messages: messages
+            };
         });
+        const lastMessagesResults = await Promise.all(lastMessagesPromises);
         const messagesMap = new Map();
-        messages?.forEach((m)=>{
-            const existing = messagesMap.get(m.conversation_id) || [];
-            existing.push(m);
-            messagesMap.set(m.conversation_id, existing);
+        lastMessagesResults.forEach(({ conversationId, messages })=>{
+            if (messages.length > 0) {
+                messagesMap.set(conversationId, messages);
+            }
         });
         return Promise.all(conversations.map((conv)=>dbConversationToApp(conv, messagesMap.get(conv.id) || [])));
     },
@@ -222,28 +274,33 @@ const db = {
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
         const { data: conversation, error } = await supabase.from("conversations").select("*").eq("id", id).single();
         if (error || !conversation) return null;
+        // Limit initial message fetch to 100 most recent messages for performance
         const { data: messages } = await supabase.from("messages").select("*").eq("conversation_id", id).order("created_at", {
-            ascending: true
-        });
-        return dbConversationToApp(conversation, messages || []);
+            ascending: false
+        }).limit(100);
+        // Reverse to get chronological order (oldest first)
+        const sortedMessages = messages ? [
+            ...messages
+        ].reverse() : [];
+        return dbConversationToApp(conversation, sortedMessages || []);
     },
-    async getConversationByBusinessAndPhone (businessId, customerPhone) {
+    async getConversationByBusinessAndEmail (businessId, customerEmail) {
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
-        const { data: conversation, error } = await supabase.from("conversations").select("*").eq("business_id", businessId).eq("customer_phone", customerPhone).single();
+        const { data: conversation, error } = await supabase.from("conversations").select("*").eq("business_id", businessId).eq("customer_email", customerEmail).single();
         if (error || !conversation) return null;
         const { data: messages } = await supabase.from("messages").select("*").eq("conversation_id", conversation.id).order("created_at", {
             ascending: true
         });
         return dbConversationToApp(conversation, messages || []);
     },
-    async createConversation (conversation, customerPhone) {
+    async createConversation (conversation) {
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
         const dbData = {
             id: conversation.id,
             business_id: conversation.businessId,
-            customer_phone: customerPhone,
-            customer_email: conversation.customerEmail || null,
-            customer_name: null
+            customer_email: conversation.customerEmail,
+            customer_name: conversation.customerName || null,
+            customer_phone: null
         };
         const { data, error } = await supabase.from("conversations").insert(dbData).select().single();
         if (error) throw error;
@@ -265,7 +322,10 @@ const db = {
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
         const dbData = {};
         if (updates.customerEmail !== undefined) {
-            dbData.customer_email = updates.customerEmail || null;
+            dbData.customer_email = updates.customerEmail;
+        }
+        if (updates.customerName !== undefined) {
+            dbData.customer_name = updates.customerName || null;
         }
         const { data, error } = await supabase.from("conversations").update(dbData).eq("id", id).select().single();
         if (error || !data) return null;
@@ -275,13 +335,42 @@ const db = {
         });
         return dbConversationToApp(data, messages || []);
     },
+    async updateMessageStatus (id, status) {
+        const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
+        await supabase.from("messages").update({
+            status
+        }).eq("id", id);
+    },
+    async markMessagesAsDelivered (conversationId, senderType) {
+        const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
+        // Mark all messages from the other sender as delivered
+        await supabase.from("messages").update({
+            status: "delivered"
+        }).eq("conversation_id", conversationId).eq("sender_type", senderType).in("status", [
+            "sent"
+        ]);
+    },
+    async markMessagesAsRead (conversationId, senderType) {
+        const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
+        // Mark all messages from the other sender as read
+        await supabase.from("messages").update({
+            status: "read"
+        }).eq("conversation_id", conversationId).eq("sender_type", senderType).in("status", [
+            "sent",
+            "delivered"
+        ]);
+    },
     // Messages
     async createMessage (message) {
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
         const dbData = {
             id: message.id,
-            ...appMessageToDB(message),
-            sender_id: message.senderId || ""
+            conversation_id: message.conversationId,
+            sender_type: message.senderType,
+            sender_id: message.senderId || "",
+            content: message.text || null,
+            image_url: message.imageUrl || null,
+            status: message.status || "sent"
         };
         const { data, error } = await supabase.from("messages").insert(dbData).select().single();
         if (error) throw error;
@@ -296,7 +385,7 @@ const db = {
             senderId: data.sender_id,
             text: data.content || undefined,
             imageUrl: data.image_url || undefined,
-            status: "sent",
+            status: data.status || "sent",
             createdAt: data.created_at
         };
     }
@@ -401,10 +490,15 @@ const auth = {
                     error: new Error("Business profile not found")
                 };
             }
+            // Set business as online when they log in
+            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].updateBusiness(authData.user.id, {
+                online: true
+            });
+            const updatedBusiness = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].getBusinessById(authData.user.id);
             const authUser = {
                 id: authData.user.id,
                 email: authData.user.email,
-                business
+                business: updatedBusiness || business
             };
             return {
                 user: authUser,
@@ -421,6 +515,19 @@ const auth = {
     async signOut () {
         try {
             const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
+            // Get current user before signing out
+            const { data: { user } } = await supabase.auth.getUser();
+            // Set business as offline when they log out
+            if (user?.id) {
+                try {
+                    await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].updateBusiness(user.id, {
+                        online: false
+                    });
+                } catch (updateError) {
+                    // Don't fail logout if online status update fails
+                    console.error("Failed to update online status:", updateError);
+                }
+            }
             const { error } = await supabase.auth.signOut();
             return {
                 error: error
@@ -475,6 +582,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$mo
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/auth.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/eye.js [app-ssr] (ecmascript) <export default as Eye>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2d$off$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeOff$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/eye-off.js [app-ssr] (ecmascript) <export default as EyeOff>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/image.js [app-ssr] (ecmascript)");
 "use client";
 ;
 ;
@@ -484,6 +592,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 ;
 ;
 ;
+;
+const EMAIL_STORAGE_KEY = "leenk_user_email";
 function SignupPage() {
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRouter"])();
     const [email, setEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
@@ -493,6 +603,21 @@ function SignupPage() {
     const [showConfirmPassword, setShowConfirmPassword] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    // Load email from localStorage on mount
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        const savedEmail = localStorage.getItem(EMAIL_STORAGE_KEY);
+        if (savedEmail) {
+            setEmail(savedEmail);
+        }
+    }, []);
+    // Save email to localStorage when it changes
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (email) {
+            localStorage.setItem(EMAIL_STORAGE_KEY, email);
+        }
+    }, [
+        email
+    ]);
     const handleSignup = async (e)=>{
         e.preventDefault();
         setError("");
@@ -538,12 +663,22 @@ function SignupPage() {
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "text-center mb-8",
                         children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                                className: "text-3xl font-bold text-primary mb-2",
-                                children: "Leenk"
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex justify-center mb-4",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                    src: "/logo.png",
+                                    alt: "Leenk",
+                                    width: 120,
+                                    height: 120,
+                                    className: "object-contain"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/signup/page.tsx",
+                                    lineNumber: 80,
+                                    columnNumber: 15
+                                }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/signup/page.tsx",
-                                lineNumber: 61,
+                                lineNumber: 79,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -551,13 +686,13 @@ function SignupPage() {
                                 children: "Create your business account"
                             }, void 0, false, {
                                 fileName: "[project]/app/signup/page.tsx",
-                                lineNumber: 62,
+                                lineNumber: 82,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/signup/page.tsx",
-                        lineNumber: 60,
+                        lineNumber: 78,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -575,7 +710,7 @@ function SignupPage() {
                                 children: error
                             }, void 0, false, {
                                 fileName: "[project]/app/signup/page.tsx",
-                                lineNumber: 67,
+                                lineNumber: 87,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -585,7 +720,7 @@ function SignupPage() {
                                         children: "Email"
                                     }, void 0, false, {
                                         fileName: "[project]/app/signup/page.tsx",
-                                        lineNumber: 77,
+                                        lineNumber: 97,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -596,13 +731,13 @@ function SignupPage() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/app/signup/page.tsx",
-                                        lineNumber: 78,
+                                        lineNumber: 98,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/signup/page.tsx",
-                                lineNumber: 76,
+                                lineNumber: 96,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -612,7 +747,7 @@ function SignupPage() {
                                         children: "Password"
                                     }, void 0, false, {
                                         fileName: "[project]/app/signup/page.tsx",
-                                        lineNumber: 88,
+                                        lineNumber: 108,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -626,7 +761,7 @@ function SignupPage() {
                                                 required: true
                                             }, void 0, false, {
                                                 fileName: "[project]/app/signup/page.tsx",
-                                                lineNumber: 90,
+                                                lineNumber: 110,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -638,30 +773,30 @@ function SignupPage() {
                                                     className: "w-4 h-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/signup/page.tsx",
-                                                    lineNumber: 103,
+                                                    lineNumber: 123,
                                                     columnNumber: 35
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
                                                     className: "w-4 h-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/signup/page.tsx",
-                                                    lineNumber: 103,
+                                                    lineNumber: 123,
                                                     columnNumber: 68
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/signup/page.tsx",
-                                                lineNumber: 97,
+                                                lineNumber: 117,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/signup/page.tsx",
-                                        lineNumber: 89,
+                                        lineNumber: 109,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/signup/page.tsx",
-                                lineNumber: 87,
+                                lineNumber: 107,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -671,7 +806,7 @@ function SignupPage() {
                                         children: "Confirm Password"
                                     }, void 0, false, {
                                         fileName: "[project]/app/signup/page.tsx",
-                                        lineNumber: 109,
+                                        lineNumber: 129,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -685,7 +820,7 @@ function SignupPage() {
                                                 required: true
                                             }, void 0, false, {
                                                 fileName: "[project]/app/signup/page.tsx",
-                                                lineNumber: 111,
+                                                lineNumber: 131,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -697,30 +832,30 @@ function SignupPage() {
                                                     className: "w-4 h-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/signup/page.tsx",
-                                                    lineNumber: 124,
+                                                    lineNumber: 144,
                                                     columnNumber: 42
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
                                                     className: "w-4 h-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/signup/page.tsx",
-                                                    lineNumber: 124,
+                                                    lineNumber: 144,
                                                     columnNumber: 75
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/signup/page.tsx",
-                                                lineNumber: 118,
+                                                lineNumber: 138,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/signup/page.tsx",
-                                        lineNumber: 110,
+                                        lineNumber: 130,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/signup/page.tsx",
-                                lineNumber: 108,
+                                lineNumber: 128,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -730,13 +865,13 @@ function SignupPage() {
                                 children: loading ? "Creating Account..." : "Sign Up"
                             }, void 0, false, {
                                 fileName: "[project]/app/signup/page.tsx",
-                                lineNumber: 129,
+                                lineNumber: 149,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/signup/page.tsx",
-                        lineNumber: 65,
+                        lineNumber: 85,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -750,29 +885,29 @@ function SignupPage() {
                                 children: "Log In"
                             }, void 0, false, {
                                 fileName: "[project]/app/signup/page.tsx",
-                                lineNumber: 136,
+                                lineNumber: 156,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/signup/page.tsx",
-                        lineNumber: 134,
+                        lineNumber: 154,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/signup/page.tsx",
-                lineNumber: 59,
+                lineNumber: 77,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/signup/page.tsx",
-            lineNumber: 58,
+            lineNumber: 76,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/signup/page.tsx",
-        lineNumber: 57,
+        lineNumber: 75,
         columnNumber: 5
     }, this);
 }
