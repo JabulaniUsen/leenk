@@ -12,7 +12,7 @@ import { storage } from "@/lib/storage"
 import { db } from "@/lib/supabase/db"
 import type { Business, Message } from "@/lib/types"
 import { v4 as uuidv4 } from "uuid"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Mail, User, Loader2 } from "lucide-react"
 import { Wallpaper } from "@/components/wallpaper"
 import { Avatar } from "@/components/avatar"
 import { useConversationsStore } from "@/lib/stores/conversations-store"
@@ -358,90 +358,160 @@ export default function CustomerChatPage() {
 
   if (showEmailPrompt) {
     return (
-      <main className="h-screen flex items-center justify-center bg-gradient-to-br from-background via-card to-background p-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <div className="bg-card rounded-xl border border-border p-8 shadow-lg text-center">
-            <div className="flex justify-center mb-4">
-              <Image src="/logo.png" alt="Leenk" width={120} height={120} className="object-contain" />
-            </div>
-            <h2 className="text-2xl font-bold mb-2">{business.businessName}</h2>
-            <p className="text-muted-foreground mb-8">{business.online ? "🟢 Online" : "🔴 Offline"}</p>
-
-            <form onSubmit={handleStartChat} className="space-y-4">
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="p-3 bg-destructive/10 border border-destructive rounded-lg text-destructive text-sm"
-                >
-                  {error}
-                </motion.div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Email Address <span className="text-destructive">*</span>
-                </label>
-                <input
-                  type="email"
-                  value={customerEmail}
-                  onChange={(e) => {
-                    setCustomerEmail(e.target.value)
-                    setError("")
-                  }}
-                  onBlur={(e) => {
-                    if (e.target.value.trim()) {
-                      handleEmailSearch(e.target.value)
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && customerEmail.trim() && !showNameInput) {
-                      e.preventDefault()
-                      handleEmailSearch(customerEmail)
-                    }
-                  }}
-                  placeholder="your@email.com"
-                  className="w-full bg-input border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                  required
-                  disabled={isSearching}
-                />
-                {isSearching && (
-                  <p className="text-xs text-muted-foreground mt-1">Searching...</p>
-                )}
-              </div>
-
-              {showNameInput && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                >
-                  <label className="block text-sm font-medium mb-2">
-                    Your Name <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={customerName}
-                    onChange={(e) => {
-                      setCustomerName(e.target.value)
-                      setError("")
-                    }}
-                    placeholder="John Doe"
-                    className="w-full bg-input border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                    required
-                    autoFocus
-                  />
-                </motion.div>
-              )}
-
-              <Button 
-                type="submit" 
-                className="w-full"
-                disabled={isSearching || !customerEmail.trim() || (showNameInput && !customerName.trim())}
+      <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 p-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="w-full max-w-md"
+        >
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+            {/* Header Section */}
+            <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent dark:from-primary/20 dark:via-primary/10 p-6 text-center border-b border-slate-200 dark:border-slate-800">
+              <motion.div 
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.1 }}
+                className="flex justify-center mb-4"
               >
-                {showNameInput ? "Start Chat" : "Continue"}
-              </Button>
-            </form>
+                <div className="relative">
+                  <Image 
+                    src="/logo.png" 
+                    alt="Leenk" 
+                    width={80} 
+                    height={80} 
+                    className="object-contain drop-shadow-lg" 
+                  />
+                </div>
+              </motion.div>
+              
+              <motion.h2 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-2xl font-bold text-slate-900 dark:text-white mb-3"
+              >
+                {business.businessName}
+              </motion.h2>
+              
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="flex items-center justify-center gap-2"
+              >
+                <div className={`w-2 h-2 rounded-full ${business.online ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  {business.online ? "Online" : "Offline"}
+                </span>
+              </motion.div>
+            </div>
+
+            {/* Form Section */}
+            <div className="p-6 md:p-8">
+              <form onSubmit={handleStartChat} className="space-y-5">
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm flex items-center gap-2"
+                  >
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <span>{error}</span>
+                  </motion.div>
+                )}
+
+                {/* Email Input */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
+                    <input
+                      type="email"
+                      value={customerEmail}
+                      onChange={(e) => {
+                        setCustomerEmail(e.target.value)
+                        setError("")
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value.trim()) {
+                          handleEmailSearch(e.target.value)
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && customerEmail.trim() && !showNameInput) {
+                          e.preventDefault()
+                          handleEmailSearch(customerEmail)
+                        }
+                      }}
+                      placeholder="your@email.com"
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 pl-11 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      required
+                      disabled={isSearching}
+                    />
+                  </div>
+                  {isSearching && (
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Searching for existing conversations...</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Name Input - Animated */}
+                {showNameInput && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-2"
+                  >
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      Your Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
+                      <input
+                        type="text"
+                        value={customerName}
+                        onChange={(e) => {
+                          setCustomerName(e.target.value)
+                          setError("")
+                        }}
+                        placeholder="John Doe"
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 pl-11 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        required
+                        autoFocus
+                      />
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Submit Button */}
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSearching || !customerEmail.trim() || (showNameInput && !customerName.trim())}
+                >
+                  {isSearching ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Searching...
+                    </span>
+                  ) : (
+                    <span>{showNameInput ? "Start Chat" : "Continue"}</span>
+                  )}
+                </Button>
+              </form>
+
+              {/* Footer Note */}
+              <p className="text-xs text-center text-slate-500 dark:text-slate-400 mt-6">
+                By continuing, you agree to start a conversation with {business.businessName}
+              </p>
+            </div>
           </div>
         </motion.div>
       </main>
@@ -451,7 +521,7 @@ export default function CustomerChatPage() {
   if (!currentConversation) {
     return (
       <main className="h-screen flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
-        <Wallpaper businessLogo={business.businessLogo} />
+        <Wallpaper/>
         <div className="relative z-10">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -473,7 +543,7 @@ export default function CustomerChatPage() {
 
   return (
     <main className="h-screen flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
-      <Wallpaper businessLogo={business.businessLogo} />
+      <Wallpaper />
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

@@ -4,8 +4,6 @@
   "/chat/[phone]/page": "app/chat/[phone]/page.js",
   "/dashboard/[conversationId]/page": "app/dashboard/[conversationId]/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/settings/page": "app/dashboard/settings/page.js",
   "/login/page": "app/login/page.js",
-  "/page": "app/page.js",
-  "/signup/page": "app/signup/page.js"
+  "/page": "app/page.js"
 }

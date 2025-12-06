@@ -13,6 +13,7 @@ import { ChevronLeft, Camera, User, Copy, Check } from "lucide-react"
 import Image from "next/image"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAuthStore } from "@/lib/stores/auth-store"
+import type { Business } from "@/lib/types"
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -29,14 +30,28 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState("")
   const [copied, setCopied] = useState(false)
 
+  // Helper function to check if onboarding is complete
+  const isOnboardingComplete = (business: Business | undefined): boolean => {
+    if (!business) return false
+    return !!(business.businessName && business.phone && business.address)
+  }
+
   useEffect(() => {
     if (!initialized) {
       loadAuth().then((authUser) => {
-        if (!authUser?.business) {
+        if (!authUser) {
           router.push("/login")
+        } else if (!isOnboardingComplete(authUser.business)) {
+          router.push("/onboarding")
         }
       })
     } else if (user?.business) {
+      // Check if onboarding is complete
+      if (!isOnboardingComplete(user.business)) {
+        router.push("/onboarding")
+        return
+      }
+      
       setBusinessName(user.business.businessName)
       setPhone(user.business.phone)
       setAddress(user.business.address)

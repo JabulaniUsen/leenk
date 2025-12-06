@@ -14,6 +14,7 @@ import { useAuthStore } from "@/lib/stores/auth-store"
 import { useConversationsStore } from "@/lib/stores/conversations-store"
 import { useRealtimeStore } from "@/lib/stores/realtime-store"
 import Image from "next/image"
+import type { Business } from "@/lib/types"
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -21,11 +22,20 @@ export default function DashboardPage() {
   const { conversations, loading: conversationsLoading, loadConversations } = useConversationsStore()
   const { setupBusinessChannel } = useRealtimeStore()
 
+  // Helper function to check if onboarding is complete
+  const isOnboardingComplete = (business: Business | undefined): boolean => {
+    if (!business) return false
+    return !!(business.businessName && business.phone && business.address)
+  }
+
   useEffect(() => {
     if (!initialized) {
       loadAuth().then((authUser) => {
         if (!authUser) {
           router.push("/login")
+        } else if (!isOnboardingComplete(authUser.business)) {
+          // Redirect to onboarding if profile is incomplete
+          router.push("/onboarding")
         } else if (authUser.business) {
           loadConversations(authUser.id)
         }
@@ -35,6 +45,12 @@ export default function DashboardPage() {
     
     if (!user) {
       router.push("/login")
+      return
+    }
+
+    // Check if onboarding is complete
+    if (!isOnboardingComplete(user.business)) {
+      router.push("/onboarding")
       return
     }
 

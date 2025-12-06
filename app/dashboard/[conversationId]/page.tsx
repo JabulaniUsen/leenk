@@ -18,6 +18,7 @@ import { Avatar } from "@/components/avatar"
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { useConversationsStore } from "@/lib/stores/conversations-store"
 import { useRealtimeStore } from "@/lib/stores/realtime-store"
+import type { Business } from "@/lib/types"
 
 export default function ChatPage() {
   const router = useRouter()
@@ -42,22 +43,38 @@ export default function ChatPage() {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const otherUserTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Helper function to check if onboarding is complete
+  const isOnboardingComplete = (business: Business | undefined): boolean => {
+    if (!business) return false
+    return !!(business.businessName && business.phone && business.address)
+  }
+
   // Load auth and conversation data
   useEffect(() => {
     if (!initialized) {
       loadAuth().then((authUser) => {
         if (!authUser) {
           router.push("/login")
+        } else if (!isOnboardingComplete(authUser.business)) {
+          router.push("/onboarding")
         }
       })
-    } else if (user && conversationId) {
-      loadConversation(conversationId).then((conv) => {
-        if (!conv) {
-          router.push("/dashboard")
-        } else {
-          loadConversations(user.id)
-        }
-      })
+    } else if (user) {
+      // Check if onboarding is complete
+      if (!isOnboardingComplete(user.business)) {
+        router.push("/onboarding")
+        return
+      }
+      
+      if (conversationId) {
+        loadConversation(conversationId).then((conv) => {
+          if (!conv) {
+            router.push("/dashboard")
+          } else {
+            loadConversations(user.id)
+          }
+        })
+      }
     } else if (!user) {
       router.push("/login")
     }

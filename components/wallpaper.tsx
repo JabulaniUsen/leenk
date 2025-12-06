@@ -8,13 +8,11 @@ interface WallpaperProps {
 }
 
 export function Wallpaper({ businessLogo, className = "" }: WallpaperProps) {
-  if (!businessLogo) return null
-
   return (
     <div className={`fixed inset-0 z-0 pointer-events-none ${className}`}>
-      <div className="absolute inset-0 bg-black/40" /> {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/40" /> 
       <Image
-        src={businessLogo}
+        src="/chat-bg.jpg"
         alt="Wallpaper"
         fill
         className="object-cover opacity-10"
