@@ -243,6 +243,7 @@ var _s = __turbopack_context__.k.signature();
 function MessageInput({ onSendMessage, onSendImage, onTyping, disabled }) {
     _s();
     const [message, setMessage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    const [previewImage, setPreviewImage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const fileInputRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     const typingTimeoutRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     // Cleanup on unmount
@@ -281,13 +282,36 @@ function MessageInput({ onSendMessage, onSendImage, onTyping, disabled }) {
     const handleImageSelect = (e)=>{
         const file = e.target.files?.[0];
         if (file) {
+            // Validate file type
+            if (!file.type.startsWith("image/")) {
+                alert("Please select an image file");
+                return;
+            }
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert("Image size must be less than 10MB");
+                return;
+            }
             const reader = new FileReader();
             reader.onload = (event)=>{
                 const imageUrl = event.target?.result;
-                onSendImage(imageUrl);
+                setPreviewImage(imageUrl); // Show preview instead of sending immediately
             };
             reader.readAsDataURL(file);
         }
+        // Reset input so same file can be selected again
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+    const handleSendPreview = ()=>{
+        if (previewImage) {
+            onSendImage(previewImage);
+            setPreviewImage(null);
+        }
+    };
+    const handleRemovePreview = ()=>{
+        setPreviewImage(null);
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
         initial: {
@@ -309,12 +333,12 @@ function MessageInput({ onSendMessage, onSendImage, onTyping, disabled }) {
                     className: "w-5 h-5"
                 }, void 0, false, {
                     fileName: "[project]/components/message-input.tsx",
-                    lineNumber: 79,
+                    lineNumber: 108,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/message-input.tsx",
-                lineNumber: 73,
+                lineNumber: 102,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -325,7 +349,7 @@ function MessageInput({ onSendMessage, onSendImage, onTyping, disabled }) {
                 className: "hidden"
             }, void 0, false, {
                 fileName: "[project]/components/message-input.tsx",
-                lineNumber: 81,
+                lineNumber: 110,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -338,7 +362,7 @@ function MessageInput({ onSendMessage, onSendImage, onTyping, disabled }) {
                 rows: 1
             }, void 0, false, {
                 fileName: "[project]/components/message-input.tsx",
-                lineNumber: 82,
+                lineNumber: 111,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -350,22 +374,22 @@ function MessageInput({ onSendMessage, onSendImage, onTyping, disabled }) {
                     className: "w-4 h-4"
                 }, void 0, false, {
                     fileName: "[project]/components/message-input.tsx",
-                    lineNumber: 97,
+                    lineNumber: 126,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/message-input.tsx",
-                lineNumber: 91,
+                lineNumber: 120,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/message-input.tsx",
-        lineNumber: 68,
+        lineNumber: 97,
         columnNumber: 5
     }, this);
 }
-_s(MessageInput, "Xdsg+dYsG8JfE5DnA3mDA8VSibQ=");
+_s(MessageInput, "wDpt3kaN5yoT4VkCJwDF8VwwLec=");
 _c = MessageInput;
 var _c;
 __turbopack_context__.k.register(_c, "MessageInput");

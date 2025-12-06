@@ -4,6 +4,8 @@ import type { Message } from "@/lib/types"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { CheckCircle2, CircleCheck } from "lucide-react"
+import { useState } from "react"
+import { ImageViewerModal } from "@/components/image-viewer-modal"
 
 interface ChatBubbleProps {
   message: Message
@@ -12,6 +14,8 @@ interface ChatBubbleProps {
 }
 
 export function ChatBubble({ message, isOwn, index }: ChatBubbleProps) {
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false)
+
   const getStatusIndicator = () => {
     if (!isOwn) return null
 
@@ -43,7 +47,10 @@ export function ChatBubble({ message, isOwn, index }: ChatBubbleProps) {
       >
         {message.text && <p className="text-sm md:text-base break-words">{message.text}</p>}
         {message.imageUrl && (
-          <div className="relative w-48 h-48 rounded-lg overflow-hidden mb-2">
+          <div 
+            className="relative w-48 h-48 rounded-lg overflow-hidden mb-2 cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => setIsImageViewerOpen(true)}
+          >
             <Image 
               src={message.imageUrl || "/placeholder.svg"} 
               alt="Chat image" 
@@ -63,6 +70,13 @@ export function ChatBubble({ message, isOwn, index }: ChatBubbleProps) {
           {getStatusIndicator()}
         </div>
       </div>
+
+      {/* Full-size Image Viewer */}
+      <ImageViewerModal
+        imageUrl={isImageViewerOpen ? (message.imageUrl || null) : null}
+        onClose={() => setIsImageViewerOpen(false)}
+        alt={`Image from ${isOwn ? "you" : "chat"}`}
+      />
     </motion.div>
   )
 }

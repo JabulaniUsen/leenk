@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ImageIcon, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
+import { ImagePreviewModal } from "@/components/image-preview-modal"
 
 interface MessageInputProps {
   onSendMessage: (text: string) => void
@@ -16,6 +17,8 @@ interface MessageInputProps {
 
 export function MessageInput({ onSendMessage, onSendImage, onTyping, disabled }: MessageInputProps) {
   const [message, setMessage] = useState("")
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [previewFile, setPreviewFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -46,22 +49,49 @@ export function MessageInput({ onSendMessage, onSendImage, onTyping, disabled }:
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
+    // Allow Enter for new lines, Shift+Enter also works
+    // Removed auto-send on Enter key
   }
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        alert("Please select an image file")
+        return
+      }
+
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert("Image size must be less than 10MB")
+        return
+      }
+
       const reader = new FileReader()
       reader.onload = (event) => {
         const imageUrl = event.target?.result as string
-        onSendImage(imageUrl)
+        setPreviewImage(imageUrl) // Show preview instead of sending immediately
+        setPreviewFile(file) // Store the file for upload
       }
       reader.readAsDataURL(file)
     }
+    // Reset input so same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
+  const handleSendPreview = () => {
+    if (previewImage) {
+      onSendImage(previewImage)
+      setPreviewImage(null)
+    }
+  }
+
+  const handleRemovePreview = () => {
+    setPreviewImage(null)
+    setPreviewFile(null)
   }
 
   return (
@@ -96,6 +126,15 @@ export function MessageInput({ onSendMessage, onSendImage, onTyping, disabled }:
       >
         <ArrowRight className="w-4 h-4" />
       </Button>
+
+      {/* Image Preview Modal */}
+      <ImagePreviewModal
+        imageUrl={previewImage}
+        onClose={handleRemovePreview}
+        onSend={handleSendPreview}
+        onRemove={handleRemovePreview}
+        isSending={disabled}
+      />
     </motion.div>
   )
 }

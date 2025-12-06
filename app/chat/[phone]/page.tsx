@@ -27,6 +27,19 @@ export default function CustomerChatPage() {
   const phone = params.phone as string
 
   const { business, isLoading: businessLoading, mutate: mutateBusiness } = useBusinessByPhone(phone)
+  
+  // Debug: Log business online status
+  useEffect(() => {
+    if (business) {
+      console.log("Business online status:", { 
+        id: business.id, 
+        online: business.online, 
+        onlineType: typeof business.online,
+        businessName: business.businessName 
+      })
+    }
+  }, [business])
+
   const [customerEmail, setCustomerEmail] = useState("")
   const [customerName, setCustomerName] = useState("")
   const [showEmailPrompt, setShowEmailPrompt] = useState(true)
@@ -81,26 +94,33 @@ export default function CustomerChatPage() {
           filter: `id=eq.${business.id}`,
         },
         (payload) => {
+          console.log("🟢 Business status update received:", payload)
           // Update business data when online status changes
           const updatedBusiness = payload.new as any
-          if (updatedBusiness && business) {
-            // Update the cached business data
+          if (updatedBusiness) {
+            console.log("📊 Updating business online status:", updatedBusiness.online)
+            // Update the cached business data - use functional update to get latest state
             mutateBusiness(
-              {
-                ...business,
-                online: updatedBusiness.online ?? false,
+              (current) => {
+                if (!current) return current
+                return {
+                  ...current,
+                  online: updatedBusiness.online ?? false,
+                }
               },
-              false
+              true // Revalidate to ensure UI updates
             )
           }
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log(`Business status channel subscription: ${status}`)
+      })
 
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [business?.id, business, mutateBusiness])
+  }, [business?.id, mutateBusiness])
 
   // Search for existing conversation when email is entered
   const handleEmailSearch = async (email: string) => {
@@ -567,9 +587,9 @@ export default function CustomerChatPage() {
                 transition={{ delay: 0.3 }}
                 className="flex items-center justify-center gap-2"
               >
-                <div className={`w-2 h-2 rounded-full ${business.online ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                <div className={`w-2 h-2 rounded-full ${(business.online ?? false) ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
                 <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                  {business.online ? "Online" : "Offline"}
+                  {(business.online ?? false) ? "Online" : "Offline"}
                 </span>
               </motion.div>
             </div>
@@ -699,7 +719,10 @@ export default function CustomerChatPage() {
               <Avatar src={business.businessLogo} name={business.businessName} size="md" />
               <div>
                 <h2 className="font-semibold text-lg text-foreground">{business.businessName}</h2>
-                <p className="text-xs text-muted-foreground">{business.online ? "🟢 Online" : "🔴 Offline"}</p>
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${(business.online ?? false) ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                  <p className="text-xs text-muted-foreground">{(business.online ?? false) ? "Online" : "Offline"}</p>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -721,15 +744,18 @@ export default function CustomerChatPage() {
           <Avatar src={business.businessLogo} name={business.businessName} size="md" />
           <div>
             <h2 className="font-semibold text-lg text-foreground">{business.businessName}</h2>
-            <p className="text-xs text-muted-foreground">
-              {business.online ? "🟢 Online" : "🔴 Offline"}
-              {connectionStatus === "connected" && (
-                <span className="ml-2 text-primary" title="Real-time connected">●</span>
-              )}
-              {connectionStatus === "disconnected" && (
-                <span className="ml-2 text-yellow-500" title="Reconnecting...">●</span>
-              )}
-            </p>
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${(business.online ?? false) ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+              <p className="text-xs text-muted-foreground">
+                {(business.online ?? false) ? "Online" : "Offline"}
+                {connectionStatus === "connected" && (
+                  <span className="ml-2 text-primary" title="Real-time connected">●</span>
+                )}
+                {connectionStatus === "disconnected" && (
+                  <span className="ml-2 text-yellow-500" title="Reconnecting...">●</span>
+                )}
+              </p>
+            </div>
           </div>
         </div>
       </motion.div>
