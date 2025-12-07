@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { auth } from "@/lib/auth"
-import { Eye, EyeOff } from "lucide-react"
+import { FaEye, FaEyeSlash } from "react-icons/fa"
 import Image from "next/image"
 
 const EMAIL_STORAGE_KEY = "leenk_user_email"
@@ -120,7 +120,7 @@ export default function SignupPage() {
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function SignupPage() {
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                 >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showConfirmPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
                 </button>
               </div>
             </div>

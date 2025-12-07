@@ -10,7 +10,7 @@ import { storage } from "@/lib/storage"
 import { uploadBusinessLogo, deleteBusinessLogo } from "@/lib/storage-upload"
 import { useAuth } from "@/lib/hooks/use-auth"
 import Link from "next/link"
-import { ChevronLeft, Camera, User, Copy, Check } from "lucide-react"
+import { FaChevronLeft, FaCamera, FaUser, FaCopy, FaCheck } from "react-icons/fa"
 import Image from "next/image"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { Business, AuthUser } from "@/lib/types"
@@ -185,7 +185,7 @@ export default function SettingsPage() {
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
           <Link href="/dashboard" className="inline-block mb-4 md:mb-8">
             <Button variant="ghost" size="sm">
-              <ChevronLeft className="w-4 h-4 mr-2" />
+              <FaChevronLeft className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Back to Dashboard</span>
               <span className="sm:hidden">Back</span>
             </Button>
@@ -229,7 +229,7 @@ export default function SettingsPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <User className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground" />
+                      <FaUser className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground" />
                     )}
                   </div>
                   <button
@@ -239,7 +239,7 @@ export default function SettingsPage() {
                     className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
                     aria-label="Upload profile picture"
                   >
-                    <Camera className="w-4 h-4" />
+                    <FaCamera className="w-4 h-4" />
                   </button>
                   {uploadingImage && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
@@ -353,12 +353,12 @@ export default function SettingsPage() {
                   >
                     {copied ? (
                       <>
-                        <Check className="w-4 h-4 mr-2" />
+                        <FaCheck className="w-4 h-4 mr-2" />
                         Copied!
                       </>
                     ) : (
                       <>
-                        <Copy className="w-4 h-4 mr-2" />
+                        <FaCopy className="w-4 h-4 mr-2" />
                         Copy
                       </>
                     )}

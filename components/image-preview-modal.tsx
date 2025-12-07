@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Send, XCircle, Pen } from "lucide-react"
+import { FaTimes, FaPaperPlane, FaTimesCircle, FaPen } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { useState, useEffect } from "react"
@@ -73,7 +73,7 @@ export function ImagePreviewModal({
             className="absolute top-4 right-4 z-[10000] p-3 bg-black/70 hover:bg-black/90 rounded-full transition-colors shadow-lg"
             aria-label="Close preview"
           >
-            <X className="w-6 h-6 text-white" />
+            <FaTimes className="w-6 h-6 text-white" />
           </button>
 
           {/* Image Preview - Centered */}
@@ -118,7 +118,7 @@ export function ImagePreviewModal({
               disabled={isSending || showAnnotation}
               className="bg-black/70 hover:bg-black/90 text-white border-white/20"
             >
-              <XCircle className="w-4 h-4 mr-2" />
+              <FaTimesCircle className="w-4 h-4 mr-2" />
               Remove
             </Button>
             <Button
@@ -127,7 +127,7 @@ export function ImagePreviewModal({
               disabled={isSending || showAnnotation}
               className="bg-black/70 hover:bg-black/90 text-white border-white/20"
             >
-              <Pen className="w-4 h-4 mr-2" />
+              <FaPen className="w-4 h-4 mr-2" />
               Draw
             </Button>
             <Button
@@ -142,7 +142,7 @@ export function ImagePreviewModal({
                 "Sending..."
               ) : (
                 <>
-                  <Send className="w-4 h-4 mr-2" />
+                  <FaPaperPlane className="w-4 h-4 mr-2" />
                   Send
                 </>
               )}

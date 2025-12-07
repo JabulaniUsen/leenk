@@ -13,8 +13,9 @@ export function useConversation(conversationId: string | null | undefined) {
     ([, id]: [string, string]) => conversationFetcher(id),
     {
       revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      dedupingInterval: 2000,
+      revalidateOnReconnect: false, // Disable auto-reconnect to reduce loading
+      dedupingInterval: 5000, // Increase deduping to reduce requests
+      // SWR v2 keeps previous data by default during revalidation
       // Don't set fallbackData to null - let it be undefined so we can show skeleton
     }
   )

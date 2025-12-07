@@ -5,7 +5,7 @@ import type { Message } from "@/lib/types"
 
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ImageIcon, ArrowRight, X } from "lucide-react"
+import { FaImage, FaArrowRight, FaTimes } from "react-icons/fa"
 import { motion } from "framer-motion"
 import { ImagePreviewModal } from "@/components/image-preview-modal"
 
@@ -144,7 +144,7 @@ export function MessageInput({
               className="p-1 hover:bg-secondary-foreground/10 rounded-full transition-colors"
               aria-label="Cancel reply"
             >
-              <X className="w-4 h-4 text-muted-foreground" />
+              <FaTimes className="w-4 h-4 text-muted-foreground" />
             </button>
           )}
         </div>
@@ -157,7 +157,7 @@ export function MessageInput({
         className="p-2 hover:bg-secondary rounded-lg transition-colors disabled:opacity-50 text-muted-foreground"
         aria-label="Upload image"
       >
-        <ImageIcon className="w-5 h-5" />
+        <FaImage className="w-5 h-5" />
       </button>
       <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
       <textarea
@@ -176,7 +176,7 @@ export function MessageInput({
         size="sm" 
         className="self-end bg-primary hover:opacity-90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed rounded-full aspect-square p-2.5"
       >
-        <ArrowRight className="w-4 h-4" />
+        <FaArrowRight className="w-4 h-4" />
       </Button>
       </div>
 

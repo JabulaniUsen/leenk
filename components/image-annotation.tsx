@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useEffect, useState, useCallback } from "react"
-import { Undo2, Redo2, X } from "lucide-react"
+import { FaUndo, FaRedo, FaTimes } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 
 interface ImageAnnotationProps {
@@ -275,7 +275,7 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
             className="p-2 rounded-full hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             aria-label="Undo"
           >
-            <Undo2 className="w-5 h-5 text-white" />
+            <FaUndo className="w-5 h-5 text-white" />
           </button>
           <button
             onClick={redo}
@@ -283,7 +283,7 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
             className="p-2 rounded-full hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             aria-label="Redo"
           >
-            <Redo2 className="w-5 h-5 text-white" />
+            <FaRedo className="w-5 h-5 text-white" />
           </button>
 
           {/* Color Picker - 4 colors only */}
@@ -313,7 +313,7 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
             className="p-2 rounded-full hover:bg-white/10 transition-colors"
             aria-label="Close"
           >
-            <X className="w-5 h-5 text-white" />
+            <FaTimes className="w-5 h-5 text-white" />
           </button>
         </div>
       </div>

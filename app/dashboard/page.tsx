@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ConversationList } from "@/components/conversation-list"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { LogOut, Settings } from "lucide-react"
+import { FaSignOutAlt, FaCog } from "react-icons/fa"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar } from "@/components/avatar"
 import { ConversationSkeleton } from "@/components/conversation-skeleton"
@@ -94,7 +94,7 @@ export default function DashboardPage() {
 
   return (
     <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)]">
-      {/* Sidebar - Render immediately */}
+      {/* Sidebar - Full screen on mobile, sidebar on desktop */}
       <motion.aside
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -108,11 +108,11 @@ export default function DashboardPage() {
               <ThemeToggle />
               <Link href="/dashboard/settings">
                 <Button variant="ghost" size="sm">
-                  <Settings className="w-4 h-4" />
+                  <FaCog className="w-4 h-4" />
                 </Button>
               </Link>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4" />
+                <FaSignOutAlt className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -153,7 +153,7 @@ export default function DashboardPage() {
         </div>
       </motion.aside>
 
-      {/* Main Content - Render immediately */}
+      {/* Main Content - Only show on desktop */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

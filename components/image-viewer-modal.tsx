@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Download } from "lucide-react"
+import { FaTimes, FaDownload } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { useState, useEffect } from "react"
@@ -51,7 +51,7 @@ export function ImageViewerModal({ imageUrl, onClose, alt = "Chat image" }: Imag
           className="absolute top-4 right-4 z-[10000] p-3 bg-black/70 hover:bg-black/90 rounded-full transition-colors shadow-lg"
           aria-label="Close viewer"
         >
-          <X className="w-6 h-6 text-white" />
+          <FaTimes className="w-6 h-6 text-white" />
         </button>
 
         {/* Download button */}
@@ -63,7 +63,7 @@ export function ImageViewerModal({ imageUrl, onClose, alt = "Chat image" }: Imag
           className="absolute top-4 left-4 z-[10000] p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
           aria-label="Download image"
         >
-          <Download className="w-6 h-6 text-white" />
+          <FaDownload className="w-6 h-6 text-white" />
         </button>
 
         {/* Image */}

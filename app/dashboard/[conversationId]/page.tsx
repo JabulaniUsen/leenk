@@ -12,7 +12,7 @@ import { db } from "@/lib/supabase/db"
 import { storage } from "@/lib/storage"
 import type { Message, Conversation, AuthUser } from "@/lib/types"
 import { v4 as uuidv4 } from "uuid"
-import { ChevronLeft, MoreVertical } from "lucide-react"
+import { FaChevronLeft, FaEllipsisV } from "react-icons/fa"
 import Link from "next/link"
 import { Wallpaper } from "@/components/wallpaper"
 import { Avatar } from "@/components/avatar"
@@ -26,7 +26,7 @@ import { useConversations } from "@/lib/hooks/use-conversations"
 import { useRealtime } from "@/lib/hooks/use-realtime"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { LogOut, Settings } from "lucide-react"
+import { FaSignOutAlt, FaCog } from "react-icons/fa"
 import type { Business } from "@/lib/types"
 
 export default function ChatPage() {
@@ -152,9 +152,9 @@ export default function ChatPage() {
     }
 
     const handleConversationUpdate = () => {
-      // Revalidate conversation cache - SWR will merge with existing cache
-      // This preserves optimistic updates while refreshing from server
-      mutateConversation(undefined, { revalidate: true })
+      // Silently update without revalidation to avoid loading states
+      // Real-time updates already handle message changes
+      mutateConversation(undefined, { revalidate: false })
     }
 
     const cleanup = setupConversationChannel(
@@ -169,45 +169,41 @@ export default function ChatPage() {
     return cleanup
   }, [conversationId, user?.id, setupConversationChannel, mutateConversation, mutateConversations, currentConversation?.id])
 
-  // Fallback: Poll for new messages if WebSocket fails
-  const lastMessageCountRef = useRef(0)
+  // Removed aggressive polling - rely on real-time updates only
+  // Real-time connection handles all updates efficiently
+
+  // Auto-scroll to bottom when messages change - optimized to prevent jank
   useEffect(() => {
-    if (!currentConversation?.id || connectionStatus === "connected") {
-      lastMessageCountRef.current = currentConversation?.messages.length || 0
-      return
-    }
+    if (!messagesEndRef.current) return
+    
+    // Use requestAnimationFrame for smooth scrolling
+    const scrollTimeout = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+    }, 50)
+    
+    return () => clearTimeout(scrollTimeout)
+  }, [currentConversation?.messages.length]) // Only trigger on length change, not content
 
-    const pollInterval = setInterval(async () => {
-      if (!currentConversation.id || !user) return
-      try {
-        // Use SWR mutate to refresh cache
-        mutateConversation()
-        mutateConversations()
-      } catch (error) {
-        console.error("Error polling for messages:", error)
-      }
-    }, 5000)
-
-    return () => {
-      clearInterval(pollInterval)
-    }
-  }, [currentConversation?.id, connectionStatus, user])
-
-  // Auto-scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [currentConversation?.messages])
-
-  // Mark messages as read when conversation is viewed
+  // Mark messages as read when conversation is viewed - silent update
   useEffect(() => {
     if (!conversationId || !user) return
 
     const markAsRead = async () => {
       try {
         await db.markMessagesAsRead(conversationId, "customer")
-        // Refresh conversation cache and conversations list to update unread counts
-        mutateConversation(undefined, { revalidate: true })
-        mutateConversations(undefined, { revalidate: true })
+        // Update cache silently without revalidation to avoid loading states
+        mutateConversation((current) => {
+          if (!current) return current
+          return {
+            ...current,
+            messages: current.messages.map(m => 
+              m.senderType === "customer" && m.status !== "read" 
+                ? { ...m, status: "read" as const }
+                : m
+            )
+          }
+        }, false)
+        mutateConversations(undefined, { revalidate: false })
       } catch (error) {
         console.error("Error marking messages as read:", error)
       }
@@ -279,23 +275,21 @@ export default function ChatPage() {
         }
       }, false)
       
-      // Send email notification to customer
-      try {
-        await fetch("/api/send-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            conversationId: currentConversation.id,
-            messageId: createdMessage.id,
-          }),
-        })
-      } catch (emailError) {
+      // Send email notification to customer (fire and forget - don't block UI)
+      fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationId: currentConversation.id,
+          messageId: createdMessage.id,
+        }),
+      }).catch((emailError) => {
         console.error("Failed to send email notification:", emailError)
         // Don't fail the message send if email fails
-      }
+      })
       
-      // Update conversations list cache
-      mutateConversations()
+      // Update conversations list cache silently
+      mutateConversations(undefined, { revalidate: false })
       // Clear reply state
       setReplyTo(null)
     } catch (error) {
@@ -363,23 +357,21 @@ export default function ChatPage() {
         }
       }, false)
       
-      // Send email notification to customer
-      try {
-        await fetch("/api/send-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            conversationId: currentConversation.id,
-            messageId: createdMessage.id,
-          }),
-        })
-      } catch (emailError) {
+      // Send email notification to customer (fire and forget - don't block UI)
+      fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationId: currentConversation.id,
+          messageId: createdMessage.id,
+        }),
+      }).catch((emailError) => {
         console.error("Failed to send email notification:", emailError)
         // Don't fail the message send if email fails
-      }
+      })
       
-      // Update conversations list cache
-      mutateConversations()
+      // Update conversations list cache silently
+      mutateConversations(undefined, { revalidate: false })
       // Clear reply state
       setReplyTo(null)
     } catch (error) {
@@ -420,40 +412,66 @@ export default function ChatPage() {
 
   const handlePin = async (conversationId: string, pinned: boolean) => {
     try {
+      // Optimistic update
+      mutateConversations((current) => {
+        if (!current) return current
+        return current.map(conv => 
+          conv.id === conversationId ? { ...conv, pinned } : conv
+        )
+      }, false)
+      
       await storage.updateConversation(conversationId, { pinned })
-      // Refresh conversations list to show updated pin status
-      mutateConversations(undefined, { revalidate: true })
-      // If this is the current conversation, update it too
+      // Silent revalidation in background
+      mutateConversations(undefined, { revalidate: false })
+      
       if (conversationId === currentConversation?.id) {
-        mutateConversation(undefined, { revalidate: true })
+        mutateConversation((current) => {
+          if (!current) return current
+          return { ...current, pinned }
+        }, false)
       }
     } catch (error) {
       console.error("Failed to pin/unpin conversation:", error)
+      // Rollback on error
+      mutateConversations(undefined, { revalidate: true })
       alert("Failed to update conversation. Please try again.")
     }
   }
 
   const handleDelete = async (conversationId: string) => {
     try {
+      // Optimistic update
+      mutateConversations((current) => {
+        if (!current) return current
+        return current.filter(conv => conv.id !== conversationId)
+      }, false)
+      
       await storage.deleteConversation(conversationId)
-      // Refresh conversations list to remove deleted conversation
-      mutateConversations(undefined, { revalidate: true })
+      // Silent revalidation in background
+      mutateConversations(undefined, { revalidate: false })
+      
       // If we're viewing the deleted conversation, redirect to dashboard
       if (conversationId === currentConversation?.id) {
         router.push("/dashboard")
       }
     } catch (error) {
       console.error("Failed to delete conversation:", error)
+      // Rollback on error
+      mutateConversations(undefined, { revalidate: true })
       alert("Failed to delete conversation. Please try again.")
     }
   }
 
-  // Render UI immediately - show skeleton for loading parts
-  // This makes the app feel instant even while data loads
-  if (authLoading || conversationLoading) {
+  // Show content immediately with progressive loading - no blocking states
+  // Only show skeleton if we truly have no data
+  const showSkeleton = authLoading || (conversationLoading && !currentConversation)
+
+  // Show skeleton while loading, but render structure immediately
+  if (showSkeleton) {
     return (
       <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
         <Wallpaper />
+        {/* Sidebar - Hidden on mobile, shown on desktop */}
         <div className="hidden md:flex w-80 border-r border-border flex-col bg-card/80 backdrop-blur-sm z-10">
           <div className="p-4 border-b border-border">
             <Skeleton className="h-8 w-24" />
@@ -462,9 +480,14 @@ export default function ChatPage() {
             <ConversationSkeleton />
           </div>
         </div>
-        <div className="flex-1 flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative z-10">
+        <div className="flex-1 flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative z-10 w-full">
           <div className="border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4">
             <div className="flex items-center gap-3">
+              <Link href="/dashboard">
+                <Button variant="ghost" size="sm" className="md:hidden">
+                  <FaChevronLeft className="w-5 h-5" />
+                </Button>
+              </Link>
               <Skeleton className="w-10 h-10 rounded-full" />
               <div className="space-y-2">
                 <Skeleton className="h-4 w-32" />
@@ -483,10 +506,12 @@ export default function ChatPage() {
     )
   }
 
-  if (!currentConversation) {
+  // If no conversation but not loading, show empty state
+  if (!currentConversation && !conversationLoading) {
     return (
       <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
         <Wallpaper />
+        {/* Sidebar - Hidden on mobile, shown on desktop */}
         <div className="hidden md:flex w-80 border-r border-border flex-col bg-card/80 backdrop-blur-sm z-10">
           <div className="p-4 border-b border-border">
             <Link href="/dashboard">
@@ -502,9 +527,19 @@ export default function ChatPage() {
             />
           </div>
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-muted-foreground">Loading conversation...</p>
+        {/* Empty state - Full screen on mobile with back button */}
+        <div className="flex-1 flex flex-col w-full">
+          <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4">
+            <Link href="/dashboard">
+              <Button variant="ghost" size="sm" className="md:hidden">
+                <FaChevronLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <p className="text-muted-foreground">Conversation not found</p>
+            </div>
           </div>
         </div>
       </main>
@@ -514,11 +549,11 @@ export default function ChatPage() {
   return (
     <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
       <Wallpaper businessLogo={user?.business?.businessLogo} />
-      {/* Sidebar - Same structure as dashboard */}
+      {/* Sidebar - Hidden on mobile, shown on desktop */}
       <motion.aside
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="w-full md:w-80 border-r border-[#313d45] md:border-border flex flex-col bg-[#111b21] md:bg-card/80 backdrop-blur-sm z-10"
+        className="hidden md:flex w-80 border-r border-[#313d45] md:border-border flex-col bg-[#111b21] md:bg-card/80 backdrop-blur-sm z-10"
       >
         {/* Header - Same as dashboard */}
         <div className="p-3 md:p-4 border-b border-border bg-card/80 backdrop-blur-sm">
@@ -530,11 +565,11 @@ export default function ChatPage() {
               <ThemeToggle />
               <Link href="/dashboard/settings">
                 <Button variant="ghost" size="sm">
-                  <Settings className="w-4 h-4" />
+                  <FaCog className="w-4 h-4" />
                 </Button>
           </Link>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4" />
+                <FaSignOutAlt className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -564,14 +599,14 @@ export default function ChatPage() {
         </div>
       </motion.aside>
 
-      {/* Chat Area */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative z-10">
-        {/* Chat Header - Fixed at top */}
+      {/* Chat Area - Full screen on mobile */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative z-10 w-full">
+        {/* Chat Header - Fixed at top with back button on mobile */}
         <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="md:hidden">
-              <Button variant="ghost" size="sm">
-                <ChevronLeft className="w-4 h-4" />
+            <Link href="/dashboard">
+              <Button variant="ghost" size="sm" className="md:hidden">
+                <FaChevronLeft className="w-5 h-5" />
               </Button>
             </Link>
             <Avatar name={currentConversation.customerName || currentConversation.customerEmail} size="md" />
@@ -589,7 +624,7 @@ export default function ChatPage() {
             </div>
           </div>
           <Button variant="ghost" size="sm">
-            <MoreVertical className="w-4 h-4" />
+            <FaEllipsisV className="w-4 h-4" />
           </Button>
         </div>
 
@@ -610,6 +645,7 @@ export default function ChatPage() {
                   onReply={setReplyTo}
                 />
               ))}
+              {otherUserTyping && <TypingIndicator isOwn={false} />}
               {otherUserTyping && <TypingIndicator isOwn={false} />}
             </>
           )}

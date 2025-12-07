@@ -3,7 +3,7 @@
 import type { Message } from "@/lib/types"
 import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion"
 import Image from "next/image"
-import { CheckCircle2, CircleCheck, Reply } from "lucide-react"
+import { FaCheckCircle, FaReply } from "react-icons/fa"
 import { useState, useRef } from "react"
 import { ImageViewerModal } from "@/components/image-viewer-modal"
 
@@ -35,13 +35,13 @@ export function ChatBubble({ message, isOwn, index, onReply }: ChatBubbleProps) 
 
     switch (message.status) {
       case "sent":
-        return <CircleCheck className="w-3 h-3 opacity-70" />
+        return <FaCheckCircle className="w-3 h-3 opacity-70" />
       case "delivered":
-        return <CheckCircle2 className="w-3.5 h-3.5 opacity-70" />
+        return <FaCheckCircle className="w-3.5 h-3.5 opacity-70" />
       case "read":
         return <span className="text-xs opacity-70 text-primary">Seen</span>
       default:
-        return <CircleCheck className="w-3 h-3 opacity-70" />
+        return <FaCheckCircle className="w-3 h-3 opacity-70" />
     }
   }
 
@@ -59,7 +59,7 @@ export function ChatBubble({ message, isOwn, index, onReply }: ChatBubbleProps) 
           style={{ opacity, scale, x }}
           className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 text-primary z-10"
         >
-          <Reply className="w-5 h-5" />
+          <FaReply className="w-5 h-5" />
           <span className="text-sm font-medium">Reply</span>
         </motion.div>
       )}
@@ -109,6 +109,8 @@ export function ChatBubble({ message, isOwn, index, onReply }: ChatBubbleProps) 
               fill 
               className="object-cover"
               priority={index < 3} // Priority for first 3 images (above fold)
+              loading={index < 3 ? "eager" : "lazy"}
+              sizes="(max-width: 768px) 192px, 256px"
             />
           </div>
         )}

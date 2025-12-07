@@ -12,7 +12,7 @@ import { storage } from "@/lib/storage"
 import { db } from "@/lib/supabase/db"
 import type { Business, Message, Conversation } from "@/lib/types"
 import { v4 as uuidv4 } from "uuid"
-import { AlertCircle, Mail, User, Loader2 } from "lucide-react"
+import { FaExclamationCircle, FaEnvelope, FaUser, FaSpinner } from "react-icons/fa"
 import { Wallpaper } from "@/components/wallpaper"
 import { Avatar } from "@/components/avatar"
 import { useRealtime } from "@/lib/hooks/use-realtime"
@@ -242,7 +242,8 @@ export default function CustomerChatPage() {
 
     const handleConversationUpdate = async () => {
       if (!currentConversation?.id) return
-      // Merge messages instead of replacing - preserve optimistic updates
+      // Silently update in background without blocking UI
+      // Only fetch if we suspect there might be updates
       const updated = await storage.getConversationById(currentConversation.id)
       if (updated) {
         setCurrentConversation((prev) => {
@@ -292,47 +293,40 @@ export default function CustomerChatPage() {
     }
   }, [currentConversation?.messages])
 
-  // Fallback: Poll for new messages if WebSocket fails
-  const lastMessageCountRef = useRef(0)
+  // Removed aggressive polling - rely on real-time updates only
+  // Real-time connection handles all updates efficiently
+
+  // Auto-scroll to bottom when messages change - optimized to prevent jank
   useEffect(() => {
-    if (!currentConversation?.id || connectionStatus === "connected") {
-      lastMessageCountRef.current = currentConversation?.messages.length || 0
-      return
-    }
+    if (!messagesEndRef.current || !currentConversation?.messages) return
+    
+    // Use requestAnimationFrame for smooth scrolling
+    const scrollTimeout = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+    }, 50)
+    
+    return () => clearTimeout(scrollTimeout)
+  }, [currentConversation?.messages.length]) // Only trigger on length change, not content
 
-    const pollInterval = setInterval(async () => {
-      if (!currentConversation.id) return
-      try {
-        const updated = await storage.getConversationById(currentConversation.id)
-        if (updated && updated.messages.length > lastMessageCountRef.current) {
-          lastMessageCountRef.current = updated.messages.length
-          setCurrentConversation(updated)
-        }
-      } catch (error) {
-        console.error("Error polling for messages:", error)
-      }
-    }, 2000) // Poll every 2 seconds as fallback
-
-    return () => {
-      clearInterval(pollInterval)
-    }
-  }, [currentConversation?.id, connectionStatus, currentConversation?.messages.length])
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [currentConversation?.messages])
-
-  // Mark messages as read when conversation is viewed
+  // Mark messages as read when conversation is viewed - silent update
   useEffect(() => {
     if (!currentConversation?.id || !business) return
 
     const markAsRead = async () => {
       try {
         await db.markMessagesAsRead(currentConversation.id, "business")
-        const updated = await storage.getConversationById(currentConversation.id)
-        if (updated) {
-          setCurrentConversation(updated)
-        }
+        // Update state silently without refetching
+        setCurrentConversation((prev) => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            messages: prev.messages.map(m => 
+              m.senderType === "customer" && m.status !== "read" 
+                ? { ...m, status: "read" as const }
+                : m
+            )
+          }
+        })
       } catch (error) {
         console.error("Error marking messages as read:", error)
       }
@@ -512,7 +506,7 @@ export default function CustomerChatPage() {
     return (
       <main className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
         <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-          <Loader2 className="w-5 h-5 animate-spin" />
+          <FaSpinner className="w-5 h-5 animate-spin" />
           <span>Loading...</span>
         </div>
       </main>
@@ -523,7 +517,7 @@ export default function CustomerChatPage() {
     return (
       <main className="h-screen flex items-center justify-center bg-background p-4">
         <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+          <FaExclamationCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Error</h1>
           <p className="text-muted-foreground">{error}</p>
         </div>
@@ -591,7 +585,7 @@ export default function CustomerChatPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm flex items-center gap-2"
                   >
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <FaExclamationCircle className="w-4 h-4 flex-shrink-0" />
                     <span>{error}</span>
                   </motion.div>
                 )}
@@ -602,7 +596,7 @@ export default function CustomerChatPage() {
                     Email Address <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
+                    <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                     <input
                       type="email"
                       value={customerEmail}
@@ -629,7 +623,7 @@ export default function CustomerChatPage() {
                   </div>
                   {isSearching && (
                     <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <FaSpinner className="w-3 h-3 animate-spin" />
                       <span>Searching for existing conversations...</span>
                     </div>
                   )}
@@ -648,7 +642,7 @@ export default function CustomerChatPage() {
                       Your Name <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
+                      <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                       <input
                         type="text"
                         value={customerName}
@@ -673,7 +667,7 @@ export default function CustomerChatPage() {
                 >
                   {isSearching ? (
                     <span className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <FaSpinner className="w-4 h-4 animate-spin" />
                       Searching...
                     </span>
                   ) : (

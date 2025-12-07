@@ -1,128 +1,95 @@
-[00:00:02.759] Server  WARN     ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
-[00:00:03.036] Server  LOG      ✓ Ready in 2.4s
-[00:00:06.150] Server  ERROR   AuthApiError: Invalid Refresh Token: Refresh Token Not Found
-    at ignore-listed frames {
-  __isAuthError: true,
-  status: 400,
-  code: 'refresh_token_not_found'
-}
-[00:00:06.180] Server  ERROR   AuthApiError: Invalid Refresh Token: Refresh Token Not Found
-    at ignore-listed frames {
-  __isAuthError: true,
-  status: 400,
-  code: 'refresh_token_not_found'
-}
-[00:00:09.198] Server  LOG      ○ Compiling / ...
-[00:00:13.070] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+[00:00:01.224] Server  WARN     ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[00:00:01.414] Server  LOG      ✓ Ready in 1135ms
+[00:00:02.623] Browser LOG     Service Worker registered: {}
+[00:00:02.623] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:02.623] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:00:02.623] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765151220342}
+[00:00:04.604] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:00:07.828] Browser LOG     Service Worker registered: {}
+[00:00:07.828] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:07.828] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:00:07.828] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765151225627}
+[00:00:09.490] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:00:19.422] Server  LOG      ○ Compiling /dashboard/[conversationId] ...
+[00:00:21.704] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:00:13.070] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+[00:00:21.704] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:01:07.668] Server  ERROR   AuthApiError: Invalid Refresh Token: Refresh Token Not Found
-    at ignore-listed frames {
-  __isAuthError: true,
-  status: 400,
-  code: 'refresh_token_not_found'
-}
-[00:01:07.701] Server  ERROR   AuthApiError: Invalid Refresh Token: Refresh Token Not Found
-    at ignore-listed frames {
-  __isAuthError: true,
-  status: 400,
-  code: 'refresh_token_not_found'
-}
-[00:01:07.740] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+[00:00:22.463] Browser LOG     Business channel subscription status: CLOSED
+[00:00:22.463] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765151239843}
+[00:00:22.463] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:00:22.463] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:00:22.463] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 {}
+[00:00:22.464] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 2/5) in 4000ms
+[00:00:24.706] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:00:25.903] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:00:25.904] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:00:26.160] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:00:32.913] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:01:07.740] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+[00:00:32.913] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:01:08.225] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:01:08.515] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+[00:00:33.104] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:00:33.105] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:00:33.105] Browser LOG     Business channel subscription status: CLOSED
+[00:00:33.105] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765151250882}
+[00:00:33.312] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:00:34.564] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:01:08.515] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+[00:00:34.564] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:01:08.648] Browser LOG     Service Worker registered: {}
-[00:01:08.791] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:01:08.791] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:01:08.791] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765106201931}
-[00:01:10.040] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+[00:00:34.737] Browser LOG     Business channel subscription status: CLOSED
+[00:00:34.737] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/69572c28-d52b-466b-868e-82feab862b7d color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/69572c28-d52b-466b-868e-82feab862b7d","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765151252519}
+[00:00:34.938] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d undefined
+[00:00:34.938] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 1/5) in 2000ms
+[00:00:34.939] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d {}
+[00:00:34.939] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 2/5) in 4000ms
+[00:00:37.232] Browser LOG     ✅ Real-time connected: conversation:69572c28-d52b-466b-868e-82feab862b7d
+[00:00:38.600] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d undefined
+[00:00:38.600] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 1/5) in 2000ms
+[00:00:38.775] Browser LOG     ✅ Real-time connected: conversation:69572c28-d52b-466b-868e-82feab862b7d
+[00:00:45.625] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:01:10.040] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+[00:00:45.625] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:01:10.161] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+[00:00:45.850] Browser WARN    ⚠️ Real-time disconnected: conversation:69572c28-d52b-466b-868e-82feab862b7d undefined
+[00:00:45.851] Browser LOG     🔄 Reconnecting conversation:69572c28-d52b-466b-868e-82feab862b7d (attempt 1/5) in 2000ms
+[00:00:45.855] Browser LOG     Business channel subscription status: CLOSED
+[00:00:45.855] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765151263584}
+[00:00:46.017] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:00:48.020] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:01:10.161] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+[00:00:48.020] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:04:30.992] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+[00:00:48.235] Browser LOG     Business channel subscription status: CLOSED
+[00:00:48.235] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765151266016}
+[00:00:48.434] Browser WARN    ⚠️ Real-time disconnected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 undefined
+[00:00:48.434] Browser LOG     🔄 Reconnecting conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 (attempt 1/5) in 2000ms
+[00:00:48.434] Browser WARN    ⚠️ Real-time disconnected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 {}
+[00:00:48.434] Browser LOG     🔄 Reconnecting conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 (attempt 2/5) in 4000ms
+[00:00:51.168] Browser LOG     ✅ Real-time connected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9
+[00:00:52.282] Browser WARN    ⚠️ Real-time disconnected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 undefined
+[00:00:52.283] Browser LOG     🔄 Reconnecting conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 (attempt 1/5) in 2000ms
+[00:00:52.534] Browser LOG     ✅ Real-time connected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9
+[00:00:59.848] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:04:30.992] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+[00:00:59.848] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:04:31.190] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765106404355}
-[00:04:40.502] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+[00:01:00.090] Browser WARN    ⚠️ Real-time disconnected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 undefined
+[00:01:00.103] Browser LOG     🔄 Reconnecting conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 (attempt 1/5) in 2000ms
+[00:01:00.104] Browser LOG     Business channel subscription status: CLOSED
+[00:01:00.104] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765151277811}
+[00:01:00.246] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:01:20.431] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/settings. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:04:40.502] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+[00:01:20.431] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/settings. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:04:40.696] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765106413866}
-[00:04:42.733] Browser LOG     Business channel subscription status: SUBSCRIBED
-[00:04:52.591] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+[00:01:20.772] Browser LOG     Business channel subscription status: CLOSED
+[00:01:20.772] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/settings color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/settings","o":"http://localhost:3000/dashboard/settings","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765151298562}
+[00:01:39.444] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:04:52.591] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+[00:01:39.444] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:04:53.096] Browser LOG     Business channel subscription status: CLOSED
-[00:04:53.096] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765106425977}
-[00:04:53.457] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
-[00:04:53.457] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
-[00:04:53.457] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 {}
-[00:04:53.457] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 2/5) in 4000ms
-[00:04:55.532] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
-[00:04:56.531] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
-[00:04:56.531] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
-[00:04:57.543] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
-[00:06:00.262] Browser LOG     Service Worker registered: {}
-[00:06:00.337] Server  LOG      ✓ Compiled in 542ms
-[00:06:00.988] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:00.988] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:01.016] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:01.016] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:01.533] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:01.533] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:01.604] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:01.604] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:01.986] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:01.987] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:02.355] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:02.355] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:02.743] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:02.743] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:03.112] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:03.112] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:03.464] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:03.464] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-[00:06:03.793] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:06:04.532] Browser LOG     Service Worker registered: {}
-[00:06:04.532] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:06:04.532] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800","route":"/dashboard/[conversationId]"}
-[00:06:04.532] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765106497265}
-[00:06:06.530] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
-[00:06:06.530] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
-[00:06:06.530] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 {}
-[00:06:06.530] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 2/5) in 4000ms
-[00:06:07.530] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
-[00:06:09.531] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
-[00:06:09.531] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
-[00:06:09.531] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:01:39.623] Browser LOG     Business channel subscription status: CLOSED
+[00:01:39.624] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765151317414}
+[00:01:40.621] Browser LOG     Business channel subscription status: SUBSCRIBED

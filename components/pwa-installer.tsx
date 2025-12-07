@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Download, X } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { FaDownload, FaTimes } from "react-icons/fa"
+import { AnimatePresence, motion } from "framer-motion"
 
 const PWA_INSTALL_DISMISSED_KEY = "pwa-install-dismissed"
-const PWA_INSTALL_DISMISSED_DURATION = 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+const PWA_INSTALL_DISMISSED_DURATION = 7 * 24 * 60 * 60 * 1000 
 
 export function PWAInstaller() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
@@ -96,7 +96,7 @@ export function PWAInstaller() {
           <div className="bg-card border border-border rounded-lg shadow-lg p-4 flex items-center gap-4">
             <div className="flex-shrink-0">
               <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <Download className="w-5 h-5 text-primary" />
+                <FaDownload className="w-5 h-5 text-primary" />
               </div>
             </div>
             <div className="flex-1 min-w-0">
@@ -118,7 +118,7 @@ export function PWAInstaller() {
                 className="p-1 hover:bg-muted rounded transition-colors"
                 aria-label="Dismiss"
               >
-                <X className="w-4 h-4 text-muted-foreground" />
+                <FaTimes className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
           </div>

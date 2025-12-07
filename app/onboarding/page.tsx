@@ -10,7 +10,8 @@ import { storage } from "@/lib/storage"
 import { useAuth } from "@/lib/hooks/use-auth"
 import type { AuthUser } from "@/lib/types"
 import Image from "next/image"
-import { Building2, Phone, MapPin, Loader2, AlertCircle } from "lucide-react"
+import { FaBuilding, FaMapMarkerAlt, FaSpinner, FaExclamationCircle } from "react-icons/fa"
+import { FiPhone } from "react-icons/fi"
 
 // Helper function to check if onboarding is complete
 function isOnboardingComplete(business: AuthUser["business"] | null | undefined): boolean {
@@ -156,7 +157,7 @@ export default function OnboardingPage() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
         <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-          <Loader2 className="w-5 h-5 animate-spin" />
+          <FaSpinner className="w-5 h-5 animate-spin" />
           <span>Loading...</span>
         </div>
       </main>
@@ -221,7 +222,7 @@ export default function OnboardingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm flex items-center gap-2"
                 >
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <FaExclamationCircle className="w-4 h-4 flex-shrink-0" />
                   <span>{error}</span>
                 </motion.div>
               )}
@@ -232,7 +233,7 @@ export default function OnboardingPage() {
                   Business Name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
+                  <FaBuilding className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                   <input
                     type="text"
                     value={businessName}
@@ -254,7 +255,7 @@ export default function OnboardingPage() {
                   Phone Number <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
+                  <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                   <input
                     type="tel"
                     value={phone}
@@ -278,7 +279,7 @@ export default function OnboardingPage() {
                   Business Address <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
+                  <FaMapMarkerAlt className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                   <input
                     type="text"
                     value={address}
@@ -301,7 +302,7 @@ export default function OnboardingPage() {
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <FaSpinner className="w-4 h-4 animate-spin" />
                     Completing Setup...
                   </span>
                 ) : (

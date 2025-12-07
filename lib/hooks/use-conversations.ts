@@ -8,20 +8,25 @@ const conversationsFetcher = async (businessId: string): Promise<Conversation[]>
 }
 
 export function useConversations(businessId: string | null | undefined) {
-  const { data, error, isLoading, mutate } = useSWR<Conversation[]>(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<Conversation[]>(
     businessId ? [`conversations`, businessId] : null,
     ([, id]: [string, string]) => conversationsFetcher(id),
     {
       revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      dedupingInterval: 2000, // Dedupe requests within 2 seconds
-      fallbackData: [], // Show empty array immediately
+      revalidateOnReconnect: false, // Disable auto-reconnect to reduce loading
+      dedupingInterval: 5000, // Increase deduping to reduce requests
+      // SWR v2 keeps previous data by default during revalidation
+      // Don't use fallbackData - let it be undefined initially so we can show skeleton
     }
   )
 
+  // isLoading is true on initial load, isValidating is true when revalidating
+  // We want to show skeleton if we're loading for the first time (data is undefined)
+  const isInitialLoading = isLoading || (data === undefined && isValidating)
+
   return {
     conversations: data || [],
-    isLoading,
+    isLoading: isInitialLoading,
     error,
     mutate, // For manual cache updates
   }

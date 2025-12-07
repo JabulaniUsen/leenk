@@ -1,7 +1,7 @@
 "use client"
 
 import { useTheme } from "@/lib/theme"
-import { Moon, Sun } from "lucide-react"
+import { FaMoon, FaSun } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 
 export function ThemeToggle() {
@@ -16,9 +16,9 @@ export function ThemeToggle() {
       aria-label="Toggle theme"
     >
       {theme === "light" ? (
-        <Moon className="w-4 h-4" />
+        <FaMoon className="w-4 h-4" />
       ) : (
-        <Sun className="w-4 h-4" />
+        <FaSun className="w-4 h-4" />
       )}
     </Button>
   )

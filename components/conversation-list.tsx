@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { Avatar } from "@/components/avatar"
-import { Pin, PinOff, Trash2 } from "lucide-react"
+import { FaThumbtack, FaTrash } from "react-icons/fa"
 import { useState } from "react"
 
 interface ConversationListProps {
@@ -101,7 +101,7 @@ export function ConversationList({ conversations, selectedId, onPin, onDelete }:
                   <Avatar name={conv.customerName || conv.customerEmail} size="md" />
                     {conv.pinned && (
                       <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                        <Pin className="w-3 h-3" />
+                        <FaThumbtack className="w-3 h-3" />
                       </div>
                     )}
                   </div>
@@ -109,7 +109,7 @@ export function ConversationList({ conversations, selectedId, onPin, onDelete }:
                     <div className="flex justify-between items-start mb-1">
                         <div className="flex items-center gap-1 flex-1 min-w-0">
                           {conv.pinned && (
-                            <Pin className="w-3 h-3 text-primary flex-shrink-0" />
+                            <FaThumbtack className="w-3 h-3 text-primary flex-shrink-0" />
                           )}
                           <p className={`font-medium truncate ${hasUnread ? "font-semibold text-foreground" : "text-foreground"}`}>
                             {conv.customerName || conv.customerEmail}
@@ -143,11 +143,7 @@ export function ConversationList({ conversations, selectedId, onPin, onDelete }:
                   className="p-1.5 hover:bg-secondary rounded transition-colors"
                   title={conv.pinned ? "Unpin conversation" : "Pin conversation"}
                 >
-                  {conv.pinned ? (
-                    <PinOff className="w-4 h-4 text-muted-foreground" />
-                  ) : (
-                    <Pin className="w-4 h-4 text-muted-foreground" />
-                  )}
+                  <FaThumbtack className={`w-4 h-4 text-muted-foreground ${conv.pinned ? "opacity-50" : ""}`} />
                 </button>
                 <button
                   onClick={(e) => handleDelete(e, conv.id)}
@@ -155,7 +151,7 @@ export function ConversationList({ conversations, selectedId, onPin, onDelete }:
                   className="p-1.5 hover:bg-destructive/10 hover:text-destructive rounded transition-colors disabled:opacity-50"
                   title="Delete conversation"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <FaTrash className="w-4 h-4" />
                 </button>
               </div>
             )}
