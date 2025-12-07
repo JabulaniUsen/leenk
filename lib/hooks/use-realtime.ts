@@ -256,6 +256,20 @@ export function useRealtime() {
         {
           event: "UPDATE",
           schema: "public",
+          table: "messages",
+        },
+        async () => {
+          // Refresh conversations list when message status changes (e.g., marked as read)
+          if (onConversationsUpdate) {
+            onConversationsUpdate()
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
           table: "conversations",
         },
         async () => {

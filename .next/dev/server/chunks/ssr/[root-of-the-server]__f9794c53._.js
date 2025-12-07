@@ -1544,16 +1544,14 @@ const db = {
             ascending: false
         });
         if (error || !conversations || conversations.length === 0) return [];
-        // Performance optimization: Only load the last message per conversation
-        // For the conversation list view, we only need the most recent message as a preview
-        // This dramatically reduces data transfer and improves load times
+        // Fetch messages for unread count calculation and last message preview
         const conversationIds = conversations.map((c)=>c.id);
-        // Batch fetch last messages in parallel for better performance
-        // Using Promise.all ensures all queries run concurrently
-        const lastMessagesPromises = conversationIds.map(async (conversationId)=>{
+        // Batch fetch messages in parallel for better performance
+        // Fetch all messages to calculate unread count accurately
+        const messagesPromises = conversationIds.map(async (conversationId)=>{
             const { data: messages, error: msgError } = await supabase.from("messages").select("*").eq("conversation_id", conversationId).order("created_at", {
                 ascending: false
-            }).limit(1);
+            });
             // Return empty array on error (conversation might have no messages yet)
             if (msgError || !messages) return {
                 conversationId,
@@ -1564,11 +1562,12 @@ const db = {
                 messages: messages
             };
         });
-        const lastMessagesResults = await Promise.all(lastMessagesPromises);
+        const messagesResults = await Promise.all(messagesPromises);
         const messagesMap = new Map();
-        lastMessagesResults.forEach(({ conversationId, messages })=>{
+        messagesResults.forEach(({ conversationId, messages })=>{
             if (messages.length > 0) {
-                messagesMap.set(conversationId, messages);
+                // Reverse to get chronological order (oldest first)
+                messagesMap.set(conversationId, messages.reverse());
             }
         });
         return Promise.all(conversations.map((conv)=>dbConversationToApp(conv, messagesMap.get(conv.id) || [])));
@@ -2265,6 +2264,15 @@ function useRealtime() {
             table: "messages"
         }, async ()=>{
             // Refresh conversations list when new messages arrive
+            if (onConversationsUpdate) {
+                onConversationsUpdate();
+            }
+        }).on("postgres_changes", {
+            event: "UPDATE",
+            schema: "public",
+            table: "messages"
+        }, async ()=>{
+            // Refresh conversations list when message status changes (e.g., marked as read)
             if (onConversationsUpdate) {
                 onConversationsUpdate();
             }

@@ -79,7 +79,8 @@ export default function DashboardPage() {
 
     // Use SWR mutate to update cache when realtime events occur
     const refreshConversations = () => {
-      mutateConversations() // SWR will re-fetch and update cache
+      // Revalidate to ensure unread counts are updated in real-time
+      mutateConversations(undefined, { revalidate: true })
     }
 
     const cleanup = setupBusinessChannel(user.id, refreshConversations)

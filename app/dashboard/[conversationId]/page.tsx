@@ -204,8 +204,8 @@ export default function ChatPage() {
       try {
         await db.markMessagesAsRead(conversationId, "customer")
         // Refresh conversation cache and conversations list to update unread counts
-        mutateConversation()
-        mutateConversations()
+        mutateConversation(undefined, { revalidate: true })
+        mutateConversations(undefined, { revalidate: true })
       } catch (error) {
         console.error("Error marking messages as read:", error)
       }
