@@ -94,14 +94,14 @@ async function dbConversationToApp(
   // Convert messages and resolve replyTo references
   const appMessages: Message[] = messages.map((m) => {
     const message: Message = {
-      id: m.id,
-      conversationId: m.conversation_id,
-      senderType: m.sender_type,
-      senderId: m.sender_id,
-      text: m.content || undefined,
-      imageUrl: m.image_url || undefined,
-      status: (m.status || "sent") as "sent" | "delivered" | "read",
-      createdAt: m.created_at,
+    id: m.id,
+    conversationId: m.conversation_id,
+    senderType: m.sender_type,
+    senderId: m.sender_id,
+    text: m.content || undefined,
+    imageUrl: m.image_url || undefined,
+    status: (m.status || "sent") as "sent" | "delivered" | "read",
+    createdAt: m.created_at,
       replyToId: m.reply_to_id || undefined,
     }
 

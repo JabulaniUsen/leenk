@@ -3,30 +3,132 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { MessageCircle, Zap, Lock, Users } from "lucide-react"
+import { FaComments, FaBolt, FaUsers, FaLock, FaCheck } from "react-icons/fa"
 import Image from "next/image"
+import { useState, useEffect } from "react"
+
+// African countries that use Naira or similar currencies
+const AFRICAN_COUNTRIES = [
+  'NG', // Nigeria
+  'GH', // Ghana
+  'KE', // Kenya
+  'ZA', // South Africa
+  'EG', // Egypt
+  'TZ', // Tanzania
+  'UG', // Uganda
+  'ET', // Ethiopia
+  'MA', // Morocco
+  'AO', // Angola
+  'SD', // Sudan
+  'MZ', // Mozambique
+  'MG', // Madagascar
+  'CM', // Cameroon
+  'CI', // Côte d'Ivoire
+  'NE', // Niger
+  'BF', // Burkina Faso
+  'ML', // Mali
+  'MW', // Malawi
+  'ZM', // Zambia
+  'SN', // Senegal
+  'TD', // Chad
+  'SO', // Somalia
+  'ZW', // Zimbabwe
+  'GN', // Guinea
+  'RW', // Rwanda
+  'BJ', // Benin
+  'BI', // Burundi
+  'TN', // Tunisia
+  'TG', // Togo
+  'ER', // Eritrea
+  'SL', // Sierra Leone
+  'LY', // Libya
+  'LR', // Liberia
+  'CG', // Republic of the Congo
+  'CF', // Central African Republic
+  'MR', // Mauritania
+  'SS', // South Sudan
+  'GM', // Gambia
+  'BW', // Botswana
+  'GA', // Gabon
+  'LS', // Lesotho
+  'GW', // Guinea-Bissau
+  'EQ', // Equatorial Guinea
+  'MU', // Mauritius
+  'DJ', // Djibouti
+  'RE', // Réunion
+  'KM', // Comoros
+  'EH', // Western Sahara
+  'SH', // Saint Helena
+  'SC', // Seychelles
+  'CV', // Cape Verde
+  'ST', // São Tomé and Príncipe
+]
 
 export default function Home() {
+  const [currency, setCurrency] = useState<'NGN' | 'USD'>('USD')
+
+  useEffect(() => {
+    // Try to detect user's country from timezone or browser
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const isAfrican = AFRICAN_COUNTRIES.some(country => 
+      timezone.includes(country) || navigator.language.includes(country.toLowerCase())
+    )
+    
+    // Check if browser language suggests African country
+    const lang = navigator.language.toLowerCase()
+    const isAfricanLang = lang.includes('ng') || lang.includes('gh') || lang.includes('ke')
+    
+    if (isAfrican || isAfricanLang) {
+      setCurrency('NGN')
+    }
+  }, [])
+
   const features = [
     {
-      icon: MessageCircle,
+      icon: FaComments,
       title: "Instant Messaging",
       description: "Real-time chat with customers powered by fast, reliable messaging",
     },
     {
-      icon: Zap,
+      icon: FaBolt,
       title: "Lightning Fast",
       description: "Optimized for speed with instant message delivery and read receipts",
     },
     {
-      icon: Users,
+      icon: FaUsers,
       title: "Customer Focused",
       description: "Public chat links for easy customer access without login",
     },
     {
-      icon: Lock,
+      icon: FaLock,
       title: "Secure",
       description: "Your business data stays private with encrypted conversations",
+    },
+  ]
+
+  const pricingPlans = [
+    {
+      name: "Monthly",
+      priceNGN: "N9,000",
+      priceUSD: "$20",
+      period: "per month",
+      popular: false,
+    },
+    {
+      name: "6 Months",
+      priceNGN: "N52,000",
+      priceUSD: "$90",
+      period: "per 6 months",
+      popular: true,
+      savings: currency === 'NGN' ? "Save N2,000" : "Save $30",
+    },
+    {
+      name: "Yearly",
+      priceNGN: "N100,000",
+      priceUSD: "$200",
+      period: "per year",
+      popular: false,
+      savings: currency === 'NGN' ? "Save N8,000" : "Save $40",
     },
   ]
 
@@ -106,12 +208,132 @@ export default function Home() {
                   transition={{ delay: index * 0.1 }}
                   className="p-6 rounded-lg border border-border hover:border-primary transition-colors"
                 >
-                  <Icon className="w-8 h-8 text-primary mb-4" />
+                  <Icon className="w-8 h-8 text-primary mb-4" size={32} />
                   <h3 className="font-semibold mb-2 text-lg">{feature.title}</h3>
                   <p className="text-muted-foreground text-sm">{feature.description}</p>
                 </motion.div>
               )
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="bg-card border-y border-border py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.h2
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-3xl sm:text-4xl font-bold text-center mb-4"
+          >
+            Simple, Transparent Pricing
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center text-muted-foreground mb-12"
+          >
+            Choose the plan that works best for your business
+          </motion.p>
+
+          {/* Currency Toggle */}
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex rounded-lg border border-border p-1 bg-muted">
+              <button
+                onClick={() => setCurrency('NGN')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  currency === 'NGN'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Naira (₦)
+              </button>
+              <button
+                onClick={() => setCurrency('USD')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  currency === 'USD'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                USD ($)
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {pricingPlans.map((plan, index) => (
+              <motion.div
+                key={plan.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className={`relative rounded-xl border-2 p-8 ${
+                  plan.popular
+                    ? 'border-primary bg-primary/5 scale-105'
+                    : 'border-border hover:border-primary/50'
+                } transition-all`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-xs font-semibold">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
+                  <div className="mb-2">
+                    <span className="text-4xl font-bold">
+                      {currency === 'NGN' ? plan.priceNGN : plan.priceUSD}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{plan.period}</p>
+                  {plan.savings && (
+                    <p className="text-sm text-primary font-medium mt-2">{plan.savings}</p>
+                  )}
+                </div>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="w-4 h-4 text-primary flex-shrink-0" />
+                    <span className="text-sm">Unlimited conversations</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="w-4 h-4 text-primary flex-shrink-0" />
+                    <span className="text-sm">Real-time messaging</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="w-4 h-4 text-primary flex-shrink-0" />
+                    <span className="text-sm">Image sharing</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="w-4 h-4 text-primary flex-shrink-0" />
+                    <span className="text-sm">Message replies</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="w-4 h-4 text-primary flex-shrink-0" />
+                    <span className="text-sm">Read receipts</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="w-4 h-4 text-primary flex-shrink-0" />
+                    <span className="text-sm">24/7 support</span>
+                  </li>
+                </ul>
+                <Link href="/signup" className="block">
+                  <Button
+                    className="w-full"
+                    variant={plan.popular ? "default" : "outline"}
+                    size="lg"
+                  >
+                    Get Started
+                  </Button>
+                </Link>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>

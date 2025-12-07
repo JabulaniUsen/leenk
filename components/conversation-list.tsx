@@ -98,7 +98,7 @@ export function ConversationList({ conversations, selectedId, onPin, onDelete }:
               >
                 <div className="flex gap-3 items-start">
                   <div className="relative">
-                    <Avatar name={conv.customerName || conv.customerEmail} size="md" />
+                  <Avatar name={conv.customerName || conv.customerEmail} size="md" />
                     {conv.pinned && (
                       <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5">
                         <Pin className="w-3 h-3" />
