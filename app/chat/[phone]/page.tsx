@@ -49,6 +49,7 @@ export default function CustomerChatPage() {
   const [isTyping, setIsTyping] = useState(false)
   const [otherUserTyping, setOtherUserTyping] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [replyTo, setReplyTo] = useState<Message | null>(null)
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -370,7 +371,7 @@ export default function CustomerChatPage() {
     }
   }, [])
 
-  const handleSendMessage = async (text: string) => {
+  const handleSendMessage = async (text: string, replyToId?: string) => {
     if (!currentConversation) return
     if (isSending) return
 
@@ -385,6 +386,7 @@ export default function CustomerChatPage() {
       text,
       status: "sent",
       createdAt: new Date().toISOString(),
+      replyToId: replyToId || undefined,
     }
 
     // Optimistic update: Show message immediately using functional update
@@ -436,10 +438,11 @@ export default function CustomerChatPage() {
       setTimeout(() => setError(""), 3000)
     } finally {
       setIsSending(false)
+      setReplyTo(null)
     }
   }
 
-  const handleSendImage = async (imageUrl: string) => {
+  const handleSendImage = async (imageUrl: string, replyToId?: string) => {
     if (!currentConversation) return
     if (isSending) return
 
@@ -454,6 +457,7 @@ export default function CustomerChatPage() {
       imageUrl,
       status: "sent",
       createdAt: new Date().toISOString(),
+      replyToId: replyToId || undefined,
     }
 
     // Optimistic update: Show image immediately using functional update
@@ -502,6 +506,7 @@ export default function CustomerChatPage() {
       setTimeout(() => setError(""), 3000)
     } finally {
       setIsSending(false)
+      setReplyTo(null)
     }
   }
 
@@ -773,7 +778,13 @@ export default function CustomerChatPage() {
         ) : (
           <>
             {currentConversation.messages.map((msg, idx) => (
-              <ChatBubble key={msg.id} message={msg} isOwn={msg.senderType === "customer"} index={idx} />
+              <ChatBubble 
+                key={msg.id} 
+                message={msg} 
+                isOwn={msg.senderType === "customer"} 
+                index={idx}
+                onReply={setReplyTo}
+              />
             ))}
             {otherUserTyping && <TypingIndicator isOwn={false} />}
           </>
@@ -788,6 +799,8 @@ export default function CustomerChatPage() {
           onSendImage={handleSendImage}
           onTyping={handleTyping}
           disabled={isSending || !currentConversation}
+          replyTo={replyTo}
+          onCancelReply={() => setReplyTo(null)}
         />
       </div>
     </main>

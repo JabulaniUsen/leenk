@@ -34,6 +34,7 @@ interface DBMessage {
   image_url: string | null
   status: "sent" | "delivered" | "read" | null
   created_at: string
+  reply_to_id: string | null
 }
 
 // Convert DB Business to App Business
@@ -85,16 +86,43 @@ async function dbConversationToApp(
   db: DBConversation,
   messages: DBMessage[] = []
 ): Promise<Conversation> {
-  const appMessages: Message[] = messages.map((m) => ({
-    id: m.id,
-    conversationId: m.conversation_id,
-    senderType: m.sender_type,
-    senderId: m.sender_id,
-    text: m.content || undefined,
-    imageUrl: m.image_url || undefined,
-    status: (m.status || "sent") as "sent" | "delivered" | "read",
-    createdAt: m.created_at,
-  }))
+  // Create a map of messages by ID for quick lookup
+  const messagesMap = new Map<string, DBMessage>()
+  messages.forEach((m) => messagesMap.set(m.id, m))
+
+  // Convert messages and resolve replyTo references
+  const appMessages: Message[] = messages.map((m) => {
+    const message: Message = {
+      id: m.id,
+      conversationId: m.conversation_id,
+      senderType: m.sender_type,
+      senderId: m.sender_id,
+      text: m.content || undefined,
+      imageUrl: m.image_url || undefined,
+      status: (m.status || "sent") as "sent" | "delivered" | "read",
+      createdAt: m.created_at,
+      replyToId: m.reply_to_id || undefined,
+    }
+
+    // If this message is a reply, find and attach the original message
+    if (m.reply_to_id) {
+      const replyToMessage = messagesMap.get(m.reply_to_id)
+      if (replyToMessage) {
+        message.replyTo = {
+          id: replyToMessage.id,
+          conversationId: replyToMessage.conversation_id,
+          senderType: replyToMessage.sender_type,
+          senderId: replyToMessage.sender_id,
+          text: replyToMessage.content || undefined,
+          imageUrl: replyToMessage.image_url || undefined,
+          status: (replyToMessage.status || "sent") as "sent" | "delivered" | "read",
+          createdAt: replyToMessage.created_at,
+        }
+      }
+    }
+
+    return message
+  })
 
   return {
     id: db.id,
@@ -128,6 +156,7 @@ function appMessageToDB(message: Partial<Message>): Partial<DBMessage> {
     content: message.text || null,
     image_url: message.imageUrl || null,
     status: message.status || "sent",
+    reply_to_id: message.replyToId || null,
   }
 }
 
@@ -431,6 +460,7 @@ export const db = {
       content: message.text || null,
       image_url: message.imageUrl || null,
       status: message.status || "sent",
+      reply_to_id: message.replyToId || null,
     }
 
     const { data, error } = await supabase.from("messages").insert(dbData).select().single()
@@ -452,6 +482,7 @@ export const db = {
       imageUrl: data.image_url || undefined,
       status: (data.status || "sent") as "sent" | "delivered" | "read",
       createdAt: data.created_at,
+      replyToId: data.reply_to_id || undefined,
     }
   },
 }

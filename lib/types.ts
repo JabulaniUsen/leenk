@@ -29,6 +29,8 @@ export interface Message {
   imageUrl?: string
   status: "sent" | "delivered" | "read"
   createdAt: string
+  replyToId?: string
+  replyTo?: Message // The original message being replied to
 }
 
 export interface AuthUser {

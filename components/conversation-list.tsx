@@ -46,24 +46,24 @@ export function ConversationList({ conversations, selectedId }: ConversationList
           const lastMessage = conv.messages[conv.messages.length - 1]
           
           return (
-            <motion.div
-              key={conv.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Link href={`/dashboard/${conv.id}`}>
-                <div
-                  className={`p-3 md:p-4 border-b border-border hover:bg-secondary transition-colors cursor-pointer active:bg-secondary/50 ${
-                    selectedId === conv.id ? "bg-secondary" : ""
+          <motion.div
+            key={conv.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.05 }}
+          >
+            <Link href={`/dashboard/${conv.id}`}>
+              <div
+                className={`p-3 md:p-4 border-b border-border hover:bg-secondary transition-colors cursor-pointer active:bg-secondary/50 ${
+                  selectedId === conv.id ? "bg-secondary" : ""
                   } ${
                     hasUnread ? "bg-primary/10 hover:bg-primary/20 border-l-4 border-l-primary" : ""
-                  }`}
-                >
-                  <div className="flex gap-3 items-start">
-                    <Avatar name={conv.customerName || conv.customerEmail} size="md" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start mb-1">
+                }`}
+              >
+                <div className="flex gap-3 items-start">
+                  <Avatar name={conv.customerName || conv.customerEmail} size="md" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-1">
                         <p className={`font-medium truncate ${hasUnread ? "font-semibold text-foreground" : "text-foreground"}`}>
                           {conv.customerName || conv.customerEmail}
                         </p>
@@ -74,19 +74,19 @@ export function ConversationList({ conversations, selectedId }: ConversationList
                             </span>
                           )}
                           <span className="text-xs text-muted-foreground whitespace-nowrap">
-                            {formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: true })}
-                          </span>
+                        {formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: true })}
+                      </span>
                         </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate mb-1">{conv.customerEmail}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate mb-1">{conv.customerEmail}</p>
                       <p className={`text-sm truncate ${hasUnread ? "font-medium text-foreground" : "text-muted-foreground"}`}>
                         {lastMessage?.text || (lastMessage?.imageUrl ? "📷 Image" : "No messages")}
-                      </p>
-                    </div>
+                    </p>
                   </div>
                 </div>
-              </Link>
-            </motion.div>
+              </div>
+            </Link>
+          </motion.div>
           )
         })
       )}

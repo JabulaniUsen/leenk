@@ -1879,6 +1879,11 @@
     border-left-width: 1px;
   }
 
+  .border-l-2 {
+    border-left-style: var(--tw-border-style);
+    border-left-width: 2px;
+  }
+
   .border-l-4 {
     border-left-style: var(--tw-border-style);
     border-left-width: 4px;
@@ -1895,6 +1900,26 @@
 
   .border-\[\#313d45\] {
     border-color: #313d45;
+  }
+
+  .border-\[var\(--chat-received-text\)\]\/30 {
+    border-color: var(--chat-received-text);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-\[var\(--chat-received-text\)\]\/30 {
+      border-color: color-mix(in oklab, var(--chat-received-text) 30%, transparent);
+    }
+  }
+
+  .border-\[var\(--chat-sent-text\)\]\/30 {
+    border-color: var(--chat-sent-text);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-\[var\(--chat-sent-text\)\]\/30 {
+      border-color: color-mix(in oklab, var(--chat-sent-text) 30%, transparent);
+    }
   }
 
   .border-border {
@@ -2812,6 +2837,10 @@
     opacity: .7;
   }
 
+  .opacity-80 {
+    opacity: .8;
+  }
+
   .opacity-90 {
     opacity: .9;
   }
@@ -3545,6 +3574,18 @@
   @media (hover: hover) {
     .hover\:bg-secondary:hover {
       background-color: var(--secondary);
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-secondary-foreground\/10:hover {
+      background-color: var(--secondary-foreground);
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-secondary-foreground\/10:hover {
+        background-color: color-mix(in oklab, var(--secondary-foreground) 10%, transparent);
+      }
     }
   }
 

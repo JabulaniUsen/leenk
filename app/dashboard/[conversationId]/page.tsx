@@ -42,6 +42,7 @@ export default function ChatPage() {
   const [isTyping, setIsTyping] = useState(false)
   const [otherUserTyping, setOtherUserTyping] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [replyTo, setReplyTo] = useState<Message | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const otherUserTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -227,7 +228,7 @@ export default function ChatPage() {
     }
   }, [])
 
-  const handleSendMessage = async (text: string) => {
+  const handleSendMessage = async (text: string, replyToId?: string) => {
     if (!currentConversation || !user) return
     if (isSending) return
 
@@ -242,6 +243,7 @@ export default function ChatPage() {
       text,
       status: "sent",
       createdAt: new Date().toISOString(),
+      replyToId: replyToId || undefined,
     }
 
     // Optimistically update UI using SWR
@@ -293,6 +295,8 @@ export default function ChatPage() {
       
       // Update conversations list cache
       mutateConversations()
+      // Clear reply state
+      setReplyTo(null)
     } catch (error) {
       console.error("Failed to send message:", error)
       // Remove optimistic message on error
@@ -308,7 +312,7 @@ export default function ChatPage() {
     }
   }
 
-  const handleSendImage = async (imageUrl: string) => {
+  const handleSendImage = async (imageUrl: string, replyToId?: string) => {
     if (!currentConversation || !user) return
     if (isSending) return
 
@@ -323,6 +327,7 @@ export default function ChatPage() {
       imageUrl,
       status: "sent",
       createdAt: new Date().toISOString(),
+      replyToId: replyToId || undefined,
     }
 
     // Optimistically update UI using SWR
@@ -374,6 +379,8 @@ export default function ChatPage() {
       
       // Update conversations list cache
       mutateConversations()
+      // Clear reply state
+      setReplyTo(null)
     } catch (error) {
       console.error("Failed to send image:", error)
       mutateConversation((current: Conversation | null | undefined) => {
@@ -561,7 +568,13 @@ export default function ChatPage() {
           ) : (
             <>
               {currentConversation.messages.map((msg: Message, idx: number) => (
-                <ChatBubble key={msg.id} message={msg} isOwn={msg.senderType === "business"} index={idx} />
+                <ChatBubble 
+                  key={msg.id} 
+                  message={msg} 
+                  isOwn={msg.senderType === "business"} 
+                  index={idx}
+                  onReply={setReplyTo}
+                />
               ))}
               {otherUserTyping && <TypingIndicator isOwn={false} />}
             </>
@@ -576,6 +589,8 @@ export default function ChatPage() {
             onSendImage={handleSendImage} 
             onTyping={handleTyping}
             disabled={isSending}
+            replyTo={replyTo}
+            onCancelReply={() => setReplyTo(null)}
           />
         </div>
       </motion.div>
