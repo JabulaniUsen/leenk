@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useEffect, useState, useCallback } from "react"
-import { Eraser, Undo2, Redo2, X } from "lucide-react"
+import { Undo2, Redo2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface ImageAnnotationProps {
@@ -10,19 +10,11 @@ interface ImageAnnotationProps {
   onClose: () => void
 }
 
-type DrawingTool = "pen" | "eraser"
-
-// WhatsApp-style preset colors
+// Limited to 4 colors
 const PRESET_COLORS = [
   "#000000", // Black
   "#FF0000", // Red
-  "#FF8C00", // Orange
-  "#FFD700", // Gold
-  "#32CD32", // Green
-  "#00CED1", // Cyan
   "#0000FF", // Blue
-  "#8A2BE2", // Blue Violet
-  "#FF1493", // Deep Pink
   "#FFFFFF", // White
 ]
 
@@ -30,7 +22,6 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
-  const [tool, setTool] = useState<DrawingTool>("pen")
   const [lineWidth, setLineWidth] = useState(3)
   const [color, setColor] = useState("#000000")
   const [history, setHistory] = useState<ImageData[]>([])
@@ -72,6 +63,10 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
     const canvas = canvasRef.current
     if (!canvas) return
 
+    // Get the preview image container to match its size
+    const previewContainer = document.getElementById("preview-image-container")
+    if (!previewContainer) return
+
     const img = new Image()
     img.crossOrigin = "anonymous"
     img.onload = () => {
@@ -79,24 +74,30 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
       const ctx = canvas.getContext("2d")
       if (!ctx) return
 
-      // Calculate display size (max 90vh/90vw)
-      const maxWidth = window.innerWidth * 0.9
-      const maxHeight = window.innerHeight * 0.7 // Leave room for toolbar
+      // Get the actual displayed size of the preview image
+      const containerRect = previewContainer.getBoundingClientRect()
+      const containerWidth = containerRect.width
+      const containerHeight = containerRect.height
       
-      let displayWidth = img.width
-      let displayHeight = img.height
+      // Calculate the aspect ratio of the image
+      const imageAspect = img.width / img.height
+      const containerAspect = containerWidth / containerHeight
       
-      // Scale to fit
-      if (displayWidth > maxWidth) {
-        displayHeight = (displayHeight * maxWidth) / displayWidth
-        displayWidth = maxWidth
-      }
-      if (displayHeight > maxHeight) {
-        displayWidth = (displayWidth * maxHeight) / displayHeight
-        displayHeight = maxHeight
+      // Calculate display size to match the preview (object-contain behavior)
+      let displayWidth: number
+      let displayHeight: number
+      
+      if (imageAspect > containerAspect) {
+        // Image is wider - fit to width
+        displayWidth = containerWidth
+        displayHeight = containerWidth / imageAspect
+      } else {
+        // Image is taller - fit to height
+        displayHeight = containerHeight
+        displayWidth = containerHeight * imageAspect
       }
 
-      // Set canvas display size (CSS)
+      // Set canvas display size (CSS) to match preview
       canvas.style.width = `${displayWidth}px`
       canvas.style.height = `${displayHeight}px`
       
@@ -155,18 +156,11 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
 
     ctx.beginPath()
     ctx.moveTo(x, y)
-
-    if (tool === "pen") {
-      ctx.strokeStyle = color
-      ctx.lineWidth = lineWidth
-      ctx.lineCap = "round"
-      ctx.lineJoin = "round"
-    } else {
-      // Eraser
-      ctx.globalCompositeOperation = "destination-out"
-      ctx.lineWidth = lineWidth * 2
-    }
-  }, [tool, color, lineWidth, getCoordinates, isDrawing, saveToHistory])
+    ctx.strokeStyle = color
+    ctx.lineWidth = lineWidth
+    ctx.lineCap = "round"
+    ctx.lineJoin = "round"
+  }, [color, lineWidth, getCoordinates, isDrawing, saveToHistory])
 
   const draw = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return
@@ -180,16 +174,12 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
 
     const { x, y } = getCoordinates(e)
 
-    if (tool === "pen") {
-      ctx.globalCompositeOperation = "source-over"
-      ctx.strokeStyle = color
-    } else {
-      ctx.globalCompositeOperation = "destination-out"
-    }
+    ctx.globalCompositeOperation = "source-over"
+    ctx.strokeStyle = color
 
     ctx.lineTo(x, y)
     ctx.stroke()
-  }, [isDrawing, tool, color, getCoordinates])
+  }, [isDrawing, color, getCoordinates])
 
   const stopDrawing = useCallback(() => {
     setIsDrawing(false)
@@ -274,7 +264,7 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
   }, [onImageUpdate, onClose])
 
   return (
-    <div className="absolute inset-0 bg-black/50 flex flex-col z-[10001]">
+    <div className="absolute inset-0 bg-black/90 flex flex-col z-[10001]">
       {/* Top Toolbar - WhatsApp style */}
       <div className="flex items-center justify-between p-3 bg-black/90 border-b border-white/10">
         <div className="flex items-center gap-3">
@@ -296,28 +286,24 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
             <Redo2 className="w-5 h-5 text-white" />
           </button>
 
-          {/* Pen/Eraser Toggle */}
-          <div className="flex items-center gap-1 bg-white/10 rounded-full p-1">
-            <button
-              onClick={() => setTool("pen")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                tool === "pen"
-                  ? "bg-white text-black"
-                  : "text-white hover:bg-white/10"
-              }`}
-            >
-              Pen
-            </button>
-            <button
-              onClick={() => setTool("eraser")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                tool === "eraser"
-                  ? "bg-white text-black"
-                  : "text-white hover:bg-white/10"
-              }`}
-            >
-              <Eraser className="w-4 h-4" />
-            </button>
+          {/* Color Picker - 4 colors only */}
+          <div className="flex items-center gap-2 ml-2">
+            {PRESET_COLORS.map((presetColor) => (
+              <button
+                key={presetColor}
+                onClick={() => setColor(presetColor)}
+                className={`w-8 h-8 rounded-full border-2 transition-all ${
+                  color === presetColor
+                    ? "border-white scale-110 shadow-lg"
+                    : "border-white/30 hover:border-white/60"
+                }`}
+                style={{
+                  backgroundColor: presetColor,
+                  boxShadow: presetColor === "#FFFFFF" ? "inset 0 0 0 1px rgba(0,0,0,0.2)" : "none",
+                }}
+                aria-label={`Select ${presetColor} color`}
+              />
+            ))}
           </div>
         </div>
 
@@ -332,29 +318,6 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
         </div>
       </div>
 
-      {/* Color Picker - WhatsApp style */}
-      {tool === "pen" && (
-        <div className="flex items-center justify-center gap-3 p-3 bg-black/80 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            {PRESET_COLORS.map((presetColor) => (
-              <button
-                key={presetColor}
-                onClick={() => setColor(presetColor)}
-                className={`w-10 h-10 rounded-full border-2 transition-all ${
-                  color === presetColor
-                    ? "border-white scale-110 shadow-lg"
-                    : "border-white/30 hover:border-white/60"
-                }`}
-                style={{
-                  backgroundColor: presetColor,
-                  boxShadow: presetColor === "#FFFFFF" ? "inset 0 0 0 1px rgba(0,0,0,0.2)" : "none",
-                }}
-                aria-label={`Select ${presetColor} color`}
-              />
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Size Slider */}
       <div className="flex items-center justify-center gap-3 p-2 bg-black/80 border-b border-white/10">
@@ -371,7 +334,7 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
       </div>
 
       {/* Canvas */}
-      <div className="flex-1 flex items-center justify-center overflow-hidden">
+      <div className="flex-1 flex items-center justify-center overflow-hidden relative">
         <canvas
           ref={canvasRef}
           onMouseDown={startDrawing}
@@ -384,16 +347,16 @@ export function ImageAnnotation({ imageUrl, onImageUpdate, onClose }: ImageAnnot
           className="max-w-full max-h-full cursor-crosshair"
           style={{ touchAction: "none" }}
         />
-      </div>
-
-      {/* Bottom Done Button - WhatsApp style */}
-      <div className="p-4 bg-black/90 border-t border-white/10">
-        <Button
-          onClick={saveImage}
-          className="w-full bg-primary hover:opacity-90 text-white font-semibold py-3 rounded-lg"
-        >
-          Done
-        </Button>
+        
+        {/* Floating Done Button - Inside image at bottom */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+          <Button
+            onClick={saveImage}
+            className="bg-primary hover:opacity-90 text-white font-semibold px-6 py-2.5 rounded-full shadow-lg"
+          >
+            Done
+          </Button>
+        </div>
       </div>
     </div>
   )

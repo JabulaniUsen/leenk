@@ -812,6 +812,40 @@
     grid-row-start: 1;
   }
 
+  .container {
+    width: 100%;
+  }
+
+  @media (min-width: 40rem) {
+    .container {
+      max-width: 40rem;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .container {
+      max-width: 48rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .container {
+      max-width: 64rem;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .container {
+      max-width: 80rem;
+    }
+  }
+
+  @media (min-width: 96rem) {
+    .container {
+      max-width: 96rem;
+    }
+  }
+
   .\!m-0 {
     margin: calc(var(--spacing) * 0) !important;
   }
@@ -2231,6 +2265,16 @@
     }
   }
 
+  .bg-primary\/10 {
+    background-color: var(--primary);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-primary\/10 {
+      background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+    }
+  }
+
   .bg-primary\/20 {
     background-color: var(--primary);
   }
@@ -2464,6 +2508,10 @@
 
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
+  }
+
+  .py-2\.5 {
+    padding-block: calc(var(--spacing) * 2.5);
   }
 
   .py-3 {
@@ -3550,6 +3598,18 @@
     @supports (color: color-mix(in lab, red, red)) {
       .hover\:bg-muted\/50:hover {
         background-color: color-mix(in oklab, var(--muted) 50%, transparent);
+      }
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-primary\/20:hover {
+      background-color: var(--primary);
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-primary\/20:hover {
+        background-color: color-mix(in oklab, var(--primary) 20%, transparent);
       }
     }
   }

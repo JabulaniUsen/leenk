@@ -384,7 +384,6 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eraser$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Eraser$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/eraser.js [app-ssr] (ecmascript) <export default as Eraser>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$undo$2d$2$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Undo2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/undo-2.js [app-ssr] (ecmascript) <export default as Undo2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$redo$2d$2$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Redo2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/redo-2.js [app-ssr] (ecmascript) <export default as Redo2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-ssr] (ecmascript) <export default as X>");
@@ -394,24 +393,17 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2
 ;
 ;
 ;
-// WhatsApp-style preset colors
+// Limited to 4 colors
 const PRESET_COLORS = [
     "#000000",
     "#FF0000",
-    "#FF8C00",
-    "#FFD700",
-    "#32CD32",
-    "#00CED1",
     "#0000FF",
-    "#8A2BE2",
-    "#FF1493",
     "#FFFFFF"
 ];
 function ImageAnnotation({ imageUrl, onImageUpdate, onClose }) {
     const canvasRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRef"])(null);
     const imageRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRef"])(null);
     const [isDrawing, setIsDrawing] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [tool, setTool] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("pen");
     const [lineWidth, setLineWidth] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(3);
     const [color, setColor] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("#000000");
     const [history, setHistory] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
@@ -445,28 +437,35 @@ function ImageAnnotation({ imageUrl, onImageUpdate, onClose }) {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         const canvas = canvasRef.current;
         if (!canvas) return;
+        // Get the preview image container to match its size
+        const previewContainer = document.getElementById("preview-image-container");
+        if (!previewContainer) return;
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.onload = ()=>{
             imageRef.current = img;
             const ctx = canvas.getContext("2d");
             if (!ctx) return;
-            // Calculate display size (max 90vh/90vw)
-            const maxWidth = window.innerWidth * 0.9;
-            const maxHeight = window.innerHeight * 0.7 // Leave room for toolbar
-            ;
-            let displayWidth = img.width;
-            let displayHeight = img.height;
-            // Scale to fit
-            if (displayWidth > maxWidth) {
-                displayHeight = displayHeight * maxWidth / displayWidth;
-                displayWidth = maxWidth;
+            // Get the actual displayed size of the preview image
+            const containerRect = previewContainer.getBoundingClientRect();
+            const containerWidth = containerRect.width;
+            const containerHeight = containerRect.height;
+            // Calculate the aspect ratio of the image
+            const imageAspect = img.width / img.height;
+            const containerAspect = containerWidth / containerHeight;
+            // Calculate display size to match the preview (object-contain behavior)
+            let displayWidth;
+            let displayHeight;
+            if (imageAspect > containerAspect) {
+                // Image is wider - fit to width
+                displayWidth = containerWidth;
+                displayHeight = containerWidth / imageAspect;
+            } else {
+                // Image is taller - fit to height
+                displayHeight = containerHeight;
+                displayWidth = containerHeight * imageAspect;
             }
-            if (displayHeight > maxHeight) {
-                displayWidth = displayWidth * maxHeight / displayHeight;
-                displayHeight = maxHeight;
-            }
-            // Set canvas display size (CSS)
+            // Set canvas display size (CSS) to match preview
             canvas.style.width = `${displayWidth}px`;
             canvas.style.height = `${displayHeight}px`;
             // Set canvas internal size to match display size (for drawing)
@@ -521,18 +520,11 @@ function ImageAnnotation({ imageUrl, onImageUpdate, onClose }) {
         const { x, y } = getCoordinates(e);
         ctx.beginPath();
         ctx.moveTo(x, y);
-        if (tool === "pen") {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
-        } else {
-            // Eraser
-            ctx.globalCompositeOperation = "destination-out";
-            ctx.lineWidth = lineWidth * 2;
-        }
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
     }, [
-        tool,
         color,
         lineWidth,
         getCoordinates,
@@ -547,17 +539,12 @@ function ImageAnnotation({ imageUrl, onImageUpdate, onClose }) {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         const { x, y } = getCoordinates(e);
-        if (tool === "pen") {
-            ctx.globalCompositeOperation = "source-over";
-            ctx.strokeStyle = color;
-        } else {
-            ctx.globalCompositeOperation = "destination-out";
-        }
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = color;
         ctx.lineTo(x, y);
         ctx.stroke();
     }, [
         isDrawing,
-        tool,
         color,
         getCoordinates
     ]);
@@ -629,7 +616,7 @@ function ImageAnnotation({ imageUrl, onImageUpdate, onClose }) {
         onClose
     ]);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "absolute inset-0 bg-black/50 flex flex-col z-[10001]",
+        className: "absolute inset-0 bg-black/90 flex flex-col z-[10001]",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "flex items-center justify-between p-3 bg-black/90 border-b border-white/10",
@@ -646,12 +633,12 @@ function ImageAnnotation({ imageUrl, onImageUpdate, onClose }) {
                                     className: "w-5 h-5 text-white"
                                 }, void 0, false, {
                                     fileName: "[project]/components/image-annotation.tsx",
-                                    lineNumber: 288,
+                                    lineNumber: 278,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/image-annotation.tsx",
-                                lineNumber: 282,
+                                lineNumber: 272,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -663,51 +650,38 @@ function ImageAnnotation({ imageUrl, onImageUpdate, onClose }) {
                                     className: "w-5 h-5 text-white"
                                 }, void 0, false, {
                                     fileName: "[project]/components/image-annotation.tsx",
-                                    lineNumber: 296,
+                                    lineNumber: 286,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/image-annotation.tsx",
-                                lineNumber: 290,
+                                lineNumber: 280,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "flex items-center gap-1 bg-white/10 rounded-full p-1",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                        onClick: ()=>setTool("pen"),
-                                        className: `px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${tool === "pen" ? "bg-white text-black" : "text-white hover:bg-white/10"}`,
-                                        children: "Pen"
-                                    }, void 0, false, {
+                                className: "flex items-center gap-2 ml-2",
+                                children: PRESET_COLORS.map((presetColor)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        onClick: ()=>setColor(presetColor),
+                                        className: `w-8 h-8 rounded-full border-2 transition-all ${color === presetColor ? "border-white scale-110 shadow-lg" : "border-white/30 hover:border-white/60"}`,
+                                        style: {
+                                            backgroundColor: presetColor,
+                                            boxShadow: presetColor === "#FFFFFF" ? "inset 0 0 0 1px rgba(0,0,0,0.2)" : "none"
+                                        },
+                                        "aria-label": `Select ${presetColor} color`
+                                    }, presetColor, false, {
                                         fileName: "[project]/components/image-annotation.tsx",
-                                        lineNumber: 301,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                        onClick: ()=>setTool("eraser"),
-                                        className: `px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${tool === "eraser" ? "bg-white text-black" : "text-white hover:bg-white/10"}`,
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eraser$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Eraser$3e$__["Eraser"], {
-                                            className: "w-4 h-4"
-                                        }, void 0, false, {
-                                            fileName: "[project]/components/image-annotation.tsx",
-                                            lineNumber: 319,
-                                            columnNumber: 15
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/image-annotation.tsx",
-                                        lineNumber: 311,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
+                                        lineNumber: 292,
+                                        columnNumber: 15
+                                    }, this))
+                            }, void 0, false, {
                                 fileName: "[project]/components/image-annotation.tsx",
-                                lineNumber: 300,
+                                lineNumber: 290,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/image-annotation.tsx",
-                        lineNumber: 280,
+                        lineNumber: 270,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -720,51 +694,24 @@ function ImageAnnotation({ imageUrl, onImageUpdate, onClose }) {
                                 className: "w-5 h-5 text-white"
                             }, void 0, false, {
                                 fileName: "[project]/components/image-annotation.tsx",
-                                lineNumber: 330,
+                                lineNumber: 316,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/image-annotation.tsx",
-                            lineNumber: 325,
+                            lineNumber: 311,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/image-annotation.tsx",
-                        lineNumber: 324,
+                        lineNumber: 310,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/image-annotation.tsx",
-                lineNumber: 279,
+                lineNumber: 269,
                 columnNumber: 7
-            }, this),
-            tool === "pen" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "flex items-center justify-center gap-3 p-3 bg-black/80 border-b border-white/10",
-                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex items-center gap-2",
-                    children: PRESET_COLORS.map((presetColor)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                            onClick: ()=>setColor(presetColor),
-                            className: `w-10 h-10 rounded-full border-2 transition-all ${color === presetColor ? "border-white scale-110 shadow-lg" : "border-white/30 hover:border-white/60"}`,
-                            style: {
-                                backgroundColor: presetColor,
-                                boxShadow: presetColor === "#FFFFFF" ? "inset 0 0 0 1px rgba(0,0,0,0.2)" : "none"
-                            },
-                            "aria-label": `Select ${presetColor} color`
-                        }, presetColor, false, {
-                            fileName: "[project]/components/image-annotation.tsx",
-                            lineNumber: 340,
-                            columnNumber: 15
-                        }, this))
-                }, void 0, false, {
-                    fileName: "[project]/components/image-annotation.tsx",
-                    lineNumber: 338,
-                    columnNumber: 11
-                }, this)
-            }, void 0, false, {
-                fileName: "[project]/components/image-annotation.tsx",
-                lineNumber: 337,
-                columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "flex items-center justify-center gap-3 p-2 bg-black/80 border-b border-white/10",
@@ -774,7 +721,7 @@ function ImageAnnotation({ imageUrl, onImageUpdate, onClose }) {
                         children: "Size"
                     }, void 0, false, {
                         fileName: "[project]/components/image-annotation.tsx",
-                        lineNumber: 361,
+                        lineNumber: 324,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -786,7 +733,7 @@ function ImageAnnotation({ imageUrl, onImageUpdate, onClose }) {
                         className: "flex-1 max-w-xs"
                     }, void 0, false, {
                         fileName: "[project]/components/image-annotation.tsx",
-                        lineNumber: 362,
+                        lineNumber: 325,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -794,60 +741,62 @@ function ImageAnnotation({ imageUrl, onImageUpdate, onClose }) {
                         children: lineWidth
                     }, void 0, false, {
                         fileName: "[project]/components/image-annotation.tsx",
-                        lineNumber: 370,
+                        lineNumber: 333,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/image-annotation.tsx",
-                lineNumber: 360,
+                lineNumber: 323,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "flex-1 flex items-center justify-center overflow-hidden",
-                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("canvas", {
-                    ref: canvasRef,
-                    onMouseDown: startDrawing,
-                    onMouseMove: draw,
-                    onMouseUp: stopDrawing,
-                    onMouseLeave: stopDrawing,
-                    onTouchStart: startDrawing,
-                    onTouchMove: draw,
-                    onTouchEnd: stopDrawing,
-                    className: "max-w-full max-h-full cursor-crosshair",
-                    style: {
-                        touchAction: "none"
-                    }
-                }, void 0, false, {
-                    fileName: "[project]/components/image-annotation.tsx",
-                    lineNumber: 375,
-                    columnNumber: 9
-                }, this)
-            }, void 0, false, {
+                className: "flex-1 flex items-center justify-center overflow-hidden relative",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("canvas", {
+                        ref: canvasRef,
+                        onMouseDown: startDrawing,
+                        onMouseMove: draw,
+                        onMouseUp: stopDrawing,
+                        onMouseLeave: stopDrawing,
+                        onTouchStart: startDrawing,
+                        onTouchMove: draw,
+                        onTouchEnd: stopDrawing,
+                        className: "max-w-full max-h-full cursor-crosshair",
+                        style: {
+                            touchAction: "none"
+                        }
+                    }, void 0, false, {
+                        fileName: "[project]/components/image-annotation.tsx",
+                        lineNumber: 338,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "absolute bottom-4 left-1/2 -translate-x-1/2 z-10",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
+                            onClick: saveImage,
+                            className: "bg-primary hover:opacity-90 text-white font-semibold px-6 py-2.5 rounded-full shadow-lg",
+                            children: "Done"
+                        }, void 0, false, {
+                            fileName: "[project]/components/image-annotation.tsx",
+                            lineNumber: 353,
+                            columnNumber: 11
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/components/image-annotation.tsx",
+                        lineNumber: 352,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
                 fileName: "[project]/components/image-annotation.tsx",
-                lineNumber: 374,
-                columnNumber: 7
-            }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "p-4 bg-black/90 border-t border-white/10",
-                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
-                    onClick: saveImage,
-                    className: "w-full bg-primary hover:opacity-90 text-white font-semibold py-3 rounded-lg",
-                    children: "Done"
-                }, void 0, false, {
-                    fileName: "[project]/components/image-annotation.tsx",
-                    lineNumber: 391,
-                    columnNumber: 9
-                }, this)
-            }, void 0, false, {
-                fileName: "[project]/components/image-annotation.tsx",
-                lineNumber: 390,
+                lineNumber: 337,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/image-annotation.tsx",
-        lineNumber: 277,
+        lineNumber: 267,
         columnNumber: 5
     }, this);
 }
@@ -889,6 +838,14 @@ function ImagePreviewModal({ imageUrl, onClose, onSend, onRemove, isSending = fa
         setMounted(true);
         return ()=>setMounted(false);
     }, []);
+    // Reset annotated image when imageUrl changes (new image selected)
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        setAnnotatedImageUrl(null);
+        setShowAnnotation(false);
+        setIsLoading(true);
+    }, [
+        imageUrl
+    ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         if (annotatedImageUrl) {
             // Update the image URL when annotation is done
@@ -936,32 +893,33 @@ function ImagePreviewModal({ imageUrl, onClose, onSend, onRemove, isSending = fa
                             className: "w-6 h-6 text-white"
                         }, void 0, false, {
                             fileName: "[project]/components/image-preview-modal.tsx",
-                            lineNumber: 69,
+                            lineNumber: 76,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/image-preview-modal.tsx",
-                        lineNumber: 64,
+                        lineNumber: 71,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "relative w-full h-full flex items-center justify-center",
+                        id: "preview-image-container",
                         children: [
-                            isLoading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            isLoading && !showAnnotation && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "absolute inset-0 flex items-center justify-center",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"
                                 }, void 0, false, {
                                     fileName: "[project]/components/image-preview-modal.tsx",
-                                    lineNumber: 76,
+                                    lineNumber: 83,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/image-preview-modal.tsx",
-                                lineNumber: 75,
+                                lineNumber: 82,
                                 columnNumber: 15
                             }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                            !showAnnotation && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                                 src: currentImageUrl,
                                 alt: "Preview",
                                 fill: true,
@@ -971,8 +929,8 @@ function ImagePreviewModal({ imageUrl, onClose, onSend, onRemove, isSending = fa
                                 onError: ()=>setIsLoading(false)
                             }, void 0, false, {
                                 fileName: "[project]/components/image-preview-modal.tsx",
-                                lineNumber: 79,
-                                columnNumber: 13
+                                lineNumber: 87,
+                                columnNumber: 15
                             }, this),
                             showAnnotation && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$image$2d$annotation$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ImageAnnotation"], {
                                 imageUrl: imageUrl,
@@ -982,13 +940,13 @@ function ImagePreviewModal({ imageUrl, onClose, onSend, onRemove, isSending = fa
                                 onClose: ()=>setShowAnnotation(false)
                             }, void 0, false, {
                                 fileName: "[project]/components/image-preview-modal.tsx",
-                                lineNumber: 91,
+                                lineNumber: 100,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/image-preview-modal.tsx",
-                        lineNumber: 73,
+                        lineNumber: 80,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1007,14 +965,14 @@ function ImagePreviewModal({ imageUrl, onClose, onSend, onRemove, isSending = fa
                                         className: "w-4 h-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/components/image-preview-modal.tsx",
-                                        lineNumber: 112,
+                                        lineNumber: 121,
                                         columnNumber: 15
                                     }, this),
                                     "Remove"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/image-preview-modal.tsx",
-                                lineNumber: 103,
+                                lineNumber: 112,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1027,14 +985,14 @@ function ImagePreviewModal({ imageUrl, onClose, onSend, onRemove, isSending = fa
                                         className: "w-4 h-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/components/image-preview-modal.tsx",
-                                        lineNumber: 121,
+                                        lineNumber: 130,
                                         columnNumber: 15
                                     }, this),
                                     "Draw"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/image-preview-modal.tsx",
-                                lineNumber: 115,
+                                lineNumber: 124,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1050,7 +1008,7 @@ function ImagePreviewModal({ imageUrl, onClose, onSend, onRemove, isSending = fa
                                             className: "w-4 h-4 mr-2"
                                         }, void 0, false, {
                                             fileName: "[project]/components/image-preview-modal.tsx",
-                                            lineNumber: 136,
+                                            lineNumber: 145,
                                             columnNumber: 19
                                         }, this),
                                         "Send"
@@ -1058,29 +1016,29 @@ function ImagePreviewModal({ imageUrl, onClose, onSend, onRemove, isSending = fa
                                 }, void 0, true)
                             }, void 0, false, {
                                 fileName: "[project]/components/image-preview-modal.tsx",
-                                lineNumber: 124,
+                                lineNumber: 133,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/image-preview-modal.tsx",
-                        lineNumber: 102,
+                        lineNumber: 111,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/image-preview-modal.tsx",
-                lineNumber: 56,
+                lineNumber: 63,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/components/image-preview-modal.tsx",
-            lineNumber: 49,
+            lineNumber: 56,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/image-preview-modal.tsx",
-        lineNumber: 48,
+        lineNumber: 55,
         columnNumber: 5
     }, this);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$dom$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createPortal"])(modalContent, document.body);

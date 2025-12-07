@@ -203,8 +203,9 @@ export default function ChatPage() {
     const markAsRead = async () => {
       try {
         await db.markMessagesAsRead(conversationId, "customer")
-        // Refresh conversation cache
+        // Refresh conversation cache and conversations list to update unread counts
         mutateConversation()
+        mutateConversations()
       } catch (error) {
         console.error("Error marking messages as read:", error)
       }
@@ -212,7 +213,7 @@ export default function ChatPage() {
 
     const timeout = setTimeout(markAsRead, 500)
     return () => clearTimeout(timeout)
-  }, [conversationId, user?.id])
+  }, [conversationId, user?.id, mutateConversation, mutateConversations])
 
   // Cleanup typing timeouts
   useEffect(() => {

@@ -33,6 +33,13 @@ export function ImagePreviewModal({
     return () => setMounted(false)
   }, [])
 
+  // Reset annotated image when imageUrl changes (new image selected)
+  useEffect(() => {
+    setAnnotatedImageUrl(null)
+    setShowAnnotation(false)
+    setIsLoading(true)
+  }, [imageUrl])
+
   useEffect(() => {
     if (annotatedImageUrl) {
       // Update the image URL when annotation is done
@@ -70,21 +77,23 @@ export function ImagePreviewModal({
           </button>
 
           {/* Image Preview - Centered */}
-          <div className="relative w-full h-full flex items-center justify-center">
-            {isLoading && (
+          <div className="relative w-full h-full flex items-center justify-center" id="preview-image-container">
+            {isLoading && !showAnnotation && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               </div>
             )}
-            <Image
-              src={currentImageUrl}
-              alt="Preview"
-              fill
-              className="object-contain"
-              priority
-              onLoad={() => setIsLoading(false)}
-              onError={() => setIsLoading(false)}
-            />
+            {!showAnnotation && (
+              <Image
+                src={currentImageUrl}
+                alt="Preview"
+                fill
+                className="object-contain"
+                priority
+                onLoad={() => setIsLoading(false)}
+                onError={() => setIsLoading(false)}
+              />
+            )}
             
             {/* Annotation overlay */}
             {showAnnotation && (
