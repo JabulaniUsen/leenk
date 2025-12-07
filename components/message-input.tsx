@@ -131,7 +131,17 @@ export function MessageInput({ onSendMessage, onSendImage, onTyping, disabled }:
       <ImagePreviewModal
         imageUrl={previewImage}
         onClose={handleRemovePreview}
-        onSend={handleSendPreview}
+        onSend={(annotatedImageUrl) => {
+          // Use annotated image if provided, otherwise use original preview
+          if (annotatedImageUrl) {
+            setPreviewImage(annotatedImageUrl)
+            onSendImage(annotatedImageUrl)
+            setPreviewImage(null)
+            setPreviewFile(null)
+          } else {
+            handleSendPreview()
+          }
+        }}
         onRemove={handleRemovePreview}
         isSending={disabled}
       />

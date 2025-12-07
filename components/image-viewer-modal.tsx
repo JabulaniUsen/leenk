@@ -44,7 +44,10 @@ export function ImageViewerModal({ imageUrl, onClose, alt = "Chat image" }: Imag
       >
         {/* Close button - More prominent */}
         <button
-          onClick={onClose}
+          onClick={(e) => {
+            e.stopPropagation()
+            onClose()
+          }}
           className="absolute top-4 right-4 z-[10000] p-3 bg-black/70 hover:bg-black/90 rounded-full transition-colors shadow-lg"
           aria-label="Close viewer"
         >
@@ -53,7 +56,10 @@ export function ImageViewerModal({ imageUrl, onClose, alt = "Chat image" }: Imag
 
         {/* Download button */}
         <button
-          onClick={handleDownload}
+          onClick={(e) => {
+            e.stopPropagation()
+            handleDownload()
+          }}
           className="absolute top-4 left-4 z-[10000] p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
           aria-label="Download image"
         >

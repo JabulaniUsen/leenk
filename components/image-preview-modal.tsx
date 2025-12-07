@@ -1,16 +1,17 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Send, XCircle } from "lucide-react"
+import { X, Send, XCircle, Pen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
+import { ImageAnnotation } from "@/components/image-annotation"
 
 interface ImagePreviewModalProps {
   imageUrl: string | null
   onClose: () => void
-  onSend: () => void
+  onSend: (imageUrl?: string) => void
   onRemove: () => void
   isSending?: boolean
 }
@@ -24,13 +25,24 @@ export function ImagePreviewModal({
 }: ImagePreviewModalProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
+  const [showAnnotation, setShowAnnotation] = useState(false)
+  const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
     return () => setMounted(false)
   }, [])
+
+  useEffect(() => {
+    if (annotatedImageUrl) {
+      // Update the image URL when annotation is done
+      setShowAnnotation(false)
+    }
+  }, [annotatedImageUrl])
   
   if (!imageUrl || !mounted) return null
+
+  const currentImageUrl = annotatedImageUrl || imageUrl
 
   const modalContent = (
     <AnimatePresence>
@@ -65,7 +77,7 @@ export function ImagePreviewModal({
               </div>
             )}
             <Image
-              src={imageUrl}
+              src={currentImageUrl}
               alt="Preview"
               fill
               className="object-contain"
@@ -73,22 +85,48 @@ export function ImagePreviewModal({
               onLoad={() => setIsLoading(false)}
               onError={() => setIsLoading(false)}
             />
+            
+            {/* Annotation overlay */}
+            {showAnnotation && (
+              <ImageAnnotation
+                imageUrl={imageUrl}
+                onImageUpdate={(annotatedUrl) => {
+                  setAnnotatedImageUrl(annotatedUrl)
+                }}
+                onClose={() => setShowAnnotation(false)}
+              />
+            )}
           </div>
 
           {/* Action buttons - Fixed at bottom */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-[10000]">
             <Button
               variant="outline"
-              onClick={onRemove}
-              disabled={isSending}
+              onClick={() => {
+                onRemove()
+                onClose()
+              }}
+              disabled={isSending || showAnnotation}
               className="bg-black/70 hover:bg-black/90 text-white border-white/20"
             >
               <XCircle className="w-4 h-4 mr-2" />
               Remove
             </Button>
             <Button
-              onClick={onSend}
-              disabled={isSending}
+              variant="outline"
+              onClick={() => setShowAnnotation(true)}
+              disabled={isSending || showAnnotation}
+              className="bg-black/70 hover:bg-black/90 text-white border-white/20"
+            >
+              <Pen className="w-4 h-4 mr-2" />
+              Draw
+            </Button>
+            <Button
+              onClick={() => {
+                // Send the annotated image if available, otherwise send the original
+                onSend(currentImageUrl)
+              }}
+              disabled={isSending || showAnnotation}
               className="bg-primary hover:opacity-90"
             >
               {isSending ? (
