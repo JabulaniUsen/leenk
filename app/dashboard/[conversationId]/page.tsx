@@ -152,8 +152,9 @@ export default function ChatPage() {
     }
 
     const handleConversationUpdate = () => {
-      // Revalidate conversation cache
-      mutateConversation()
+      // Revalidate conversation cache - SWR will merge with existing cache
+      // This preserves optimistic updates while refreshing from server
+      mutateConversation(undefined, { revalidate: true })
     }
 
     const cleanup = setupConversationChannel(

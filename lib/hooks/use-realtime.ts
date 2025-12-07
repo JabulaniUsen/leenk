@@ -93,6 +93,34 @@ export function useRealtime() {
                 imageUrl: dbMessage.image_url || undefined,
                 status: (dbMessage.status || "sent") as "sent" | "delivered" | "read",
                 createdAt: dbMessage.created_at,
+                replyToId: dbMessage.reply_to_id || undefined,
+              }
+
+              // If this message is a reply, fetch the original message
+              if (dbMessage.reply_to_id) {
+                try {
+                  const { data: replyToMessage, error: replyError } = await supabase
+                    .from("messages")
+                    .select("*")
+                    .eq("id", dbMessage.reply_to_id)
+                    .single()
+
+                  if (!replyError && replyToMessage) {
+                    newMessage.replyTo = {
+                      id: replyToMessage.id,
+                      conversationId: replyToMessage.conversation_id,
+                      senderType: replyToMessage.sender_type,
+                      senderId: replyToMessage.sender_id,
+                      text: replyToMessage.content || undefined,
+                      imageUrl: replyToMessage.image_url || undefined,
+                      status: (replyToMessage.status || "sent") as "sent" | "delivered" | "read",
+                      createdAt: replyToMessage.created_at,
+                    }
+                  }
+                } catch (replyError) {
+                  console.error("Error fetching reply message:", replyError)
+                  // Continue without reply info if fetch fails
+                }
               }
 
               console.log("📨 Processed message:", newMessage)
@@ -102,16 +130,23 @@ export function useRealtime() {
               if (payload.eventType === "INSERT" && newMessage.senderType === otherSenderType) {
                 try {
                   await db.updateMessageStatus(newMessage.id, "delivered")
+                  // Update the message status after marking as delivered
+                  newMessage.status = "delivered"
                 } catch (error) {
                   console.error("Error updating message status:", error)
                 }
               }
 
-              if (onMessageUpdate) {
-                console.log("✅ Calling onMessageUpdate callback")
+              // Only call update if message has required fields
+              if (newMessage.id && newMessage.conversationId && onMessageUpdate) {
+                console.log("✅ Calling onMessageUpdate callback with message:", newMessage.id)
                 onMessageUpdate(newMessage)
               } else {
-                console.warn("⚠️ onMessageUpdate callback not provided")
+                console.warn("⚠️ onMessageUpdate callback not provided or message missing required fields", {
+                  hasId: !!newMessage.id,
+                  hasConversationId: !!newMessage.conversationId,
+                  hasCallback: !!onMessageUpdate
+                })
               }
             } catch (error) {
               console.error("❌ Error processing real-time message:", error)

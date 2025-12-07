@@ -79,49 +79,7 @@ export default function CustomerChatPage() {
     }
   }, [businessLoading, business, phone])
 
-  // Set up real-time subscription for business online status updates
-  useEffect(() => {
-    if (!business?.id) return
-
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`business-status:${business.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "businesses",
-          filter: `id=eq.${business.id}`,
-        },
-        (payload) => {
-          console.log("🟢 Business status update received:", payload)
-          // Update business data when online status changes
-          const updatedBusiness = payload.new as any
-          if (updatedBusiness) {
-            console.log("📊 Updating business online status:", updatedBusiness.online)
-            // Update the cached business data - use functional update to get latest state
-            mutateBusiness(
-              (current) => {
-                if (!current) return current
-                return {
-                  ...current,
-                  online: updatedBusiness.online ?? false,
-                }
-              },
-              true // Revalidate to ensure UI updates
-            )
-          }
-        }
-      )
-      .subscribe((status) => {
-        console.log(`Business status channel subscription: ${status}`)
-      })
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [business?.id, mutateBusiness])
+  // Business is always online - no real-time status updates needed
 
   // Search for existing conversation when email is entered
   const handleEmailSearch = async (email: string) => {
@@ -284,9 +242,34 @@ export default function CustomerChatPage() {
 
     const handleConversationUpdate = async () => {
       if (!currentConversation?.id) return
+      // Merge messages instead of replacing - preserve optimistic updates
       const updated = await storage.getConversationById(currentConversation.id)
       if (updated) {
-        setCurrentConversation(updated)
+        setCurrentConversation((prev) => {
+          if (!prev) return updated
+          
+          // Merge messages: keep optimistic messages, add/update real ones
+          const messageMap = new Map<string, Message>()
+          
+          // First, add all existing messages (including optimistic ones)
+          prev.messages.forEach((msg) => {
+            messageMap.set(msg.id, msg)
+          })
+          
+          // Then, update with real messages from database
+          updated.messages.forEach((msg) => {
+            messageMap.set(msg.id, msg)
+          })
+          
+          const mergedMessages = Array.from(messageMap.values()).sort(
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          )
+          
+          return {
+            ...updated,
+            messages: mergedMessages,
+          }
+        })
       }
     }
 
@@ -592,9 +575,9 @@ export default function CustomerChatPage() {
                 transition={{ delay: 0.3 }}
                 className="flex items-center justify-center gap-2"
               >
-                <div className={`w-2 h-2 rounded-full ${(business.online ?? false) ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                  {(business.online ?? false) ? "Online" : "Offline"}
+                  Online
                 </span>
               </motion.div>
             </div>
@@ -725,8 +708,8 @@ export default function CustomerChatPage() {
               <div>
                 <h2 className="font-semibold text-lg text-foreground">{business.businessName}</h2>
                 <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${(business.online ?? false) ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-                  <p className="text-xs text-muted-foreground">{(business.online ?? false) ? "Online" : "Offline"}</p>
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <p className="text-xs text-muted-foreground">Online</p>
                 </div>
               </div>
             </div>
@@ -750,9 +733,9 @@ export default function CustomerChatPage() {
           <div>
             <h2 className="font-semibold text-lg text-foreground">{business.businessName}</h2>
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${(business.online ?? false) ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               <p className="text-xs text-muted-foreground">
-                {(business.online ?? false) ? "Online" : "Offline"}
+                Online
                 {connectionStatus === "connected" && (
                   <span className="ml-2 text-primary" title="Real-time connected">●</span>
                 )}

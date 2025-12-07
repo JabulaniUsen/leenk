@@ -40,38 +40,7 @@ export default function DashboardPage() {
     }
   }, [authLoading, user, router])
 
-  // Set business as online when dashboard loads
-  useEffect(() => {
-    if (user?.business?.id) {
-      // Always set as online when dashboard is active
-      storage.updateBusiness(user.business.id, { online: true }).then(() => {
-        // Refresh auth to get updated online status
-        mutateAuth()
-      }).catch((error) => {
-        console.error("Failed to update online status:", error)
-      })
-    }
-
-    // Set as offline when page unloads (user closes tab/navigates away)
-    const handleBeforeUnload = () => {
-      if (user?.business?.id) {
-        // Use sendBeacon for reliable offline status update even if page is closing
-        const blob = new Blob([JSON.stringify({ businessId: user.business.id, online: false })], {
-          type: 'application/json'
-        })
-        navigator.sendBeacon('/api/update-online-status', blob)
-    }
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload)
-      // Also set offline when component unmounts (navigation)
-      if (user?.business?.id) {
-        storage.updateBusiness(user.business.id, { online: false }).catch(console.error)
-      }
-    }
-  }, [user?.business?.id, mutateAuth])
+  // Business is always online - no need to update status
 
   // Set up real-time WebSocket subscription for conversation updates
   useEffect(() => {
@@ -87,54 +56,10 @@ export default function DashboardPage() {
     return cleanup
   }, [user?.id, setupBusinessChannel, mutateConversations])
 
-  // Set up real-time subscription for business online status updates
-  useEffect(() => {
-    if (!user?.business?.id) return
-
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`business-status:${user.business.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "businesses",
-          filter: `id=eq.${user.business.id}`,
-        },
-        (payload) => {
-          // Update auth user data when online status changes
-          const updatedBusiness = payload.new as any
-          if (updatedBusiness && user) {
-            mutateAuth(
-              {
-                ...user,
-                business: {
-                  ...user.business!,
-                  online: updatedBusiness.online ?? false,
-                },
-              },
-              false
-            )
-          }
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [user?.business?.id, user, mutateAuth])
+  // Business is always online - no real-time status updates needed
 
   const handleLogout = async () => {
-    // Set business as offline before logging out
-    if (user?.business?.id) {
-      try {
-        await storage.updateBusiness(user.business.id, { online: false })
-      } catch (error) {
-        console.error("Failed to update online status:", error)
-      }
-    }
+    // Business is always online - no need to update status
     await storage.clearAuth()
     mutateAuth(null, false) // Clear auth cache
     router.push("/")
