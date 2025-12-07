@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProviderWrapper } from "@/components/theme-provider-wrapper"
+import { PWAInstaller } from "@/components/pwa-installer"
+import { PWAHead } from "@/components/pwa-head"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -12,10 +14,22 @@ export const metadata: Metadata = {
   title: "Leenk - Business Chat",
   description: "Modern WhatsApp-like chat platform for businesses",
   generator: "v0.app",
+  manifest: "/manifest.json",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Leenk",
+  },
   viewport: {
     width: "device-width",
     initialScale: 1,
     maximumScale: 1,
+    userScalable: false,
+    viewportFit: "cover",
   },
   icons: {
     icon: [
@@ -44,9 +58,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`font-sans antialiased`}>
+        <PWAHead />
         <ThemeProviderWrapper>
           {children}
         </ThemeProviderWrapper>
+        <PWAInstaller />
         <Analytics />
       </body>
     </html>
