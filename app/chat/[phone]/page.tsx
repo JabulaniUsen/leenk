@@ -734,15 +734,15 @@ export default function CustomerChatPage() {
             <h2 className="font-semibold text-lg text-foreground">{business.businessName}</h2>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
                 Online
-                {connectionStatus === "connected" && (
-                  <span className="ml-2 text-primary" title="Real-time connected">●</span>
-                )}
-                {connectionStatus === "disconnected" && (
-                  <span className="ml-2 text-yellow-500" title="Reconnecting...">●</span>
-                )}
-              </p>
+              {connectionStatus === "connected" && (
+                <span className="ml-2 text-primary" title="Real-time connected">●</span>
+              )}
+              {connectionStatus === "disconnected" && (
+                <span className="ml-2 text-yellow-500" title="Reconnecting...">●</span>
+              )}
+            </p>
             </div>
           </div>
         </div>

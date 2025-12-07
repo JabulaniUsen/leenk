@@ -23,6 +23,7 @@ interface DBConversation {
   customer_email: string
   created_at: string
   updated_at: string
+  pinned: boolean | null
 }
 
 interface DBMessage {
@@ -132,6 +133,7 @@ async function dbConversationToApp(
     createdAt: db.created_at,
     lastMessageAt: db.updated_at,
     messages: appMessages,
+    pinned: db.pinned ?? false,
   }
 }
 
@@ -402,6 +404,9 @@ export const db = {
     if (updates.customerName !== undefined) {
       dbData.customer_name = updates.customerName || null
     }
+    if (updates.pinned !== undefined) {
+      dbData.pinned = updates.pinned
+    }
 
     const { data, error } = await supabase
       .from("conversations")
@@ -484,6 +489,16 @@ export const db = {
       createdAt: data.created_at,
       replyToId: data.reply_to_id || undefined,
     }
+  },
+
+  async deleteConversation(id: string): Promise<void> {
+    const supabase = createClient()
+    const { error } = await supabase
+      .from("conversations")
+      .delete()
+      .eq("id", id)
+
+    if (error) throw error
   },
 }
 

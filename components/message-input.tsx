@@ -151,33 +151,33 @@ export function MessageInput({
       )}
 
       <div className="flex gap-2">
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          disabled={disabled}
-          className="p-2 hover:bg-secondary rounded-lg transition-colors disabled:opacity-50 text-muted-foreground"
-          aria-label="Upload image"
-        >
-          <ImageIcon className="w-5 h-5" />
-        </button>
-        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
-        <textarea
+      <button
+        onClick={() => fileInputRef.current?.click()}
+        disabled={disabled}
+        className="p-2 hover:bg-secondary rounded-lg transition-colors disabled:opacity-50 text-muted-foreground"
+        aria-label="Upload image"
+      >
+        <ImageIcon className="w-5 h-5" />
+      </button>
+      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
+      <textarea
           ref={textareaRef}
-          value={message}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a message..."
-          disabled={disabled}
-          className="flex-1 bg-input border border-border rounded-lg px-3 md:px-4 py-2 md:py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 text-foreground placeholder:text-muted-foreground text-sm md:text-base"
-          rows={1}
-        />
-        <Button 
-          onClick={handleSend} 
-          disabled={!message.trim() || disabled} 
-          size="sm" 
-          className="self-end bg-primary hover:opacity-90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed rounded-full aspect-square p-2.5"
-        >
-          <ArrowRight className="w-4 h-4" />
-        </Button>
+        value={message}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        placeholder="Type a message..."
+        disabled={disabled}
+        className="flex-1 bg-input border border-border rounded-lg px-3 md:px-4 py-2 md:py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 text-foreground placeholder:text-muted-foreground text-sm md:text-base"
+        rows={1}
+      />
+      <Button 
+        onClick={handleSend} 
+        disabled={!message.trim() || disabled} 
+        size="sm" 
+        className="self-end bg-primary hover:opacity-90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed rounded-full aspect-square p-2.5"
+      >
+        <ArrowRight className="w-4 h-4" />
+      </Button>
       </div>
 
       {/* Image Preview Modal */}

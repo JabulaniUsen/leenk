@@ -5,10 +5,14 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { Avatar } from "@/components/avatar"
+import { Pin, PinOff, Trash2 } from "lucide-react"
+import { useState } from "react"
 
 interface ConversationListProps {
   conversations: Conversation[]
   selectedId?: string
+  onPin?: (conversationId: string, pinned: boolean) => void
+  onDelete?: (conversationId: string) => void
 }
 
 // Calculate unread message count for a conversation
@@ -21,9 +25,15 @@ function getUnreadCount(conversation: Conversation): number {
   ).length
 }
 
-export function ConversationList({ conversations, selectedId }: ConversationListProps) {
+export function ConversationList({ conversations, selectedId, onPin, onDelete }: ConversationListProps) {
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
   const sorted = [...conversations].sort((a, b) => {
-    // Sort by: unread conversations first, then by last message time
+    // Sort by: pinned first, then unread conversations, then by last message time
+    if (a.pinned && !b.pinned) return -1
+    if (!a.pinned && b.pinned) return 1
+    
     const aUnread = getUnreadCount(a)
     const bUnread = getUnreadCount(b)
     
@@ -32,6 +42,29 @@ export function ConversationList({ conversations, selectedId }: ConversationList
     
     return new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
   })
+
+  const handlePin = (e: React.MouseEvent, conversationId: string, currentPinned: boolean) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (onPin) {
+      onPin(conversationId, !currentPinned)
+    }
+  }
+
+  const handleDelete = async (e: React.MouseEvent, conversationId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (window.confirm("Are you sure you want to delete this conversation? This action cannot be undone.")) {
+      setDeletingId(conversationId)
+      if (onDelete) {
+        try {
+          await onDelete(conversationId)
+        } finally {
+          setDeletingId(null)
+        }
+      }
+    }
+  }
 
   return (
     <motion.div className="flex flex-col overflow-y-auto">
@@ -51,6 +84,9 @@ export function ConversationList({ conversations, selectedId }: ConversationList
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
+            onMouseEnter={() => setHoveredId(conv.id)}
+            onMouseLeave={() => setHoveredId(null)}
+            className="relative"
           >
             <Link href={`/dashboard/${conv.id}`}>
               <div
@@ -58,15 +94,27 @@ export function ConversationList({ conversations, selectedId }: ConversationList
                   selectedId === conv.id ? "bg-secondary" : ""
                   } ${
                     hasUnread ? "bg-primary/10 hover:bg-primary/20 border-l-4 border-l-primary" : ""
-                }`}
+                } ${conv.pinned ? "bg-primary/5" : ""}`}
               >
                 <div className="flex gap-3 items-start">
-                  <Avatar name={conv.customerName || conv.customerEmail} size="md" />
+                  <div className="relative">
+                    <Avatar name={conv.customerName || conv.customerEmail} size="md" />
+                    {conv.pinned && (
+                      <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                        <Pin className="w-3 h-3" />
+                      </div>
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-1">
-                        <p className={`font-medium truncate ${hasUnread ? "font-semibold text-foreground" : "text-foreground"}`}>
-                          {conv.customerName || conv.customerEmail}
-                        </p>
+                        <div className="flex items-center gap-1 flex-1 min-w-0">
+                          {conv.pinned && (
+                            <Pin className="w-3 h-3 text-primary flex-shrink-0" />
+                          )}
+                          <p className={`font-medium truncate ${hasUnread ? "font-semibold text-foreground" : "text-foreground"}`}>
+                            {conv.customerName || conv.customerEmail}
+                          </p>
+                        </div>
                         <div className="flex items-center gap-2 ml-2">
                           {hasUnread && (
                             <span className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-0.5 rounded-full min-w-[20px] text-center">
@@ -86,6 +134,31 @@ export function ConversationList({ conversations, selectedId }: ConversationList
                 </div>
               </div>
             </Link>
+            
+            {/* Action buttons - show on hover */}
+            {hoveredId === conv.id && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-background/95 backdrop-blur-sm rounded-lg p-1 shadow-lg border border-border">
+                <button
+                  onClick={(e) => handlePin(e, conv.id, conv.pinned || false)}
+                  className="p-1.5 hover:bg-secondary rounded transition-colors"
+                  title={conv.pinned ? "Unpin conversation" : "Pin conversation"}
+                >
+                  {conv.pinned ? (
+                    <PinOff className="w-4 h-4 text-muted-foreground" />
+                  ) : (
+                    <Pin className="w-4 h-4 text-muted-foreground" />
+                  )}
+                </button>
+                <button
+                  onClick={(e) => handleDelete(e, conv.id)}
+                  disabled={deletingId === conv.id}
+                  className="p-1.5 hover:bg-destructive/10 hover:text-destructive rounded transition-colors disabled:opacity-50"
+                  title="Delete conversation"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </motion.div>
           )
         })

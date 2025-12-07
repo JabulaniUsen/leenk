@@ -65,6 +65,30 @@ export default function DashboardPage() {
     router.push("/")
   }
 
+  const handlePin = async (conversationId: string, pinned: boolean) => {
+    try {
+      await storage.updateConversation(conversationId, { pinned })
+      // Refresh conversations list to show updated pin status
+      mutateConversations(undefined, { revalidate: true })
+    } catch (error) {
+      console.error("Failed to pin/unpin conversation:", error)
+      alert("Failed to update conversation. Please try again.")
+    }
+  }
+
+  const handleDelete = async (conversationId: string) => {
+    try {
+      await storage.deleteConversation(conversationId)
+      // Refresh conversations list to remove deleted conversation
+      mutateConversations(undefined, { revalidate: true })
+      // If we're viewing the deleted conversation, redirect to dashboard
+      router.push("/dashboard")
+    } catch (error) {
+      console.error("Failed to delete conversation:", error)
+      alert("Failed to delete conversation. Please try again.")
+    }
+  }
+
   // Render UI immediately - show skeleton for loading parts
   // This makes the app feel instant even while data loads
 
@@ -120,7 +144,11 @@ export default function DashboardPage() {
           {conversationsLoading ? (
             <ConversationSkeleton />
           ) : (
-            <ConversationList conversations={conversations} />
+            <ConversationList 
+              conversations={conversations} 
+              onPin={handlePin}
+              onDelete={handleDelete}
+            />
           )}
         </div>
       </motion.aside>

@@ -1353,12 +1353,12 @@ function MessageInput({ onSendMessage, onSendImage, onTyping, disabled, replyTo,
                         }, void 0, false, {
                             fileName: "[project]/components/message-input.tsx",
                             lineNumber: 160,
-                            columnNumber: 11
+                            columnNumber: 9
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/message-input.tsx",
                         lineNumber: 154,
-                        columnNumber: 9
+                        columnNumber: 7
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                         ref: fileInputRef,
@@ -1369,7 +1369,7 @@ function MessageInput({ onSendMessage, onSendImage, onTyping, disabled, replyTo,
                     }, void 0, false, {
                         fileName: "[project]/components/message-input.tsx",
                         lineNumber: 162,
-                        columnNumber: 9
+                        columnNumber: 7
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
                         ref: textareaRef,
@@ -1383,7 +1383,7 @@ function MessageInput({ onSendMessage, onSendImage, onTyping, disabled, replyTo,
                     }, void 0, false, {
                         fileName: "[project]/components/message-input.tsx",
                         lineNumber: 163,
-                        columnNumber: 9
+                        columnNumber: 7
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                         onClick: handleSend,
@@ -1395,12 +1395,12 @@ function MessageInput({ onSendMessage, onSendImage, onTyping, disabled, replyTo,
                         }, void 0, false, {
                             fileName: "[project]/components/message-input.tsx",
                             lineNumber: 179,
-                            columnNumber: 11
+                            columnNumber: 9
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/message-input.tsx",
                         lineNumber: 173,
-                        columnNumber: 9
+                        columnNumber: 7
                     }, this)
                 ]
             }, void 0, true, {
@@ -1674,7 +1674,8 @@ async function dbConversationToApp(db, messages = []) {
         customerName: db.customer_name || undefined,
         createdAt: db.created_at,
         lastMessageAt: db.updated_at,
-        messages: appMessages
+        messages: appMessages,
+        pinned: db.pinned ?? false
     };
 }
 // Convert App Conversation to DB Conversation
@@ -1862,6 +1863,9 @@ const db = {
         if (updates.customerName !== undefined) {
             dbData.customer_name = updates.customerName || null;
         }
+        if (updates.pinned !== undefined) {
+            dbData.pinned = updates.pinned;
+        }
         const { data, error } = await supabase.from("conversations").update(dbData).eq("id", id).select().single();
         if (error || !data) return null;
         // Get messages
@@ -1925,6 +1929,11 @@ const db = {
             createdAt: data.created_at,
             replyToId: data.reply_to_id || undefined
         };
+    },
+    async deleteConversation (id) {
+        const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
+        const { error } = await supabase.from("conversations").delete().eq("id", id);
+        if (error) throw error;
     }
 };
 }),
@@ -2139,7 +2148,10 @@ const storage = {
         await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].createConversation(conversation);
     },
     updateConversation: async (id, updates)=>{
-        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].updateConversation(id, updates);
+        return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].updateConversation(id, updates);
+    },
+    deleteConversation: async (id)=>{
+        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].deleteConversation(id);
     },
     // Auth
     getAuth: async ()=>{
@@ -3727,7 +3739,7 @@ function CustomerChatPage() {
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
                                                     lineNumber: 740,
-                                                    columnNumber: 19
+                                                    columnNumber: 17
                                                 }, this),
                                                 connectionStatus === "disconnected" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                     className: "ml-2 text-yellow-500",
@@ -3736,13 +3748,13 @@ function CustomerChatPage() {
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
                                                     lineNumber: 743,
-                                                    columnNumber: 19
+                                                    columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
                                             lineNumber: 737,
-                                            columnNumber: 15
+                                            columnNumber: 13
                                         }, this)
                                     ]
                                 }, void 0, true, {

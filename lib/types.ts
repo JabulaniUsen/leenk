@@ -18,6 +18,7 @@ export interface Conversation {
   lastMessageAt: string
   messages: Message[]
   unreadCount?: number
+  pinned?: boolean
 }
 
 export interface Message {

@@ -412,17 +412,40 @@ export default function ChatPage() {
   }
 
   const handleLogout = async () => {
-    // Set business as offline before logging out
-    if (user?.business?.id) {
-      try {
-        await storage.updateBusiness(user.business.id, { online: false })
-      } catch (error) {
-        console.error("Failed to update online status:", error)
-      }
-    }
+    // Business is always online - no need to update status
     await storage.clearAuth()
     mutateAuth(null, false) // Clear auth cache
     router.push("/")
+  }
+
+  const handlePin = async (conversationId: string, pinned: boolean) => {
+    try {
+      await storage.updateConversation(conversationId, { pinned })
+      // Refresh conversations list to show updated pin status
+      mutateConversations(undefined, { revalidate: true })
+      // If this is the current conversation, update it too
+      if (conversationId === currentConversation?.id) {
+        mutateConversation(undefined, { revalidate: true })
+      }
+    } catch (error) {
+      console.error("Failed to pin/unpin conversation:", error)
+      alert("Failed to update conversation. Please try again.")
+    }
+  }
+
+  const handleDelete = async (conversationId: string) => {
+    try {
+      await storage.deleteConversation(conversationId)
+      // Refresh conversations list to remove deleted conversation
+      mutateConversations(undefined, { revalidate: true })
+      // If we're viewing the deleted conversation, redirect to dashboard
+      if (conversationId === currentConversation?.id) {
+        router.push("/dashboard")
+      }
+    } catch (error) {
+      console.error("Failed to delete conversation:", error)
+      alert("Failed to delete conversation. Please try again.")
+    }
   }
 
   // Render UI immediately - show skeleton for loading parts
@@ -471,7 +494,12 @@ export default function ChatPage() {
             </Link>
           </div>
           <div className="flex-1 overflow-y-auto">
-            <ConversationList conversations={conversations} selectedId={conversationId} />
+            <ConversationList 
+              conversations={conversations} 
+              selectedId={conversationId}
+              onPin={handlePin}
+              onDelete={handleDelete}
+            />
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
@@ -527,7 +555,12 @@ export default function ChatPage() {
 
         {/* Conversations List */}
         <div className="flex-1 overflow-y-auto bg-background">
-          <ConversationList conversations={conversations} selectedId={conversationId} />
+          <ConversationList 
+            conversations={conversations} 
+            selectedId={conversationId}
+            onPin={handlePin}
+            onDelete={handleDelete}
+          />
         </div>
       </motion.aside>
 

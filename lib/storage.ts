@@ -49,8 +49,12 @@ export const storage = {
     await db.createConversation(conversation)
   },
 
-  updateConversation: async (id: string, updates: Partial<Conversation>): Promise<void> => {
-    await db.updateConversation(id, updates)
+  updateConversation: async (id: string, updates: Partial<Conversation>): Promise<Conversation | null> => {
+    return await db.updateConversation(id, updates)
+  },
+
+  deleteConversation: async (id: string): Promise<void> => {
+    await db.deleteConversation(id)
   },
 
   // Auth
