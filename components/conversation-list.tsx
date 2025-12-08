@@ -6,7 +6,7 @@ import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { Avatar } from "@/components/avatar"
 import { FaThumbtack, FaTrash } from "react-icons/fa"
-import { useState } from "react"
+import { useState, memo } from "react"
 
 interface ConversationListProps {
   conversations: Conversation[]
@@ -30,7 +30,7 @@ function getUnreadCount(conversation: Conversation): number {
   ).length
 }
 
-export function ConversationList({ conversations, selectedId, onPin, onDelete }: ConversationListProps) {
+export const ConversationList = memo(function ConversationList({ conversations, selectedId, onPin, onDelete }: ConversationListProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -166,4 +166,4 @@ export function ConversationList({ conversations, selectedId, onPin, onDelete }:
       )}
     </motion.div>
   )
-}
+})

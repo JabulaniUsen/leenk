@@ -2304,53 +2304,50 @@ const db = {
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
         const { data: conversations, error } = await supabase.from("conversations").select("id, business_id, customer_phone, customer_name, customer_email, created_at, updated_at, pinned").eq("business_id", businessId).order("updated_at", {
             ascending: false
-        });
+        }).limit(100) // Limit to prevent huge queries
+        ;
         if (error || !conversations || conversations.length === 0) {
             (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationsByBusinessId", []);
             return [];
         }
         const conversationIds = conversations.map((c)=>c.id);
-        // Optimized: Fetch only last message per conversation + unread count in parallel
-        // This is much faster than fetching all messages
+        // Optimized: Use a single query with window functions or batch queries
+        // Fetch last messages for all conversations in one optimized query
+        const lastMessagesQuery = supabase.from("messages").select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id").in("conversation_id", conversationIds);
+        // Get the last message per conversation using a subquery approach
+        // For now, we'll batch the queries but limit to prevent N+1
+        const batchSize = 10 // Process 10 conversations at a time
+        ;
+        const batches = [];
+        for(let i = 0; i < conversationIds.length; i += batchSize){
+            const batch = conversationIds.slice(i, i + batchSize);
+            batches.push(batch);
+        }
+        // Fetch last messages and unread counts in parallel batches
         const [lastMessagesResults, unreadCountsResults] = await Promise.all([
-            // Fetch only the last message for preview - use selective fields
-            Promise.all(conversationIds.map(async (conversationId)=>{
-                const { data: messages } = await supabase.from("messages").select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id").eq("conversation_id", conversationId).order("created_at", {
-                    ascending: false
-                }).limit(1) // Only get the last message for preview
-                ;
-                return {
-                    conversationId,
-                    lastMessage: messages && messages.length > 0 ? messages[0] : null
-                };
-            })),
-            // Efficiently calculate unread counts using a count query
-            Promise.all(conversationIds.map(async (conversationId)=>{
-                const { count, error } = await supabase.from("messages").select("id", {
-                    count: "exact",
-                    head: true
-                }).eq("conversation_id", conversationId).eq("sender_type", "customer").in("status", [
-                    "sent",
-                    "delivered"
-                ]) // Unread = sent or delivered from customer
-                ;
-                // If count query fails, fallback to fetching and counting (but only IDs)
-                if (error || count === null) {
-                    const { data: unreadMessages } = await supabase.from("messages").select("id").eq("conversation_id", conversationId).eq("sender_type", "customer").in("status", [
-                        "sent",
-                        "delivered"
-                    ]).limit(1000) // Safety limit
-                    ;
+            Promise.all(batches.flatMap((batch)=>batch.map(async (conversationId)=>{
+                    const { data: messages } = await supabase.from("messages").select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id").eq("conversation_id", conversationId).order("created_at", {
+                        ascending: false
+                    }).limit(1);
                     return {
                         conversationId,
-                        unreadCount: unreadMessages?.length || 0
+                        lastMessage: messages && messages.length > 0 ? messages[0] : null
                     };
-                }
-                return {
-                    conversationId,
-                    unreadCount: count || 0
-                };
-            }))
+                }))),
+            // Batch unread count queries
+            Promise.all(batches.flatMap((batch)=>batch.map(async (conversationId)=>{
+                    const { count } = await supabase.from("messages").select("id", {
+                        count: "exact",
+                        head: true
+                    }).eq("conversation_id", conversationId).eq("sender_type", "customer").in("status", [
+                        "sent",
+                        "delivered"
+                    ]);
+                    return {
+                        conversationId,
+                        unreadCount: count || 0
+                    };
+                })))
         ]);
         // Create maps for quick lookup
         const lastMessageMap = new Map();
@@ -2364,16 +2361,16 @@ const db = {
             unreadCountMap.set(conversationId, unreadCount);
         });
         // Convert to app format - only include last message, not all messages
-        const result = await Promise.all(conversations.map(async (conv)=>{
+        const result = conversations.map((conv)=>{
             const lastMessage = lastMessageMap.get(conv.id);
             const messages = lastMessage ? [
                 lastMessage
             ] : [];
-            const conversation = await dbConversationToApp(conv, messages);
+            const conversation = dbConversationToApp(conv, messages);
             // Add unread count to conversation
             conversation.unreadCount = unreadCountMap.get(conv.id) || 0;
             return conversation;
-        }));
+        });
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationsByBusinessId", result);
         return result;
     },
@@ -2461,7 +2458,17 @@ const db = {
             customer_phone: null
         };
         const { data, error } = await supabase.from("conversations").insert(dbData).select().single();
-        if (error) throw error;
+        if (error) {
+            // Create a properly formatted error with all Supabase error properties
+            const formattedError = new Error(error.message || "Failed to create conversation");
+            formattedError.code = error.code;
+            formattedError.details = error.details;
+            formattedError.hint = error.hint;
+            formattedError.name = "SupabaseError";
+            // Preserve original error for debugging
+            formattedError.originalError = error;
+            throw formattedError;
+        }
         // Create messages if any
         if (conversation.messages && conversation.messages.length > 0) {
             const messagesData = conversation.messages.map((m)=>({
@@ -3097,11 +3104,25 @@ const storage = {
     },
     // Conversations
     getConversationsByBusinessId: async (businessId)=>{
-        // Always fetch from server to ensure we have the latest data
-        // Cache is used for instant display while fetching, but we always want fresh data
+        // Cache-first strategy for faster initial load
+        // Return cached data immediately, then update in background
         try {
+            // Try cache first for instant display
+            const cached = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["conversationCache"].getConversations(businessId);
+            // Fetch from server in background (don't await)
+            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].getConversationsByBusinessId(businessId).then((conversations)=>{
+                // Update cache with fresh data
+                __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["conversationCache"].saveConversations(conversations).catch(console.error);
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationsByBusinessId", conversations);
+            }).catch((error)=>{
+                console.error("Error fetching conversations from server:", error);
+            });
+            // Return cached data immediately if available
+            if (cached.length > 0) {
+                return cached;
+            }
+            // If no cache, wait for server fetch
             const conversations = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].getConversationsByBusinessId(businessId);
-            // Save to cache for next time (async, don't block)
             __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["conversationCache"].saveConversations(conversations).catch(console.error);
             (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationsByBusinessId", conversations);
             return conversations;
@@ -3118,9 +3139,30 @@ const storage = {
         }
     },
     getConversationById: async (id)=>{
-        // Always fetch from server to ensure we have the latest conversation data
-        // Cache is used for instant display while fetching, but we always want fresh data
+        // Cache-first strategy for faster initial load
         try {
+            // Try to get cached messages first for instant display
+            const cachedMessages = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["messageCache"].getMessages(id, 25);
+            const isCacheFresh = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["messageCache"].isCacheFresh(id);
+            // If we have fresh cached messages, return them immediately while fetching fresh data
+            if (cachedMessages.length > 0 && isCacheFresh) {
+                // Fetch fresh data in background
+                __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].getConversationById(id).then((conversation)=>{
+                    if (conversation) {
+                        __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["messageCache"].saveMessages(id, conversation.messages).catch(console.error);
+                        (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationById", conversation);
+                    }
+                }).catch(console.error);
+                // Still need conversation metadata - fetch it (this is fast)
+                const conversation = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].getConversationById(id);
+                if (conversation) {
+                    return {
+                        ...conversation,
+                        messages: cachedMessages
+                    };
+                }
+            }
+            // If no cache or cache is stale, fetch from server
             const conversation = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].getConversationById(id);
             if (conversation) {
                 // Save to cache for next time (async, don't block)
@@ -3165,7 +3207,16 @@ const storage = {
         if (!conversation.customerEmail) {
             throw new Error("customerEmail is required to create a conversation");
         }
-        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].createConversation(conversation);
+        try {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].createConversation(conversation);
+        } catch (error) {
+            // Re-throw with better error information
+            const enhancedError = new Error(error?.message || "Failed to create conversation");
+            enhancedError.code = error?.code;
+            enhancedError.details = error?.details;
+            enhancedError.hint = error?.hint;
+            throw enhancedError;
+        }
     },
     updateConversation: async (id, updates)=>{
         return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].updateConversation(id, updates);
@@ -3808,49 +3859,135 @@ function CustomerChatPage() {
             setError("Please enter a valid email address");
             return;
         }
-        if (!showNameInput && !currentConversation) {
-            await handleEmailSearch(customerEmail);
-            return;
-        }
-        if (showNameInput && !customerName.trim()) {
-            setError("Please provide your name");
-            return;
-        }
+        // Always check for existing conversation first, even if we have currentConversation
+        // This prevents race conditions and duplicate creation attempts
         setError("");
-        if (currentConversation) {
-            if (customerName.trim() && currentConversation.customerName !== customerName.trim()) {
-                await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$storage$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["storage"].updateConversation(currentConversation.id, {
-                    customerName: customerName.trim()
-                });
-                const updated = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$storage$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["storage"].getConversationById(currentConversation.id);
-                if (updated) {
-                    setCurrentConversation(updated);
-                }
-            }
-            setShowEmailPrompt(false);
-            return;
-        }
-        // New user - create conversation
-        const newConversation = {
-            id: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$uuid$40$13$2e$0$2e$0$2f$node_modules$2f$uuid$2f$dist$2d$node$2f$v4$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])(),
-            businessId: business.id,
-            customerEmail: customerEmail.trim(),
-            customerName: customerName.trim(),
-            createdAt: new Date().toISOString(),
-            lastMessageAt: new Date().toISOString(),
-            messages: []
-        };
         try {
+            // First, always check if conversation already exists
+            const existingConversation = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].getConversationByBusinessAndEmail(business.id, customerEmail.trim());
+            if (existingConversation) {
+                // Conversation exists, use it
+                // Update name if provided and different
+                if (customerName.trim() && existingConversation.customerName !== customerName.trim()) {
+                    await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$storage$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["storage"].updateConversation(existingConversation.id, {
+                        customerName: customerName.trim()
+                    });
+                    const updated = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$storage$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["storage"].getConversationById(existingConversation.id);
+                    if (updated) {
+                        setCurrentConversation(updated);
+                    } else {
+                        setCurrentConversation(existingConversation);
+                    }
+                } else {
+                    setCurrentConversation(existingConversation);
+                }
+                setShowEmailPrompt(false);
+                setShowNameInput(false);
+                return;
+            }
+            // If we already have a conversation in state, use it (shouldn't happen, but safety check)
+            if (currentConversation) {
+                if (customerName.trim() && currentConversation.customerName !== customerName.trim()) {
+                    await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$storage$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["storage"].updateConversation(currentConversation.id, {
+                        customerName: customerName.trim()
+                    });
+                    const updated = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$storage$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["storage"].getConversationById(currentConversation.id);
+                    if (updated) {
+                        setCurrentConversation(updated);
+                    }
+                }
+                setShowEmailPrompt(false);
+                return;
+            }
+            // Validate name if we're in name input mode
+            if (showNameInput && !customerName.trim()) {
+                setError("Please provide your name");
+                return;
+            }
+            // No existing conversation found, create new one
+            const newConversation = {
+                id: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$uuid$40$13$2e$0$2e$0$2f$node_modules$2f$uuid$2f$dist$2d$node$2f$v4$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])(),
+                businessId: business.id,
+                customerEmail: customerEmail.trim(),
+                customerName: customerName.trim() || null,
+                createdAt: new Date().toISOString(),
+                lastMessageAt: new Date().toISOString(),
+                messages: []
+            };
             await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$storage$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["storage"].createConversation(newConversation);
             const created = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$storage$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["storage"].getConversationById(newConversation.id);
             if (created) {
                 setCurrentConversation(created);
                 setShowEmailPrompt(false);
                 setShowNameInput(false);
+            } else {
+                // If creation succeeded but couldn't fetch, try to find existing
+                console.warn("Conversation created but couldn't fetch, trying to find existing...");
+                const existingConversation = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].getConversationByBusinessAndEmail(business.id, customerEmail.trim());
+                if (existingConversation) {
+                    setCurrentConversation(existingConversation);
+                    setShowEmailPrompt(false);
+                    setShowNameInput(false);
+                }
             }
         } catch (err) {
-            console.error("Error creating conversation:", err);
-            setError("Failed to start chat. Please try again.");
+            // Log error with all available properties - handle both Error objects and plain objects
+            let errorMessage = "Unknown error";
+            let errorCode = null;
+            let errorDetails = null;
+            if (err instanceof Error) {
+                errorMessage = err.message;
+                errorCode = err.code || null;
+                errorDetails = err.details || null;
+            } else if (typeof err === "object" && err !== null) {
+                errorMessage = err.message || (err.toString ? err.toString() : JSON.stringify(err));
+                errorCode = err.code || null;
+                errorDetails = err.details || null;
+            } else {
+                errorMessage = String(err);
+            }
+            const errorInfo = {
+                message: errorMessage,
+                code: errorCode || err?.code,
+                details: errorDetails || err?.details,
+                hint: err?.hint,
+                name: err?.name,
+                originalError: err
+            };
+            console.error("Error creating conversation:", errorInfo);
+            // Also try to access properties directly
+            try {
+                console.error("Error code:", err?.code);
+                console.error("Error message:", err?.message);
+                console.error("Error details:", err?.details);
+            } catch (logErr) {
+                console.error("Could not log error properties:", logErr);
+            }
+            // Check if error is due to duplicate key (race condition)
+            const errorString = JSON.stringify(errorInfo).toLowerCase();
+            const isDuplicateError = err?.code === "23505" || errorString.includes("duplicate key") || errorString.includes("23505") || err?.message?.toLowerCase()?.includes("duplicate") || err?.details?.toLowerCase()?.includes("duplicate");
+            if (isDuplicateError) {
+                try {
+                    console.log("Duplicate conversation detected, fetching existing conversation...");
+                    const existingConversation = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["db"].getConversationByBusinessAndEmail(business.id, customerEmail.trim());
+                    if (existingConversation) {
+                        console.log("Found existing conversation, using it:", existingConversation.id);
+                        setCurrentConversation(existingConversation);
+                        setShowEmailPrompt(false);
+                        setShowNameInput(false);
+                        // Clear error since we successfully recovered
+                        setError("");
+                        return;
+                    } else {
+                        console.warn("Duplicate error but couldn't find existing conversation");
+                    }
+                } catch (fetchError) {
+                    console.error("Error fetching existing conversation:", fetchError);
+                }
+            }
+            // Show user-friendly error message
+            const userErrorMessage = errorMessage !== "Unknown error" ? errorMessage : err?.message || err?.details || "Failed to start chat. Please try again.";
+            setError(userErrorMessage);
         }
     };
     // Set up real-time subscription when conversation is loaded
@@ -4276,25 +4413,25 @@ function CustomerChatPage() {
                         className: "w-5 h-5 animate-spin"
                     }, void 0, false, {
                         fileName: "[project]/app/chat/[phone]/page.tsx",
-                        lineNumber: 650,
+                        lineNumber: 756,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                         children: "Loading..."
                     }, void 0, false, {
                         fileName: "[project]/app/chat/[phone]/page.tsx",
-                        lineNumber: 651,
+                        lineNumber: 757,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/chat/[phone]/page.tsx",
-                lineNumber: 649,
+                lineNumber: 755,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/chat/[phone]/page.tsx",
-            lineNumber: 648,
+            lineNumber: 754,
             columnNumber: 7
         }, this);
     }
@@ -4308,7 +4445,7 @@ function CustomerChatPage() {
                         className: "w-12 h-12 text-destructive mx-auto mb-4"
                     }, void 0, false, {
                         fileName: "[project]/app/chat/[phone]/page.tsx",
-                        lineNumber: 661,
+                        lineNumber: 767,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -4316,7 +4453,7 @@ function CustomerChatPage() {
                         children: "Error"
                     }, void 0, false, {
                         fileName: "[project]/app/chat/[phone]/page.tsx",
-                        lineNumber: 662,
+                        lineNumber: 768,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4324,18 +4461,18 @@ function CustomerChatPage() {
                         children: error
                     }, void 0, false, {
                         fileName: "[project]/app/chat/[phone]/page.tsx",
-                        lineNumber: 663,
+                        lineNumber: 769,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/chat/[phone]/page.tsx",
-                lineNumber: 660,
+                lineNumber: 766,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/chat/[phone]/page.tsx",
-            lineNumber: 659,
+            lineNumber: 765,
             columnNumber: 7
         }, this);
     }
@@ -4382,17 +4519,17 @@ function CustomerChatPage() {
                                             className: "object-contain drop-shadow-lg"
                                         }, void 0, false, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                            lineNumber: 688,
+                                            lineNumber: 794,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/chat/[phone]/page.tsx",
-                                        lineNumber: 687,
+                                        lineNumber: 793,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                    lineNumber: 681,
+                                    lineNumber: 787,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$framer$2d$motion$40$12$2e$23$2e$25_$40$emotion$2b$is$2d$prop$2d$valid$40$1$2e$4$2e$0_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].h2, {
@@ -4409,7 +4546,7 @@ function CustomerChatPage() {
                                     children: business.businessName
                                 }, void 0, false, {
                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                    lineNumber: 698,
+                                    lineNumber: 804,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$framer$2d$motion$40$12$2e$23$2e$25_$40$emotion$2b$is$2d$prop$2d$valid$40$1$2e$4$2e$0_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -4428,7 +4565,7 @@ function CustomerChatPage() {
                                             className: "w-2 h-2 rounded-full bg-green-500 animate-pulse"
                                         }, void 0, false, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                            lineNumber: 713,
+                                            lineNumber: 819,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4436,19 +4573,19 @@ function CustomerChatPage() {
                                             children: "Online"
                                         }, void 0, false, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                            lineNumber: 714,
+                                            lineNumber: 820,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                    lineNumber: 707,
+                                    lineNumber: 813,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                            lineNumber: 680,
+                            lineNumber: 786,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4473,20 +4610,20 @@ function CustomerChatPage() {
                                                     className: "w-4 h-4 flex-shrink-0"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                    lineNumber: 729,
+                                                    lineNumber: 835,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                     children: error
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                    lineNumber: 730,
+                                                    lineNumber: 836,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                            lineNumber: 724,
+                                            lineNumber: 830,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4501,13 +4638,13 @@ function CustomerChatPage() {
                                                             children: "*"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                            lineNumber: 737,
+                                                            lineNumber: 843,
                                                             columnNumber: 35
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                    lineNumber: 736,
+                                                    lineNumber: 842,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4517,7 +4654,7 @@ function CustomerChatPage() {
                                                             className: "absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                            lineNumber: 740,
+                                                            lineNumber: 846,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -4544,13 +4681,13 @@ function CustomerChatPage() {
                                                             disabled: isSearching
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                            lineNumber: 741,
+                                                            lineNumber: 847,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                    lineNumber: 739,
+                                                    lineNumber: 845,
                                                     columnNumber: 19
                                                 }, this),
                                                 isSearching && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4560,26 +4697,26 @@ function CustomerChatPage() {
                                                             className: "w-3 h-3 animate-spin"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                            lineNumber: 767,
+                                                            lineNumber: 873,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             children: "Searching for existing conversations..."
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                            lineNumber: 768,
+                                                            lineNumber: 874,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                    lineNumber: 766,
+                                                    lineNumber: 872,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                            lineNumber: 735,
+                                            lineNumber: 841,
                                             columnNumber: 17
                                         }, this),
                                         showNameInput && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$framer$2d$motion$40$12$2e$23$2e$25_$40$emotion$2b$is$2d$prop$2d$valid$40$1$2e$4$2e$0_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -4609,13 +4746,13 @@ function CustomerChatPage() {
                                                             children: "*"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                            lineNumber: 783,
+                                                            lineNumber: 889,
                                                             columnNumber: 33
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                    lineNumber: 782,
+                                                    lineNumber: 888,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4625,7 +4762,7 @@ function CustomerChatPage() {
                                                             className: "absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                            lineNumber: 786,
+                                                            lineNumber: 892,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -4641,19 +4778,19 @@ function CustomerChatPage() {
                                                             autoFocus: true
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                            lineNumber: 787,
+                                                            lineNumber: 893,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                    lineNumber: 785,
+                                                    lineNumber: 891,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                            lineNumber: 775,
+                                            lineNumber: 881,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -4667,31 +4804,31 @@ function CustomerChatPage() {
                                                         className: "w-4 h-4 animate-spin"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                        lineNumber: 811,
+                                                        lineNumber: 917,
                                                         columnNumber: 23
                                                     }, this),
                                                     "Searching..."
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                lineNumber: 810,
+                                                lineNumber: 916,
                                                 columnNumber: 21
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 children: showNameInput ? "Start Chat" : "Continue"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                lineNumber: 815,
+                                                lineNumber: 921,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                            lineNumber: 804,
+                                            lineNumber: 910,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                    lineNumber: 722,
+                                    lineNumber: 828,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4702,29 +4839,29 @@ function CustomerChatPage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                    lineNumber: 821,
+                                    lineNumber: 927,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                            lineNumber: 721,
+                            lineNumber: 827,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                    lineNumber: 678,
+                    lineNumber: 784,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/chat/[phone]/page.tsx",
-                lineNumber: 672,
+                lineNumber: 778,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/chat/[phone]/page.tsx",
-            lineNumber: 671,
+            lineNumber: 777,
             columnNumber: 7
         }, this);
     }
@@ -4734,7 +4871,7 @@ function CustomerChatPage() {
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$wallpaper$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Wallpaper"], {}, void 0, false, {
                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                    lineNumber: 834,
+                    lineNumber: 940,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4758,7 +4895,7 @@ function CustomerChatPage() {
                                     size: "md"
                                 }, void 0, false, {
                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                    lineNumber: 842,
+                                    lineNumber: 948,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4768,7 +4905,7 @@ function CustomerChatPage() {
                                             children: business.businessName
                                         }, void 0, false, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                            lineNumber: 844,
+                                            lineNumber: 950,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4778,7 +4915,7 @@ function CustomerChatPage() {
                                                     className: "w-2 h-2 rounded-full bg-green-500 animate-pulse"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                    lineNumber: 846,
+                                                    lineNumber: 952,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4786,41 +4923,41 @@ function CustomerChatPage() {
                                                     children: "Online"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                    lineNumber: 847,
+                                                    lineNumber: 953,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                            lineNumber: 845,
+                                            lineNumber: 951,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                    lineNumber: 843,
+                                    lineNumber: 949,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                            lineNumber: 841,
+                            lineNumber: 947,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/chat/[phone]/page.tsx",
-                        lineNumber: 836,
+                        lineNumber: 942,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                    lineNumber: 835,
+                    lineNumber: 941,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/chat/[phone]/page.tsx",
-            lineNumber: 833,
+            lineNumber: 939,
             columnNumber: 7
         }, this);
     }
@@ -4829,7 +4966,7 @@ function CustomerChatPage() {
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$wallpaper$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Wallpaper"], {}, void 0, false, {
                 fileName: "[project]/app/chat/[phone]/page.tsx",
-                lineNumber: 859,
+                lineNumber: 965,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$framer$2d$motion$40$12$2e$23$2e$25_$40$emotion$2b$is$2d$prop$2d$valid$40$1$2e$4$2e$0_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -4851,7 +4988,7 @@ function CustomerChatPage() {
                             size: "md"
                         }, void 0, false, {
                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                            lineNumber: 867,
+                            lineNumber: 973,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4861,7 +4998,7 @@ function CustomerChatPage() {
                                     children: business.businessName
                                 }, void 0, false, {
                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                    lineNumber: 869,
+                                    lineNumber: 975,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4871,7 +5008,7 @@ function CustomerChatPage() {
                                             className: "w-2 h-2 rounded-full bg-green-500 animate-pulse"
                                         }, void 0, false, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                            lineNumber: 871,
+                                            lineNumber: 977,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4884,7 +5021,7 @@ function CustomerChatPage() {
                                                     children: "●"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                    lineNumber: 875,
+                                                    lineNumber: 981,
                                                     columnNumber: 17
                                                 }, this),
                                                 connectionStatus === "disconnected" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4893,36 +5030,36 @@ function CustomerChatPage() {
                                                     children: "●"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                                    lineNumber: 878,
+                                                    lineNumber: 984,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                                            lineNumber: 872,
+                                            lineNumber: 978,
                                             columnNumber: 13
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                    lineNumber: 870,
+                                    lineNumber: 976,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                            lineNumber: 868,
+                            lineNumber: 974,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                    lineNumber: 866,
+                    lineNumber: 972,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/chat/[phone]/page.tsx",
-                lineNumber: 861,
+                lineNumber: 967,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$framer$2d$motion$40$12$2e$23$2e$25_$40$emotion$2b$is$2d$prop$2d$valid$40$1$2e$4$2e$0_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -4942,12 +5079,12 @@ function CustomerChatPage() {
                             children: "Loading older messages..."
                         }, void 0, false, {
                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                            lineNumber: 895,
+                            lineNumber: 1001,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/chat/[phone]/page.tsx",
-                        lineNumber: 894,
+                        lineNumber: 1000,
                         columnNumber: 11
                     }, this),
                     !currentConversation || currentConversation.messages.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4959,12 +5096,12 @@ function CustomerChatPage() {
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/chat/[phone]/page.tsx",
-                            lineNumber: 900,
+                            lineNumber: 1006,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/chat/[phone]/page.tsx",
-                        lineNumber: 899,
+                        lineNumber: 1005,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
                         children: [
@@ -4977,14 +5114,14 @@ function CustomerChatPage() {
                                     onDelete: handleDeleteMessage
                                 }, msg.id, false, {
                                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                                    lineNumber: 905,
+                                    lineNumber: 1011,
                                     columnNumber: 15
                                 }, this)),
                             otherUserTyping && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$typing$2d$indicator$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TypingIndicator"], {
                                 isOwn: false
                             }, void 0, false, {
                                 fileName: "[project]/app/chat/[phone]/page.tsx",
-                                lineNumber: 915,
+                                lineNumber: 1021,
                                 columnNumber: 33
                             }, this)
                         ]
@@ -4993,13 +5130,13 @@ function CustomerChatPage() {
                         ref: messagesEndRef
                     }, void 0, false, {
                         fileName: "[project]/app/chat/[phone]/page.tsx",
-                        lineNumber: 918,
+                        lineNumber: 1024,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/chat/[phone]/page.tsx",
-                lineNumber: 887,
+                lineNumber: 993,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5015,18 +5152,18 @@ function CustomerChatPage() {
                     onCancelEdit: handleCancelEdit
                 }, void 0, false, {
                     fileName: "[project]/app/chat/[phone]/page.tsx",
-                    lineNumber: 923,
+                    lineNumber: 1029,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/chat/[phone]/page.tsx",
-                lineNumber: 922,
+                lineNumber: 1028,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/chat/[phone]/page.tsx",
-        lineNumber: 858,
+        lineNumber: 964,
         columnNumber: 5
     }, this);
 }

@@ -37,14 +37,31 @@ export const storage = {
 
   // Conversations
   getConversationsByBusinessId: async (businessId: string): Promise<Conversation[]> => {
-    // Always fetch from server to ensure we have the latest data
-    // Cache is used for instant display while fetching, but we always want fresh data
+    // Cache-first strategy for faster initial load
+    // Return cached data immediately, then update in background
     try {
+      // Try cache first for instant display
+      const cached = await conversationCache.getConversations(businessId)
+      
+      // Fetch from server in background (don't await)
+      db.getConversationsByBusinessId(businessId)
+        .then((conversations) => {
+          // Update cache with fresh data
+          conversationCache.saveConversations(conversations).catch(console.error)
+          monitorRequest("getConversationsByBusinessId", conversations)
+        })
+        .catch((error) => {
+          console.error("Error fetching conversations from server:", error)
+        })
+      
+      // Return cached data immediately if available
+      if (cached.length > 0) {
+        return cached
+      }
+      
+      // If no cache, wait for server fetch
       const conversations = await db.getConversationsByBusinessId(businessId)
-      
-      // Save to cache for next time (async, don't block)
       conversationCache.saveConversations(conversations).catch(console.error)
-      
       monitorRequest("getConversationsByBusinessId", conversations)
       return conversations
     } catch (error) {
@@ -61,9 +78,35 @@ export const storage = {
   },
 
   getConversationById: async (id: string): Promise<Conversation | null> => {
-    // Always fetch from server to ensure we have the latest conversation data
-    // Cache is used for instant display while fetching, but we always want fresh data
+    // Cache-first strategy for faster initial load
     try {
+      // Try to get cached messages first for instant display
+      const cachedMessages = await messageCache.getMessages(id, 25)
+      const isCacheFresh = await messageCache.isCacheFresh(id)
+      
+      // If we have fresh cached messages, return them immediately while fetching fresh data
+      if (cachedMessages.length > 0 && isCacheFresh) {
+        // Fetch fresh data in background
+        db.getConversationById(id)
+          .then((conversation) => {
+            if (conversation) {
+              messageCache.saveMessages(id, conversation.messages).catch(console.error)
+              monitorRequest("getConversationById", conversation)
+            }
+          })
+          .catch(console.error)
+        
+        // Still need conversation metadata - fetch it (this is fast)
+        const conversation = await db.getConversationById(id)
+        if (conversation) {
+          return {
+            ...conversation,
+            messages: cachedMessages,
+          }
+        }
+      }
+      
+      // If no cache or cache is stale, fetch from server
       const conversation = await db.getConversationById(id)
       
       if (conversation) {
@@ -118,7 +161,16 @@ export const storage = {
     if (!conversation.customerEmail) {
       throw new Error("customerEmail is required to create a conversation")
     }
-    await db.createConversation(conversation)
+    try {
+      await db.createConversation(conversation)
+    } catch (error: any) {
+      // Re-throw with better error information
+      const enhancedError = new Error(error?.message || "Failed to create conversation")
+      ;(enhancedError as any).code = error?.code
+      ;(enhancedError as any).details = error?.details
+      ;(enhancedError as any).hint = error?.hint
+      throw enhancedError
+    }
   },
 
   updateConversation: async (id: string, updates: Partial<Conversation>): Promise<Conversation | null> => {

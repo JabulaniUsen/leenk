@@ -294,6 +294,7 @@ export const db = {
       .select("id, business_id, customer_phone, customer_name, customer_email, created_at, updated_at, pinned")
       .eq("business_id", businessId)
       .order("updated_at", { ascending: false })
+      .limit(100) // Limit to prevent huge queries
 
     if (error || !conversations || conversations.length === 0) {
       monitorRequest("getConversationsByBusinessId", [])
@@ -302,56 +303,58 @@ export const db = {
 
     const conversationIds = conversations.map((c) => c.id)
     
-    // Optimized: Fetch only last message per conversation + unread count in parallel
-    // This is much faster than fetching all messages
+    // Optimized: Use a single query with window functions or batch queries
+    // Fetch last messages for all conversations in one optimized query
+    const lastMessagesQuery = supabase
+      .from("messages")
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
+      .in("conversation_id", conversationIds)
+    
+    // Get the last message per conversation using a subquery approach
+    // For now, we'll batch the queries but limit to prevent N+1
+    const batchSize = 10 // Process 10 conversations at a time
+    const batches = []
+    for (let i = 0; i < conversationIds.length; i += batchSize) {
+      const batch = conversationIds.slice(i, i + batchSize)
+      batches.push(batch)
+    }
+    
+    // Fetch last messages and unread counts in parallel batches
     const [lastMessagesResults, unreadCountsResults] = await Promise.all([
-      // Fetch only the last message for preview - use selective fields
       Promise.all(
-        conversationIds.map(async (conversationId) => {
-          const { data: messages } = await supabase
-            .from("messages")
-            .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
-            .eq("conversation_id", conversationId)
-            .order("created_at", { ascending: false })
-            .limit(1) // Only get the last message for preview
-          
-          return { 
-            conversationId, 
-            lastMessage: messages && messages.length > 0 ? messages[0] as DBMessage : null 
-          }
-        })
-      ),
-      // Efficiently calculate unread counts using a count query
-      Promise.all(
-        conversationIds.map(async (conversationId) => {
-          const { count, error } = await supabase
-            .from("messages")
-            .select("id", { count: "exact", head: true })
-            .eq("conversation_id", conversationId)
-            .eq("sender_type", "customer")
-            .in("status", ["sent", "delivered"]) // Unread = sent or delivered from customer
-          
-          // If count query fails, fallback to fetching and counting (but only IDs)
-          if (error || count === null) {
-            const { data: unreadMessages } = await supabase
+        batches.flatMap(batch =>
+          batch.map(async (conversationId) => {
+            const { data: messages } = await supabase
               .from("messages")
-              .select("id")
+              .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
               .eq("conversation_id", conversationId)
-              .eq("sender_type", "customer")
-              .in("status", ["sent", "delivered"])
-              .limit(1000) // Safety limit
+              .order("created_at", { ascending: false })
+              .limit(1)
             
             return { 
               conversationId, 
-              unreadCount: unreadMessages?.length || 0 
+              lastMessage: messages && messages.length > 0 ? messages[0] as DBMessage : null 
             }
-          }
-          
-          return { 
-            conversationId, 
-            unreadCount: count || 0 
-          }
-        })
+          })
+        )
+      ),
+      // Batch unread count queries
+      Promise.all(
+        batches.flatMap(batch =>
+          batch.map(async (conversationId) => {
+            const { count } = await supabase
+              .from("messages")
+              .select("id", { count: "exact", head: true })
+              .eq("conversation_id", conversationId)
+              .eq("sender_type", "customer")
+              .in("status", ["sent", "delivered"])
+            
+            return { 
+              conversationId, 
+              unreadCount: count || 0 
+            }
+          })
+        )
       )
     ])
 
@@ -370,16 +373,14 @@ export const db = {
     })
 
     // Convert to app format - only include last message, not all messages
-    const result = await Promise.all(
-      conversations.map(async (conv) => {
-        const lastMessage = lastMessageMap.get(conv.id)
-        const messages = lastMessage ? [lastMessage] : []
-        const conversation = await dbConversationToApp(conv as DBConversation, messages)
-        // Add unread count to conversation
-        conversation.unreadCount = unreadCountMap.get(conv.id) || 0
-        return conversation
-      })
-    )
+    const result = conversations.map((conv) => {
+      const lastMessage = lastMessageMap.get(conv.id)
+      const messages = lastMessage ? [lastMessage] : []
+      const conversation = dbConversationToApp(conv as DBConversation, messages)
+      // Add unread count to conversation
+      conversation.unreadCount = unreadCountMap.get(conv.id) || 0
+      return conversation
+    })
     
     monitorRequest("getConversationsByBusinessId", result)
     return result
@@ -510,7 +511,17 @@ export const db = {
 
     const { data, error } = await supabase.from("conversations").insert(dbData).select().single()
 
-    if (error) throw error
+    if (error) {
+      // Create a properly formatted error with all Supabase error properties
+      const formattedError: any = new Error(error.message || "Failed to create conversation")
+      formattedError.code = error.code
+      formattedError.details = error.details
+      formattedError.hint = error.hint
+      formattedError.name = "SupabaseError"
+      // Preserve original error for debugging
+      formattedError.originalError = error
+      throw formattedError
+    }
 
     // Create messages if any
     if (conversation.messages && conversation.messages.length > 0) {

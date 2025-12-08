@@ -46,21 +46,25 @@ async function sendAwayMessageIfEnabled(conversationId, businessId) {
         if (!business.awayMessageEnabled || !business.awayMessage?.trim()) {
             return; // Away message not enabled or no message set
         }
-        // Check if we've already sent an away message in this conversation recently
-        // (to avoid spamming if customer sends multiple messages)
+        // Get conversation to check if this is the first interaction
         const conversation = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"].getConversationById(conversationId);
         if (!conversation) {
             console.warn("Conversation not found for away message:", conversationId);
             return;
         }
-        // Check if we've sent an away message in the last 5 minutes
-        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-        const recentAwayMessage = conversation.messages.filter((m)=>m.senderType === "business").find((m)=>{
-            const messageTime = new Date(m.createdAt);
-            return messageTime > fiveMinutesAgo && m.text === business.awayMessage;
-        });
-        if (recentAwayMessage) {
-            // Already sent away message recently, don't send again
+        // Only send away message if this is the customer's first time messaging
+        // Check if there are any previous business messages in this conversation
+        // If there are any business messages, it means they've interacted before
+        const businessMessages = conversation.messages.filter((m)=>m.senderType === "business");
+        if (businessMessages.length > 0) {
+            // Business has already messaged this customer before, don't send away message
+            return;
+        }
+        // Also check if we've already sent an away message (to prevent duplicates in race conditions)
+        // This handles the case where multiple customer messages arrive before the away message is created
+        const hasAwayMessage = conversation.messages.some((m)=>m.senderType === "business" && m.text === business.awayMessage?.trim());
+        if (hasAwayMessage) {
+            // Away message already exists, don't send again
             return;
         }
         // Create and send the away message
@@ -443,53 +447,50 @@ const db = {
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createClient"])();
         const { data: conversations, error } = await supabase.from("conversations").select("id, business_id, customer_phone, customer_name, customer_email, created_at, updated_at, pinned").eq("business_id", businessId).order("updated_at", {
             ascending: false
-        });
+        }).limit(100) // Limit to prevent huge queries
+        ;
         if (error || !conversations || conversations.length === 0) {
             (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationsByBusinessId", []);
             return [];
         }
         const conversationIds = conversations.map((c)=>c.id);
-        // Optimized: Fetch only last message per conversation + unread count in parallel
-        // This is much faster than fetching all messages
+        // Optimized: Use a single query with window functions or batch queries
+        // Fetch last messages for all conversations in one optimized query
+        const lastMessagesQuery = supabase.from("messages").select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id").in("conversation_id", conversationIds);
+        // Get the last message per conversation using a subquery approach
+        // For now, we'll batch the queries but limit to prevent N+1
+        const batchSize = 10 // Process 10 conversations at a time
+        ;
+        const batches = [];
+        for(let i = 0; i < conversationIds.length; i += batchSize){
+            const batch = conversationIds.slice(i, i + batchSize);
+            batches.push(batch);
+        }
+        // Fetch last messages and unread counts in parallel batches
         const [lastMessagesResults, unreadCountsResults] = await Promise.all([
-            // Fetch only the last message for preview - use selective fields
-            Promise.all(conversationIds.map(async (conversationId)=>{
-                const { data: messages } = await supabase.from("messages").select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id").eq("conversation_id", conversationId).order("created_at", {
-                    ascending: false
-                }).limit(1) // Only get the last message for preview
-                ;
-                return {
-                    conversationId,
-                    lastMessage: messages && messages.length > 0 ? messages[0] : null
-                };
-            })),
-            // Efficiently calculate unread counts using a count query
-            Promise.all(conversationIds.map(async (conversationId)=>{
-                const { count, error } = await supabase.from("messages").select("id", {
-                    count: "exact",
-                    head: true
-                }).eq("conversation_id", conversationId).eq("sender_type", "customer").in("status", [
-                    "sent",
-                    "delivered"
-                ]) // Unread = sent or delivered from customer
-                ;
-                // If count query fails, fallback to fetching and counting (but only IDs)
-                if (error || count === null) {
-                    const { data: unreadMessages } = await supabase.from("messages").select("id").eq("conversation_id", conversationId).eq("sender_type", "customer").in("status", [
-                        "sent",
-                        "delivered"
-                    ]).limit(1000) // Safety limit
-                    ;
+            Promise.all(batches.flatMap((batch)=>batch.map(async (conversationId)=>{
+                    const { data: messages } = await supabase.from("messages").select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id").eq("conversation_id", conversationId).order("created_at", {
+                        ascending: false
+                    }).limit(1);
                     return {
                         conversationId,
-                        unreadCount: unreadMessages?.length || 0
+                        lastMessage: messages && messages.length > 0 ? messages[0] : null
                     };
-                }
-                return {
-                    conversationId,
-                    unreadCount: count || 0
-                };
-            }))
+                }))),
+            // Batch unread count queries
+            Promise.all(batches.flatMap((batch)=>batch.map(async (conversationId)=>{
+                    const { count } = await supabase.from("messages").select("id", {
+                        count: "exact",
+                        head: true
+                    }).eq("conversation_id", conversationId).eq("sender_type", "customer").in("status", [
+                        "sent",
+                        "delivered"
+                    ]);
+                    return {
+                        conversationId,
+                        unreadCount: count || 0
+                    };
+                })))
         ]);
         // Create maps for quick lookup
         const lastMessageMap = new Map();
@@ -503,16 +504,16 @@ const db = {
             unreadCountMap.set(conversationId, unreadCount);
         });
         // Convert to app format - only include last message, not all messages
-        const result = await Promise.all(conversations.map(async (conv)=>{
+        const result = conversations.map((conv)=>{
             const lastMessage = lastMessageMap.get(conv.id);
             const messages = lastMessage ? [
                 lastMessage
             ] : [];
-            const conversation = await dbConversationToApp(conv, messages);
+            const conversation = dbConversationToApp(conv, messages);
             // Add unread count to conversation
             conversation.unreadCount = unreadCountMap.get(conv.id) || 0;
             return conversation;
-        }));
+        });
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationsByBusinessId", result);
         return result;
     },
@@ -600,7 +601,17 @@ const db = {
             customer_phone: null
         };
         const { data, error } = await supabase.from("conversations").insert(dbData).select().single();
-        if (error) throw error;
+        if (error) {
+            // Create a properly formatted error with all Supabase error properties
+            const formattedError = new Error(error.message || "Failed to create conversation");
+            formattedError.code = error.code;
+            formattedError.details = error.details;
+            formattedError.hint = error.hint;
+            formattedError.name = "SupabaseError";
+            // Preserve original error for debugging
+            formattedError.originalError = error;
+            throw formattedError;
+        }
         // Create messages if any
         if (conversation.messages && conversation.messages.length > 0) {
             const messagesData = conversation.messages.map((m)=>({
@@ -658,6 +669,30 @@ const db = {
             "sent",
             "delivered"
         ]);
+    },
+    async updateMessage (id, updates) {
+        const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createClient"])();
+        const dbData = {};
+        if (updates.text !== undefined) {
+            dbData.content = updates.text;
+        }
+        const { data, error } = await supabase.from("messages").update(dbData).eq("id", id).select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id").maybeSingle();
+        if (error || !data) return null;
+        return {
+            id: data.id,
+            conversationId: data.conversation_id,
+            senderType: data.sender_type,
+            senderId: data.sender_id,
+            text: data.content || undefined,
+            imageUrl: data.image_url || undefined,
+            status: data.status || "sent",
+            createdAt: data.created_at,
+            replyToId: data.reply_to_id || undefined
+        };
+    },
+    async deleteMessage (id) {
+        const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createClient"])();
+        await supabase.from("messages").delete().eq("id", id);
     },
     // Messages
     async createMessage (message) {

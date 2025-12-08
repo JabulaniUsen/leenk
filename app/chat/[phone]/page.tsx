@@ -132,54 +132,160 @@ export default function CustomerChatPage() {
       return
     }
 
-    if (!showNameInput && !currentConversation) {
-      await handleEmailSearch(customerEmail)
-      return
-    }
-
-    if (showNameInput && !customerName.trim()) {
-      setError("Please provide your name")
-      return
-    }
-
+    // Always check for existing conversation first, even if we have currentConversation
+    // This prevents race conditions and duplicate creation attempts
     setError("")
-
-    if (currentConversation) {
-      if (customerName.trim() && currentConversation.customerName !== customerName.trim()) {
-        await storage.updateConversation(currentConversation.id, {
-          customerName: customerName.trim(),
-        })
-        const updated = await storage.getConversationById(currentConversation.id)
-        if (updated) {
-          setCurrentConversation(updated)
-        }
-      }
-      setShowEmailPrompt(false)
-      return
-    }
-
-    // New user - create conversation
-    const newConversation = {
-      id: uuidv4(),
-      businessId: business.id,
-      customerEmail: customerEmail.trim(),
-      customerName: customerName.trim(),
-      createdAt: new Date().toISOString(),
-      lastMessageAt: new Date().toISOString(),
-      messages: [],
-    }
     
     try {
+      // First, always check if conversation already exists
+      const existingConversation = await db.getConversationByBusinessAndEmail(
+        business.id,
+        customerEmail.trim()
+      )
+
+      if (existingConversation) {
+        // Conversation exists, use it
+        // Update name if provided and different
+        if (customerName.trim() && existingConversation.customerName !== customerName.trim()) {
+          await storage.updateConversation(existingConversation.id, {
+            customerName: customerName.trim(),
+          })
+          const updated = await storage.getConversationById(existingConversation.id)
+          if (updated) {
+            setCurrentConversation(updated)
+          } else {
+            setCurrentConversation(existingConversation)
+          }
+        } else {
+          setCurrentConversation(existingConversation)
+        }
+        setShowEmailPrompt(false)
+        setShowNameInput(false)
+        return
+      }
+
+      // If we already have a conversation in state, use it (shouldn't happen, but safety check)
+      if (currentConversation) {
+        if (customerName.trim() && currentConversation.customerName !== customerName.trim()) {
+          await storage.updateConversation(currentConversation.id, {
+            customerName: customerName.trim(),
+          })
+          const updated = await storage.getConversationById(currentConversation.id)
+          if (updated) {
+            setCurrentConversation(updated)
+          }
+        }
+        setShowEmailPrompt(false)
+        return
+      }
+
+      // Validate name if we're in name input mode
+      if (showNameInput && !customerName.trim()) {
+        setError("Please provide your name")
+        return
+      }
+
+      // No existing conversation found, create new one
+      const newConversation = {
+        id: uuidv4(),
+        businessId: business.id,
+        customerEmail: customerEmail.trim(),
+        customerName: customerName.trim() || null,
+        createdAt: new Date().toISOString(),
+        lastMessageAt: new Date().toISOString(),
+        messages: [],
+      }
+      
       await storage.createConversation(newConversation)
       const created = await storage.getConversationById(newConversation.id)
       if (created) {
         setCurrentConversation(created)
         setShowEmailPrompt(false)
         setShowNameInput(false)
+      } else {
+        // If creation succeeded but couldn't fetch, try to find existing
+        console.warn("Conversation created but couldn't fetch, trying to find existing...")
+        const existingConversation = await db.getConversationByBusinessAndEmail(
+          business.id,
+          customerEmail.trim()
+        )
+        if (existingConversation) {
+          setCurrentConversation(existingConversation)
+          setShowEmailPrompt(false)
+          setShowNameInput(false)
+        }
       }
-    } catch (err) {
-      console.error("Error creating conversation:", err)
-      setError("Failed to start chat. Please try again.")
+    } catch (err: any) {
+      // Log error with all available properties - handle both Error objects and plain objects
+      let errorMessage = "Unknown error"
+      let errorCode: string | null = null
+      let errorDetails: string | null = null
+      
+      if (err instanceof Error) {
+        errorMessage = err.message
+        errorCode = (err as any).code || null
+        errorDetails = (err as any).details || null
+      } else if (typeof err === "object" && err !== null) {
+        errorMessage = err.message || (err.toString ? err.toString() : JSON.stringify(err))
+        errorCode = err.code || null
+        errorDetails = err.details || null
+      } else {
+        errorMessage = String(err)
+      }
+      
+      const errorInfo = {
+        message: errorMessage,
+        code: errorCode || err?.code,
+        details: errorDetails || err?.details,
+        hint: err?.hint,
+        name: err?.name,
+        originalError: err,
+      }
+      console.error("Error creating conversation:", errorInfo)
+      
+      // Also try to access properties directly
+      try {
+        console.error("Error code:", err?.code)
+        console.error("Error message:", err?.message)
+        console.error("Error details:", err?.details)
+      } catch (logErr) {
+        console.error("Could not log error properties:", logErr)
+      }
+      
+      // Check if error is due to duplicate key (race condition)
+      const errorString = JSON.stringify(errorInfo).toLowerCase()
+      const isDuplicateError = err?.code === "23505" || 
+                               errorString.includes("duplicate key") ||
+                               errorString.includes("23505") ||
+                               err?.message?.toLowerCase()?.includes("duplicate") ||
+                               err?.details?.toLowerCase()?.includes("duplicate")
+      
+      if (isDuplicateError) {
+        try {
+          console.log("Duplicate conversation detected, fetching existing conversation...")
+          const existingConversation = await db.getConversationByBusinessAndEmail(
+            business.id,
+            customerEmail.trim()
+          )
+          if (existingConversation) {
+            console.log("Found existing conversation, using it:", existingConversation.id)
+            setCurrentConversation(existingConversation)
+            setShowEmailPrompt(false)
+            setShowNameInput(false)
+            // Clear error since we successfully recovered
+            setError("")
+            return
+          } else {
+            console.warn("Duplicate error but couldn't find existing conversation")
+          }
+        } catch (fetchError) {
+          console.error("Error fetching existing conversation:", fetchError)
+        }
+      }
+      
+      // Show user-friendly error message
+      const userErrorMessage = errorMessage !== "Unknown error" ? errorMessage : (err?.message || err?.details || "Failed to start chat. Please try again.")
+      setError(userErrorMessage)
     }
   }
 

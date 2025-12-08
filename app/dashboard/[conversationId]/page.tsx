@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useMemo } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ChatBubble } from "@/components/chat-bubble"
@@ -596,52 +596,55 @@ export default function ChatPage() {
     }
   }
 
-  // Show content immediately with progressive loading - no blocking states
-  // Only show skeleton if we truly have no data
-  const showSkeleton = authLoading || (conversationLoading && !currentConversation)
-
-  // Show skeleton while loading, but render structure immediately
-  if (showSkeleton) {
-    return (
-      <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
-        <Wallpaper />
-        {/* Sidebar - Hidden on mobile, shown on desktop */}
-        <div className="hidden md:flex w-80 border-r border-border flex-col bg-card/80 backdrop-blur-sm z-10">
-          <div className="p-4 border-b border-border">
-            <Skeleton className="h-8 w-24" />
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <ConversationSkeleton />
-          </div>
+  // Memoize sidebar to prevent re-renders when conversation changes
+  const sidebarContent = useMemo(() => (
+    <>
+      <div className="p-3 md:p-4 border-b border-border bg-card/80 backdrop-blur-sm">
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <Link href="/dashboard">
+            <Image src="/logo.png" alt="Leenk" width={80} height={80} className="object-contain" />
+          </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsNavOpen(true)}
+            aria-label="Open menu"
+          >
+            <FaBars className="w-5 h-5" />
+          </Button>
         </div>
-        <div className="flex-1 flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative z-10 w-full">
-          <div className="border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4">
-            <div className="flex items-center gap-3">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="sm" className="md:hidden">
-                  <FaChevronLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <Skeleton className="w-10 h-10 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-24" />
-              </div>
+        {user ? (
+          <div className="flex items-center gap-3 text-sm">
+            <Avatar 
+              src={user.business?.businessLogo} 
+              name={user.business?.businessName} 
+              size="md"
+            />
+            <div>
+              <p className="font-medium text-foreground">{user.business?.businessName}</p>
+              <p className="text-muted-foreground text-xs">{user.email}</p>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto p-3 md:p-4">
-            <ChatSkeleton />
-          </div>
-          <div className="bg-card/80 backdrop-blur-sm border-t border-border p-4">
-            <Skeleton className="h-12 w-full rounded-lg" />
-          </div>
-        </div>
-      </main>
-    )
-  }
+        ) : null}
+      </div>
+      <div className="flex-1 overflow-y-auto bg-background">
+        <ConversationList 
+          conversations={conversations} 
+          selectedId={conversationId}
+          onPin={handlePin}
+          onDelete={handleDelete}
+        />
+      </div>
+    </>
+  ), [conversations, conversationId, user, handlePin, handleDelete])
+
+  // Only show skeleton in conversation area, not whole page
+  const showConversationSkeleton = conversationLoading && !currentConversation && !authLoading
 
   // If no conversation but not loading, show empty state
-  if (!currentConversation && !conversationLoading) {
+  // Only show "not found" if we've actually finished loading and there's no data
+  // This prevents showing "not found" during initial load or navigation
+  if (!currentConversation && !conversationLoading && conversationId && !authLoading) {
     return (
       <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
         <Wallpaper />
@@ -688,129 +691,121 @@ export default function ChatPage() {
   return (
     <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
       <Wallpaper businessLogo={user?.business?.businessLogo} />
-      {/* Sidebar - Hidden on mobile, shown on desktop */}
+      {/* Sidebar - Hidden on mobile, shown on desktop - Memoized to prevent re-renders */}
       <motion.aside
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         className="hidden md:flex w-80 border-r border-[#313d45] md:border-border flex-col bg-[#111b21] md:bg-card/80 backdrop-blur-sm z-10"
       >
-        {/* Header - Same as dashboard */}
-        <div className="p-3 md:p-4 border-b border-border bg-card/80 backdrop-blur-sm">
-            <div className="flex items-center justify-between mb-3 md:mb-4">
-          <Link href="/dashboard">
-              <Image src="/logo.png" alt="Leenk" width={80} height={80} className="object-contain" />
-            </Link>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsNavOpen(true)}
-              aria-label="Open menu"
-            >
-              <FaBars className="w-5 h-5" />
-            </Button>
-          </div>
-          {user ? (
-            <div className="flex items-center gap-3 text-sm">
-              <Avatar 
-                src={user.business?.businessLogo} 
-                name={user.business?.businessName} 
-                size="md"
-              />
-              <div>
-                <p className="font-medium text-foreground">{user.business?.businessName}</p>
-                <p className="text-muted-foreground text-xs">{user.email}</p>
-              </div>
-            </div>
-          ) : null}
-        </div>
-
-        {/* Conversations List */}
-        <div className="flex-1 overflow-y-auto bg-background">
-          <ConversationList 
-            conversations={conversations} 
-            selectedId={conversationId}
-            onPin={handlePin}
-            onDelete={handleDelete}
-          />
-        </div>
+        {sidebarContent}
       </motion.aside>
 
       {/* Chat Area - Full screen on mobile */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative z-10 w-full">
-        {/* Chat Header - Fixed at top with back button on mobile */}
-        <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm" className="md:hidden">
-                <FaChevronLeft className="w-5 h-5" />
+        {showConversationSkeleton ? (
+          <>
+            {/* Chat Header Skeleton */}
+            <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Link href="/dashboard">
+                  <Button variant="ghost" size="sm" className="md:hidden">
+                    <FaChevronLeft className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+            </div>
+            {/* Messages Skeleton */}
+            <div className="flex-1 overflow-y-auto p-3 md:p-4">
+              <ChatSkeleton />
+            </div>
+            {/* Input Skeleton */}
+            <div className="bg-card/80 backdrop-blur-sm border-t border-border p-4">
+              <Skeleton className="h-12 w-full rounded-lg" />
+            </div>
+          </>
+        ) : currentConversation ? (
+          <>
+            {/* Chat Header - Fixed at top with back button on mobile */}
+            <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Link href="/dashboard">
+                  <Button variant="ghost" size="sm" className="md:hidden">
+                    <FaChevronLeft className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <Avatar name={currentConversation.customerName || currentConversation.customerEmail} size="md" />
+                <div>
+                  <h2 className="font-semibold text-foreground">{currentConversation.customerName || currentConversation.customerEmail}</h2>
+                  <p className="text-xs text-muted-foreground">
+                    {currentConversation.customerEmail}
+                    {connectionStatus === "connected" && (
+                      <span className="ml-2 text-primary" title="Real-time connected">●</span>
+                    )}
+                    {connectionStatus === "disconnected" && (
+                      <span className="ml-2 text-yellow-500" title="Reconnecting...">●</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+              <Button variant="ghost" size="sm">
+                <FaEllipsisV className="w-4 h-4" />
               </Button>
-            </Link>
-            <Avatar name={currentConversation.customerName || currentConversation.customerEmail} size="md" />
-            <div>
-              <h2 className="font-semibold text-foreground">{currentConversation.customerName || currentConversation.customerEmail}</h2>
-              <p className="text-xs text-muted-foreground">
-                {currentConversation.customerEmail}
-                {connectionStatus === "connected" && (
-                  <span className="ml-2 text-primary" title="Real-time connected">●</span>
-                )}
-                {connectionStatus === "disconnected" && (
-                  <span className="ml-2 text-yellow-500" title="Reconnecting...">●</span>
-                )}
-              </p>
             </div>
-          </div>
-          <Button variant="ghost" size="sm">
-            <FaEllipsisV className="w-4 h-4" />
-          </Button>
-        </div>
 
-        {/* Messages */}
-        <div 
-          ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 relative z-0"
-        >
-          {isLoadingOlder && (
-            <div className="flex justify-center py-2">
-              <div className="text-sm text-muted-foreground">Loading older messages...</div>
+            {/* Messages */}
+            <div 
+              ref={messagesContainerRef}
+              className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 relative z-0"
+            >
+              {isLoadingOlder && (
+                <div className="flex justify-center py-2">
+                  <div className="text-sm text-muted-foreground">Loading older messages...</div>
+                </div>
+              )}
+              {currentConversation.messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  <p>No messages yet. Start the conversation!</p>
+                </div>
+              ) : (
+                <>
+                  {currentConversation.messages.map((msg: Message, idx: number) => (
+                    <ChatBubble 
+                      key={msg.id} 
+                      message={msg} 
+                      isOwn={msg.senderType === "business"} 
+                      index={idx}
+                      onReply={setReplyTo}
+                      onEdit={handleEditMessage}
+                      onDelete={handleDeleteMessage}
+                    />
+                  ))}
+                  {otherUserTyping && <TypingIndicator isOwn={false} />}
+                  {otherUserTyping && <TypingIndicator isOwn={false} />}
+                </>
+              )}
+              <div ref={messagesEndRef} />
             </div>
-          )}
-          {currentConversation.messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              <p>No messages yet. Start the conversation!</p>
-            </div>
-          ) : (
-            <>
-              {currentConversation.messages.map((msg: Message, idx: number) => (
-                <ChatBubble 
-                  key={msg.id} 
-                  message={msg} 
-                  isOwn={msg.senderType === "business"} 
-                  index={idx}
-                  onReply={setReplyTo}
-                  onEdit={handleEditMessage}
-                  onDelete={handleDeleteMessage}
-                />
-              ))}
-              {otherUserTyping && <TypingIndicator isOwn={false} />}
-              {otherUserTyping && <TypingIndicator isOwn={false} />}
-            </>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
 
-        {/* Message Input - Fixed at bottom */}
-        <div className="sticky bottom-0 z-20 bg-card/80 backdrop-blur-sm border-t border-border">
-          <MessageInput 
-            onSendMessage={handleSendMessage} 
-            onSendImage={handleSendImage} 
-            onTyping={handleTyping}
-            disabled={isSending}
-            replyTo={replyTo}
-            onCancelReply={() => setReplyTo(null)}
-            editingMessage={editingMessage}
-            onCancelEdit={handleCancelEdit}
-          />
-        </div>
+            {/* Message Input - Fixed at bottom */}
+            <div className="sticky bottom-0 z-20 bg-card/80 backdrop-blur-sm border-t border-border">
+              <MessageInput 
+                onSendMessage={handleSendMessage} 
+                onSendImage={handleSendImage} 
+                onTyping={handleTyping}
+                disabled={isSending}
+                replyTo={replyTo}
+                onCancelReply={() => setReplyTo(null)}
+                editingMessage={editingMessage}
+                onCancelEdit={handleCancelEdit}
+              />
+            </div>
+          </>
+        ) : null}
       </motion.div>
 
       {/* Navigation Drawer */}
@@ -823,3 +818,4 @@ export default function ChatPage() {
     </main>
   )
 }
+

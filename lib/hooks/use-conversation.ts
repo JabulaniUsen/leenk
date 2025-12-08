@@ -43,9 +43,15 @@ export function useConversation(conversationId: string | null | undefined) {
     return mutate(updater, options)
   }
 
+  // Only show loading if we truly don't have data and are loading
+  // If we have previous data for this conversation, don't show loading
+  const isActuallyLoading = isLoading && 
+    conversation === null && 
+    (previousDataRef.current === null || previousDataRef.current.id !== conversationId)
+
   return {
     conversation,
-    isLoading: isLoading && conversation === null && previousDataRef.current === null,
+    isLoading: isActuallyLoading,
     error,
     mutate: safeMutate, // Wrapped mutate to prevent clearing
   }

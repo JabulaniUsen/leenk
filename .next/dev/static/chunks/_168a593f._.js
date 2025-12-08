@@ -107,7 +107,7 @@ function getUnreadCount(conversation) {
     // Fallback: calculate from messages (for backwards compatibility)
     return conversation.messages.filter((msg)=>msg.senderType === "customer" && msg.status !== "read").length;
 }
-function ConversationList({ conversations, selectedId, onPin, onDelete }) {
+const ConversationList = /*#__PURE__*/ _s((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["memo"])(_c = _s(function ConversationList({ conversations, selectedId, onPin, onDelete }) {
     _s();
     const [hoveredId, setHoveredId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [deletingId, setDeletingId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$1_react$40$19$2e$2$2e$1_$5f$react$40$19$2e$2$2e$1$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
@@ -372,11 +372,11 @@ function ConversationList({ conversations, selectedId, onPin, onDelete }) {
         lineNumber: 75,
         columnNumber: 5
     }, this);
-}
-_s(ConversationList, "zrGyNC3tsdO7IbobQc9JkQXl5Bs=");
-_c = ConversationList;
-var _c;
-__turbopack_context__.k.register(_c, "ConversationList");
+}, "zrGyNC3tsdO7IbobQc9JkQXl5Bs=")), "zrGyNC3tsdO7IbobQc9JkQXl5Bs=");
+_c1 = ConversationList;
+var _c, _c1;
+__turbopack_context__.k.register(_c, "ConversationList$memo");
+__turbopack_context__.k.register(_c1, "ConversationList");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
@@ -829,53 +829,50 @@ const db = {
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createClient"])();
         const { data: conversations, error } = await supabase.from("conversations").select("id, business_id, customer_phone, customer_name, customer_email, created_at, updated_at, pinned").eq("business_id", businessId).order("updated_at", {
             ascending: false
-        });
+        }).limit(100) // Limit to prevent huge queries
+        ;
         if (error || !conversations || conversations.length === 0) {
             (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationsByBusinessId", []);
             return [];
         }
         const conversationIds = conversations.map((c)=>c.id);
-        // Optimized: Fetch only last message per conversation + unread count in parallel
-        // This is much faster than fetching all messages
+        // Optimized: Use a single query with window functions or batch queries
+        // Fetch last messages for all conversations in one optimized query
+        const lastMessagesQuery = supabase.from("messages").select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id").in("conversation_id", conversationIds);
+        // Get the last message per conversation using a subquery approach
+        // For now, we'll batch the queries but limit to prevent N+1
+        const batchSize = 10 // Process 10 conversations at a time
+        ;
+        const batches = [];
+        for(let i = 0; i < conversationIds.length; i += batchSize){
+            const batch = conversationIds.slice(i, i + batchSize);
+            batches.push(batch);
+        }
+        // Fetch last messages and unread counts in parallel batches
         const [lastMessagesResults, unreadCountsResults] = await Promise.all([
-            // Fetch only the last message for preview - use selective fields
-            Promise.all(conversationIds.map(async (conversationId)=>{
-                const { data: messages } = await supabase.from("messages").select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id").eq("conversation_id", conversationId).order("created_at", {
-                    ascending: false
-                }).limit(1) // Only get the last message for preview
-                ;
-                return {
-                    conversationId,
-                    lastMessage: messages && messages.length > 0 ? messages[0] : null
-                };
-            })),
-            // Efficiently calculate unread counts using a count query
-            Promise.all(conversationIds.map(async (conversationId)=>{
-                const { count, error } = await supabase.from("messages").select("id", {
-                    count: "exact",
-                    head: true
-                }).eq("conversation_id", conversationId).eq("sender_type", "customer").in("status", [
-                    "sent",
-                    "delivered"
-                ]) // Unread = sent or delivered from customer
-                ;
-                // If count query fails, fallback to fetching and counting (but only IDs)
-                if (error || count === null) {
-                    const { data: unreadMessages } = await supabase.from("messages").select("id").eq("conversation_id", conversationId).eq("sender_type", "customer").in("status", [
-                        "sent",
-                        "delivered"
-                    ]).limit(1000) // Safety limit
-                    ;
+            Promise.all(batches.flatMap((batch)=>batch.map(async (conversationId)=>{
+                    const { data: messages } = await supabase.from("messages").select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id").eq("conversation_id", conversationId).order("created_at", {
+                        ascending: false
+                    }).limit(1);
                     return {
                         conversationId,
-                        unreadCount: unreadMessages?.length || 0
+                        lastMessage: messages && messages.length > 0 ? messages[0] : null
                     };
-                }
-                return {
-                    conversationId,
-                    unreadCount: count || 0
-                };
-            }))
+                }))),
+            // Batch unread count queries
+            Promise.all(batches.flatMap((batch)=>batch.map(async (conversationId)=>{
+                    const { count } = await supabase.from("messages").select("id", {
+                        count: "exact",
+                        head: true
+                    }).eq("conversation_id", conversationId).eq("sender_type", "customer").in("status", [
+                        "sent",
+                        "delivered"
+                    ]);
+                    return {
+                        conversationId,
+                        unreadCount: count || 0
+                    };
+                })))
         ]);
         // Create maps for quick lookup
         const lastMessageMap = new Map();
@@ -889,16 +886,16 @@ const db = {
             unreadCountMap.set(conversationId, unreadCount);
         });
         // Convert to app format - only include last message, not all messages
-        const result = await Promise.all(conversations.map(async (conv)=>{
+        const result = conversations.map((conv)=>{
             const lastMessage = lastMessageMap.get(conv.id);
             const messages = lastMessage ? [
                 lastMessage
             ] : [];
-            const conversation = await dbConversationToApp(conv, messages);
+            const conversation = dbConversationToApp(conv, messages);
             // Add unread count to conversation
             conversation.unreadCount = unreadCountMap.get(conv.id) || 0;
             return conversation;
-        }));
+        });
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationsByBusinessId", result);
         return result;
     },
@@ -986,7 +983,17 @@ const db = {
             customer_phone: null
         };
         const { data, error } = await supabase.from("conversations").insert(dbData).select().single();
-        if (error) throw error;
+        if (error) {
+            // Create a properly formatted error with all Supabase error properties
+            const formattedError = new Error(error.message || "Failed to create conversation");
+            formattedError.code = error.code;
+            formattedError.details = error.details;
+            formattedError.hint = error.hint;
+            formattedError.name = "SupabaseError";
+            // Preserve original error for debugging
+            formattedError.originalError = error;
+            throw formattedError;
+        }
         // Create messages if any
         if (conversation.messages && conversation.messages.length > 0) {
             const messagesData = conversation.messages.map((m)=>({
@@ -1631,11 +1638,25 @@ const storage = {
     },
     // Conversations
     getConversationsByBusinessId: async (businessId)=>{
-        // Always fetch from server to ensure we have the latest data
-        // Cache is used for instant display while fetching, but we always want fresh data
+        // Cache-first strategy for faster initial load
+        // Return cached data immediately, then update in background
         try {
+            // Try cache first for instant display
+            const cached = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["conversationCache"].getConversations(businessId);
+            // Fetch from server in background (don't await)
+            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"].getConversationsByBusinessId(businessId).then((conversations)=>{
+                // Update cache with fresh data
+                __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["conversationCache"].saveConversations(conversations).catch(console.error);
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationsByBusinessId", conversations);
+            }).catch((error)=>{
+                console.error("Error fetching conversations from server:", error);
+            });
+            // Return cached data immediately if available
+            if (cached.length > 0) {
+                return cached;
+            }
+            // If no cache, wait for server fetch
             const conversations = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"].getConversationsByBusinessId(businessId);
-            // Save to cache for next time (async, don't block)
             __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["conversationCache"].saveConversations(conversations).catch(console.error);
             (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationsByBusinessId", conversations);
             return conversations;
@@ -1652,9 +1673,30 @@ const storage = {
         }
     },
     getConversationById: async (id)=>{
-        // Always fetch from server to ensure we have the latest conversation data
-        // Cache is used for instant display while fetching, but we always want fresh data
+        // Cache-first strategy for faster initial load
         try {
+            // Try to get cached messages first for instant display
+            const cachedMessages = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["messageCache"].getMessages(id, 25);
+            const isCacheFresh = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["messageCache"].isCacheFresh(id);
+            // If we have fresh cached messages, return them immediately while fetching fresh data
+            if (cachedMessages.length > 0 && isCacheFresh) {
+                // Fetch fresh data in background
+                __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"].getConversationById(id).then((conversation)=>{
+                    if (conversation) {
+                        __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$indexeddb$2d$cache$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["messageCache"].saveMessages(id, conversation.messages).catch(console.error);
+                        (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$egress$2d$monitor$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["monitorRequest"])("getConversationById", conversation);
+                    }
+                }).catch(console.error);
+                // Still need conversation metadata - fetch it (this is fast)
+                const conversation = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"].getConversationById(id);
+                if (conversation) {
+                    return {
+                        ...conversation,
+                        messages: cachedMessages
+                    };
+                }
+            }
+            // If no cache or cache is stale, fetch from server
             const conversation = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"].getConversationById(id);
             if (conversation) {
                 // Save to cache for next time (async, don't block)
@@ -1699,7 +1741,16 @@ const storage = {
         if (!conversation.customerEmail) {
             throw new Error("customerEmail is required to create a conversation");
         }
-        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"].createConversation(conversation);
+        try {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"].createConversation(conversation);
+        } catch (error) {
+            // Re-throw with better error information
+            const enhancedError = new Error(error?.message || "Failed to create conversation");
+            enhancedError.code = error?.code;
+            enhancedError.details = error?.details;
+            enhancedError.hint = error?.hint;
+            throw enhancedError;
+        }
     },
     updateConversation: async (id, updates)=>{
         return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$db$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"].updateConversation(id, updates);
