@@ -5,9 +5,10 @@ import type { Message } from "@/lib/types"
 
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { FaImage, FaArrowRight, FaTimes } from "react-icons/fa"
+import { FaImage, FaArrowRight, FaTimes, FaSpinner } from "react-icons/fa"
 import { motion } from "framer-motion"
 import { ImagePreviewModal } from "@/components/image-preview-modal"
+import { compressImage, blobToDataURL } from "@/lib/image-compression"
 
 interface MessageInputProps {
   onSendMessage: (text: string, replyToId?: string) => void
@@ -33,6 +34,9 @@ export function MessageInput({
   const [message, setMessage] = useState("")
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [previewFile, setPreviewFile] = useState<File | null>(null)
+  const [isCompressing, setIsCompressing] = useState(false)
+  const [isSendingMessage, setIsSendingMessage] = useState(false)
+  const [messageSent, setMessageSent] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -76,8 +80,11 @@ export function MessageInput({
   }, [])
 
   const handleSend = () => {
-    if (message.trim()) {
+    if (message.trim() && !disabled) {
+      // Call the send handler
       onSendMessage(message, replyTo?.id)
+      
+      // Clear message and state
       setMessage("")
       if (onCancelReply) {
         onCancelReply()
@@ -90,6 +97,21 @@ export function MessageInput({
       }
     }
   }
+  
+  // Track sending state based on disabled prop
+  useEffect(() => {
+    if (disabled) {
+      setIsSendingMessage(true)
+      setMessageSent(false)
+    } else if (isSendingMessage) {
+      // Message was sent, show confirmation
+      setIsSendingMessage(false)
+      setMessageSent(true)
+      setTimeout(() => {
+        setMessageSent(false)
+      }, 2000) // Show for 2 seconds
+    }
+  }, [disabled, isSendingMessage])
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value)
@@ -107,7 +129,7 @@ export function MessageInput({
     // Removed auto-send on Enter key
   }
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       // Validate file type
@@ -116,19 +138,41 @@ export function MessageInput({
         return
       }
 
-      // Validate file size (max 10MB)
+      // Validate file size (max 10MB before compression)
       if (file.size > 10 * 1024 * 1024) {
         alert("Image size must be less than 10MB")
         return
       }
 
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        const imageUrl = event.target?.result as string
-        setPreviewImage(imageUrl) // Show preview instead of sending immediately
-        setPreviewFile(file) // Store the file for upload
+      setIsCompressing(true)
+
+      try {
+        // Compress the image
+        const compressedBlob = await compressImage(file)
+
+        // Convert compressed blob to data URL for preview
+        const imageUrl = await blobToDataURL(compressedBlob)
+        setPreviewImage(imageUrl)
+        
+        // Store the compressed blob as a File for potential upload
+        const compressedFile = new File([compressedBlob], file.name, {
+          type: "image/jpeg",
+          lastModified: Date.now(),
+        })
+        setPreviewFile(compressedFile)
+      } catch (error) {
+        console.error("Error compressing image:", error)
+        // Fallback to original file if compression fails
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          const imageUrl = event.target?.result as string
+          setPreviewImage(imageUrl)
+          setPreviewFile(file)
+        }
+        reader.readAsDataURL(file)
+      } finally {
+        setIsCompressing(false)
       }
-      reader.readAsDataURL(file)
     }
     // Reset input so same file can be selected again
     if (fileInputRef.current) {
@@ -205,14 +249,36 @@ export function MessageInput({
         </div>
       )}
 
+      {isCompressing && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-lg">
+          <FaSpinner className="w-4 h-4 animate-spin text-primary" />
+          <p className="text-xs text-muted-foreground">Compressing image...</p>
+        </div>
+      )}
+      {isSendingMessage && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 dark:bg-primary/20 rounded-lg border-l-4 border-l-primary">
+          <FaSpinner className="w-4 h-4 animate-spin text-primary" />
+          <p className="text-xs text-primary">Sending message...</p>
+        </div>
+      )}
+      {messageSent && !isSendingMessage && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 dark:bg-green-500/20 rounded-lg border-l-4 border-l-green-500">
+          <FaArrowRight className="w-4 h-4 text-green-600 dark:text-green-400" />
+          <p className="text-xs text-green-600 dark:text-green-400">Message sent!</p>
+        </div>
+      )}
       <div className="flex gap-2">
       <button
         onClick={() => fileInputRef.current?.click()}
-        disabled={disabled}
+        disabled={disabled || isCompressing}
         className="p-2 hover:bg-secondary rounded-lg transition-colors disabled:opacity-50 text-muted-foreground"
         aria-label="Upload image"
       >
-        <FaImage className="w-5 h-5" />
+        {isCompressing ? (
+          <FaSpinner className="w-5 h-5 animate-spin" />
+        ) : (
+          <FaImage className="w-5 h-5" />
+        )}
       </button>
       <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
       <textarea
@@ -227,11 +293,17 @@ export function MessageInput({
       />
       <Button 
         onClick={handleSend} 
-        disabled={!message.trim() || disabled} 
+        disabled={!message.trim() || disabled || isSendingMessage} 
         size="sm" 
         className="self-end bg-primary hover:opacity-90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed rounded-full aspect-square p-2.5"
       >
-        <FaArrowRight className="w-4 h-4" />
+        {isSendingMessage ? (
+          <FaSpinner className="w-4 h-4 animate-spin" />
+        ) : messageSent ? (
+          <FaArrowRight className="w-4 h-4" />
+        ) : (
+          <FaArrowRight className="w-4 h-4" />
+        )}
       </Button>
       </div>
 
