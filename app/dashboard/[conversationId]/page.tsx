@@ -36,7 +36,26 @@ export default function ChatPage() {
   const { user, isLoading: authLoading, mutate: mutateAuth } = useAuth()
   const { conversation: currentConversation, isLoading: conversationLoading, mutate: mutateConversation } = useConversation(conversationId)
   const { conversations, mutate: mutateConversations } = useConversations(user?.id)
-  const { connectionStatus, setupConversationChannel, broadcastTyping } = useRealtime()
+  const { connectionStatus, setupConversationChannel, broadcastTyping, setupBusinessChannel } = useRealtime()
+
+  // Track previous conversationId to detect navigation
+  const previousConversationIdRef = useRef<string | null>(null)
+  const [isNavigating, setIsNavigating] = useState(false)
+
+  // Detect when conversationId changes (navigation)
+  useEffect(() => {
+    if (conversationId && conversationId !== previousConversationIdRef.current) {
+      setIsNavigating(true)
+      previousConversationIdRef.current = conversationId
+      // Reset navigation state when data loads
+      if (currentConversation) {
+        setIsNavigating(false)
+      }
+    } else if (!conversationId) {
+      previousConversationIdRef.current = null
+      setIsNavigating(false)
+    }
+  }, [conversationId, currentConversation])
 
   const [isTyping, setIsTyping] = useState(false)
   const [otherUserTyping, setOtherUserTyping] = useState(false)
@@ -173,6 +192,21 @@ export default function ChatPage() {
     )
     return cleanup
   }, [conversationId, user?.id, setupConversationChannel, mutateConversation, mutateConversations, currentConversation?.id])
+
+  // Set up business channel for conversations list updates via realtime
+  useEffect(() => {
+    if (!user?.id) return
+
+    const handleConversationsUpdate = () => {
+      // Use delta syncing: only fetch conversations updated after last timestamp
+      // This is handled by the useConversations hook with delta syncing
+      // Just trigger a revalidation to fetch new conversations
+      mutateConversations(undefined, { revalidate: true })
+    }
+
+    const cleanup = setupBusinessChannel(user.id, handleConversationsUpdate)
+    return cleanup
+  }, [user?.id, setupBusinessChannel, mutateConversations])
 
   // Removed aggressive polling - rely on real-time updates only
   // Real-time connection handles all updates efficiently
@@ -639,12 +673,13 @@ export default function ChatPage() {
   ), [conversations, conversationId, user, handlePin, handleDelete])
 
   // Only show skeleton in conversation area, not whole page
-  const showConversationSkeleton = conversationLoading && !currentConversation && !authLoading
+  // Show skeleton if: loading, navigating to new conversation, or no data yet
+  const showConversationSkeleton = (conversationLoading || isNavigating) && !currentConversation && !authLoading
 
-  // If no conversation but not loading, show empty state
+  // If no conversation but not loading and not navigating, show empty state
   // Only show "not found" if we've actually finished loading and there's no data
   // This prevents showing "not found" during initial load or navigation
-  if (!currentConversation && !conversationLoading && conversationId && !authLoading) {
+  if (!currentConversation && !conversationLoading && !isNavigating && conversationId && !authLoading) {
     return (
       <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
         <Wallpaper />

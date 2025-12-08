@@ -97,10 +97,10 @@ function appBusinessToDB(business: Partial<Business>, passwordHash?: string): Pa
 }
 
 // Convert DB Conversation to App Conversation (with messages)
-async function dbConversationToApp(
+function dbConversationToApp(
   db: DBConversation,
   messages: DBMessage[] = []
-): Promise<Conversation> {
+): Conversation {
   // Create a map of messages by ID for quick lookup
   const messagesMap = new Map<string, DBMessage>()
   messages.forEach((m) => messagesMap.set(m.id, m))
@@ -286,13 +286,23 @@ export const db = {
     return dbBusinessToApp(data as DBBusiness)
   },
 
-  // Conversations
-  async getConversationsByBusinessId(businessId: string): Promise<Conversation[]> {
+  // Conversations - Delta syncing: only fetch conversations updated after last timestamp
+  async getConversationsByBusinessId(
+    businessId: string,
+    afterTimestamp?: string
+  ): Promise<Conversation[]> {
     const supabase = createClient()
-    const { data: conversations, error } = await supabase
+    let query = supabase
       .from("conversations")
       .select("id, business_id, customer_phone, customer_name, customer_email, created_at, updated_at, pinned")
       .eq("business_id", businessId)
+    
+    // Delta syncing: only fetch conversations updated after last timestamp
+    if (afterTimestamp) {
+      query = query.gt("updated_at", afterTimestamp)
+    }
+    
+    const { data: conversations, error } = await query
       .order("updated_at", { ascending: false })
       .limit(100) // Limit to prevent huge queries
 

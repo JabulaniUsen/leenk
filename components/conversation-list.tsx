@@ -23,7 +23,8 @@ function getUnreadCount(conversation: Conversation): number {
     return conversation.unreadCount
   }
   // Fallback: calculate from messages (for backwards compatibility)
-  return conversation.messages.filter(
+  const messages = conversation.messages || []
+  return messages.filter(
     (msg: Message) => 
       msg.senderType === "customer" && 
       msg.status !== "read"
@@ -81,7 +82,8 @@ export const ConversationList = memo(function ConversationList({ conversations, 
         sorted.map((conv, index) => {
           const unreadCount = getUnreadCount(conv)
           const hasUnread = unreadCount > 0
-          const lastMessage = conv.messages[conv.messages.length - 1]
+          const messages = conv.messages || []
+          const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null
           
           return (
           <motion.div

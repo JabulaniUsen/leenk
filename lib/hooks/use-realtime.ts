@@ -74,15 +74,14 @@ export function useRealtime() {
       .on(
         "postgres_changes",
         {
-          event: "*",
+          event: "INSERT",
           schema: "public",
           table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
         async (payload) => {
-          console.log("🔔 Real-time event received:", payload.eventType, payload)
-          
-          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
+          // Handle INSERT events
+          if (payload.eventType === "INSERT") {
             try {
               const dbMessage = payload.new as any
               const newMessage: Message = {
@@ -104,7 +103,7 @@ export function useRealtime() {
                     .from("messages")
                     .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at")
                     .eq("id", dbMessage.reply_to_id)
-                    .maybeSingle() // Use maybeSingle() to handle missing messages gracefully
+                    .maybeSingle()
 
                   if (!replyError && replyToMessage) {
                     newMessage.replyTo = {
@@ -120,7 +119,6 @@ export function useRealtime() {
                   }
                 } catch (replyError) {
                   console.error("Error fetching reply message:", replyError)
-                  // Continue without reply info if fetch fails
                 }
               }
 
@@ -128,23 +126,19 @@ export function useRealtime() {
 
               // Mark as delivered if it's a new message from the other user
               const otherSenderType = senderType === "business" ? "customer" : "business"
-              if (payload.eventType === "INSERT" && newMessage.senderType === otherSenderType) {
+              if (newMessage.senderType === otherSenderType) {
                 try {
                   await db.updateMessageStatus(newMessage.id, "delivered")
-                  // Update the message status after marking as delivered
                   newMessage.status = "delivered"
                   
-                  // If this is a customer message, check and send away message if enabled
                   if (newMessage.senderType === "customer" && senderType === "business") {
-                    // Get business ID from the conversation
                     const { data: convData, error: convError } = await supabase
                       .from("conversations")
                       .select("business_id")
                       .eq("id", newMessage.conversationId)
-                      .maybeSingle() // Use maybeSingle() to handle missing conversations gracefully
+                      .maybeSingle()
                     
                     if (!convError && convData?.business_id) {
-                      // Send away message asynchronously (don't block)
                       sendAwayMessageIfEnabled(newMessage.conversationId, convData.business_id)
                         .catch((err) => console.error("Error in away message:", err))
                     }
@@ -154,26 +148,62 @@ export function useRealtime() {
                 }
               }
 
-              // Only call update if message has required fields
               if (newMessage.id && newMessage.conversationId && onMessageUpdate) {
-                console.log("✅ Calling onMessageUpdate callback with message:", newMessage.id)
                 onMessageUpdate(newMessage)
-              } else {
-                console.warn("⚠️ onMessageUpdate callback not provided or message missing required fields", {
-                  hasId: !!newMessage.id,
-                  hasConversationId: !!newMessage.conversationId,
-                  hasCallback: !!onMessageUpdate
-                })
               }
             } catch (error) {
               console.error("❌ Error processing real-time message:", error)
             }
-          } else if (payload.eventType === "DELETE") {
-            const deletedId = payload.old?.id
-            console.log("🗑️ Message deleted:", deletedId)
-            if (deletedId && onMessageDelete) {
-              onMessageDelete(deletedId)
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        async (payload) => {
+          // Handle UPDATE events
+          if (payload.eventType === "UPDATE") {
+            try {
+              const dbMessage = payload.new as any
+              const updatedMessage: Message = {
+                id: dbMessage.id,
+                conversationId: dbMessage.conversation_id,
+                senderType: dbMessage.sender_type,
+                senderId: dbMessage.sender_id,
+                text: dbMessage.content || undefined,
+                imageUrl: dbMessage.image_url || undefined,
+                status: (dbMessage.status || "sent") as "sent" | "delivered" | "read",
+                createdAt: dbMessage.created_at,
+                replyToId: dbMessage.reply_to_id || undefined,
+              }
+
+              if (updatedMessage.id && updatedMessage.conversationId && onMessageUpdate) {
+                onMessageUpdate(updatedMessage)
+              }
+            } catch (error) {
+              console.error("❌ Error processing real-time message update:", error)
             }
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          // Handle DELETE events
+          const deletedId = payload.old?.id
+          if (deletedId && onMessageDelete) {
+            onMessageDelete(deletedId)
           }
         }
       )

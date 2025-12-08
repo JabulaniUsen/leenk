@@ -232,8 +232,34 @@ export const conversationCache = {
       const store = transaction.objectStore(CONVERSATIONS_STORE)
 
       for (const conversation of conversations) {
+        // Sanitize conversation to ensure it's serializable
+        // Remove any non-serializable properties and ensure messages array is properly structured
+        const sanitizedConversation: Conversation = {
+          id: conversation.id,
+          businessId: conversation.businessId,
+          customerEmail: conversation.customerEmail,
+          customerName: conversation.customerName,
+          createdAt: conversation.createdAt,
+          lastMessageAt: conversation.lastMessageAt,
+          messages: (conversation.messages || []).map(msg => ({
+            id: msg.id,
+            conversationId: msg.conversationId,
+            senderType: msg.senderType,
+            senderId: msg.senderId,
+            text: msg.text,
+            imageUrl: msg.imageUrl,
+            status: msg.status,
+            createdAt: msg.createdAt,
+            replyToId: msg.replyToId,
+            // Don't include replyTo nested object - it can cause circular references
+            // replyTo will be resolved when messages are loaded from cache
+          })),
+          unreadCount: conversation.unreadCount,
+          pinned: conversation.pinned,
+        }
+
         await new Promise<void>((resolve, reject) => {
-          const request = store.put(conversation)
+          const request = store.put(sanitizedConversation)
           request.onsuccess = () => resolve()
           request.onerror = () => reject(request.error)
         })

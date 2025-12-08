@@ -11,6 +11,7 @@ const conversationFetcher = async (conversationId: string): Promise<Conversation
 export function useConversation(conversationId: string | null | undefined) {
   // Keep a ref to preserve data across key changes
   const previousDataRef = useRef<Conversation | null>(null)
+  const previousConversationIdRef = useRef<string | null>(null)
   
   const { data, error, isLoading, mutate } = useSWR<Conversation | null>(
     conversationId ? [`conversation`, conversationId] : null,
@@ -23,6 +24,12 @@ export function useConversation(conversationId: string | null | undefined) {
       // Don't set fallbackData to null - let it be undefined so we can show skeleton
     }
   )
+
+  // Track if conversationId changed (navigation)
+  const conversationIdChanged = conversationId !== previousConversationIdRef.current
+  if (conversationIdChanged) {
+    previousConversationIdRef.current = conversationId || null
+  }
 
   // Update ref when we have new data
   if (data !== undefined && data !== null) {
@@ -43,11 +50,11 @@ export function useConversation(conversationId: string | null | undefined) {
     return mutate(updater, options)
   }
 
-  // Only show loading if we truly don't have data and are loading
-  // If we have previous data for this conversation, don't show loading
-  const isActuallyLoading = isLoading && 
-    conversation === null && 
-    (previousDataRef.current === null || previousDataRef.current.id !== conversationId)
+  // Show loading if:
+  // 1. SWR is loading AND we don't have conversation data
+  // 2. OR conversationId changed (navigation) and we don't have data yet
+  const isActuallyLoading = (isLoading && conversation === null) || 
+    (conversationIdChanged && conversation === null && isLoading)
 
   return {
     conversation,
