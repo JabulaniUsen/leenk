@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ConversationList } from "@/components/conversation-list"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { FaSignOutAlt, FaCog } from "react-icons/fa"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { FaBars } from "react-icons/fa"
+import { NavDrawer } from "@/components/nav-drawer"
 import { Avatar } from "@/components/avatar"
 import { ConversationSkeleton } from "@/components/conversation-skeleton"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -24,6 +24,8 @@ export default function DashboardPage() {
   const { user, isLoading: authLoading, mutate: mutateAuth } = useAuth()
   const { conversations, isLoading: conversationsLoading, mutate: mutateConversations } = useConversations(user?.id)
   const { setupBusinessChannel } = useRealtime()
+  const [isNavOpen, setIsNavOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState("profile")
 
   // Helper function to check if onboarding is complete
   const isOnboardingComplete = (business: Business | undefined): boolean => {
@@ -58,12 +60,6 @@ export default function DashboardPage() {
 
   // Business is always online - no real-time status updates needed
 
-  const handleLogout = async () => {
-    // Business is always online - no need to update status
-    await storage.clearAuth()
-    mutateAuth(null, false) // Clear auth cache
-    router.push("/")
-  }
 
   const handlePin = async (conversationId: string, pinned: boolean) => {
     try {
@@ -104,17 +100,14 @@ export default function DashboardPage() {
         <div className="p-3 md:p-4 border-b border-border bg-card">
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <Image src="/logo.png" alt="Leenk" width={80} height={80} className="object-contain" />
-            <div className="flex gap-1 md:gap-2">
-              <ThemeToggle />
-              <Link href="/dashboard/settings">
-                <Button variant="ghost" size="sm">
-                  <FaCog className="w-4 h-4" />
-                </Button>
-              </Link>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <FaSignOutAlt className="w-4 h-4" />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsNavOpen(true)}
+              aria-label="Open menu"
+            >
+              <FaBars className="w-5 h-5" />
+            </Button>
           </div>
           {authLoading ? (
             <div className="flex items-center gap-3 text-sm">
@@ -164,6 +157,14 @@ export default function DashboardPage() {
           <p className="text-muted-foreground">Click on a conversation to start chatting with your customers</p>
         </div>
       </motion.div>
+
+      {/* Navigation Drawer */}
+      <NavDrawer
+        isOpen={isNavOpen}
+        onClose={() => setIsNavOpen(false)}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
     </main>
   )
 }

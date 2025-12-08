@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { ThemeProviderWrapper } from "@/components/theme-provider-wrapper"
 import { PWAInstaller } from "@/components/pwa-installer"
 import { PWAHead } from "@/components/pwa-head"
+import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -63,6 +64,7 @@ export default function RootLayout({
           {children}
         </ThemeProviderWrapper>
         <PWAInstaller />
+        <Toaster />
         <Analytics />
       </body>
     </html>

@@ -3,6 +3,7 @@ import { createClient } from "../supabase/client"
 import { db } from "../supabase/db"
 import type { Message, Conversation } from "../types"
 import { storage } from "../storage"
+import { sendAwayMessageIfEnabled } from "../away-message"
 
 type TypingCallback = (senderType: "business" | "customer") => void
 type RealtimeChannel = Parameters<ReturnType<typeof createClient>["removeChannel"]>[0]
@@ -132,6 +133,22 @@ export function useRealtime() {
                   await db.updateMessageStatus(newMessage.id, "delivered")
                   // Update the message status after marking as delivered
                   newMessage.status = "delivered"
+                  
+                  // If this is a customer message, check and send away message if enabled
+                  if (newMessage.senderType === "customer" && senderType === "business") {
+                    // Get business ID from the conversation
+                    const { data: convData } = await supabase
+                      .from("conversations")
+                      .select("business_id")
+                      .eq("id", newMessage.conversationId)
+                      .single()
+                    
+                    if (convData?.business_id) {
+                      // Send away message asynchronously (don't block)
+                      sendAwayMessageIfEnabled(newMessage.conversationId, convData.business_id)
+                        .catch((err) => console.error("Error in away message:", err))
+                    }
+                  }
                 } catch (error) {
                   console.error("Error updating message status:", error)
                 }

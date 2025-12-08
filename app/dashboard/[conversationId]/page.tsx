@@ -12,7 +12,8 @@ import { db } from "@/lib/supabase/db"
 import { storage } from "@/lib/storage"
 import type { Message, Conversation, AuthUser } from "@/lib/types"
 import { v4 as uuidv4 } from "uuid"
-import { FaChevronLeft, FaEllipsisV } from "react-icons/fa"
+import { FaChevronLeft, FaEllipsisV, FaBars } from "react-icons/fa"
+import { NavDrawer } from "@/components/nav-drawer"
 import Link from "next/link"
 import { Wallpaper } from "@/components/wallpaper"
 import { Avatar } from "@/components/avatar"
@@ -25,8 +26,6 @@ import { useConversation } from "@/lib/hooks/use-conversation"
 import { useConversations } from "@/lib/hooks/use-conversations"
 import { useRealtime } from "@/lib/hooks/use-realtime"
 import { createClient } from "@/lib/supabase/client"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { FaSignOutAlt, FaCog } from "react-icons/fa"
 import type { Business } from "@/lib/types"
 
 export default function ChatPage() {
@@ -43,6 +42,8 @@ export default function ChatPage() {
   const [otherUserTyping, setOtherUserTyping] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [replyTo, setReplyTo] = useState<Message | null>(null)
+  const [isNavOpen, setIsNavOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState("profile")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const otherUserTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -403,12 +404,6 @@ export default function ChatPage() {
     }
   }
 
-  const handleLogout = async () => {
-    // Business is always online - no need to update status
-    await storage.clearAuth()
-    mutateAuth(null, false) // Clear auth cache
-    router.push("/")
-  }
 
   const handlePin = async (conversationId: string, pinned: boolean) => {
     try {
@@ -546,6 +541,11 @@ export default function ChatPage() {
     )
   }
 
+  // Type guard: ensure currentConversation exists before rendering
+  if (!currentConversation) {
+    return null
+  }
+
   return (
     <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
       <Wallpaper businessLogo={user?.business?.businessLogo} />
@@ -557,21 +557,18 @@ export default function ChatPage() {
       >
         {/* Header - Same as dashboard */}
         <div className="p-3 md:p-4 border-b border-border bg-card/80 backdrop-blur-sm">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
           <Link href="/dashboard">
               <Image src="/logo.png" alt="Leenk" width={80} height={80} className="object-contain" />
             </Link>
-            <div className="flex gap-1 md:gap-2">
-              <ThemeToggle />
-              <Link href="/dashboard/settings">
-                <Button variant="ghost" size="sm">
-                  <FaCog className="w-4 h-4" />
-                </Button>
-          </Link>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <FaSignOutAlt className="w-4 h-4" />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsNavOpen(true)}
+              aria-label="Open menu"
+            >
+              <FaBars className="w-5 h-5" />
+            </Button>
           </div>
           {user ? (
             <div className="flex items-center gap-3 text-sm">
@@ -664,6 +661,14 @@ export default function ChatPage() {
           />
         </div>
       </motion.div>
+
+      {/* Navigation Drawer */}
+      <NavDrawer
+        isOpen={isNavOpen}
+        onClose={() => setIsNavOpen(false)}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
     </main>
   )
 }

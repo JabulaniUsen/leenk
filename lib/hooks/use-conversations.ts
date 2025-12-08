@@ -22,7 +22,8 @@ export function useConversations(businessId: string | null | undefined) {
 
   // isLoading is true on initial load, isValidating is true when revalidating
   // We want to show skeleton if we're loading for the first time (data is undefined)
-  const isInitialLoading = isLoading || (data === undefined && isValidating)
+  // Don't show loading if we have cached data
+  const isInitialLoading = isLoading && data === undefined
 
   return {
     conversations: data || [],

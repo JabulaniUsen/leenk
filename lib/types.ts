@@ -7,6 +7,8 @@ export interface Business {
   address: string
   online: boolean
   createdAt: string
+  awayMessage?: string
+  awayMessageEnabled?: boolean
 }
 
 export interface Conversation {

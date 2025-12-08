@@ -16,8 +16,13 @@ interface ConversationListProps {
 }
 
 // Calculate unread message count for a conversation
-// Unread = messages from customer that are not "read"
+// Use unreadCount if available (from optimized query), otherwise calculate from messages
 function getUnreadCount(conversation: Conversation): number {
+  // Use pre-calculated unreadCount if available (from optimized database query)
+  if (conversation.unreadCount !== undefined) {
+    return conversation.unreadCount
+  }
+  // Fallback: calculate from messages (for backwards compatibility)
   return conversation.messages.filter(
     (msg: Message) => 
       msg.senderType === "customer" && 

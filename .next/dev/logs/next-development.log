@@ -93,3 +93,1462 @@ Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
 [00:01:39.623] Browser LOG     Business channel subscription status: CLOSED
 [00:01:39.624] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765151317414}
 [00:01:40.621] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:07:19.605] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:07:21.604] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:10:36.605] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:10:46.605] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:12:20.606] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:12:30.607] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:12:30.608] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:13:00.607] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:13:00.607] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:13:30.607] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:13:30.608] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:14:00.606] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:14:00.607] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:14:31.605] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:14:31.606] Browser LOG     Business channel subscription status: CHANNEL_ERROR
+[00:14:47.446] Browser LOG     Service Worker registered: {}
+[00:14:47.446] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:14:47.446] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:14:47.447] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765152105178}
+[00:14:56.941] Server  ERROR   Error: fetch failed
+    at context.fetch (/Users/mac/Desktop/leenk/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:565:23
+    at _handleRequest (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:919:24)
+    at _request (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:906:24)
+    at /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4137:225
+    at SupabaseAuthClient._useSession (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4006:26)
+    at async SupabaseAuthClient._getUser (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4122:20)
+    at async /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4106:20
+    at async /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:3954:28 {
+  
+}
+[00:14:58.936] Server  ERROR   Error: fetch failed
+    at context.fetch (/Users/mac/Desktop/leenk/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:565:23
+    at _handleRequest (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:919:24)
+    at _request (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:906:24)
+    at /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4137:225
+    at SupabaseAuthClient._useSession (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4006:26)
+    at async SupabaseAuthClient._getUser (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4122:20)
+    at async /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4106:20
+    at async /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:3954:28 {
+  
+}
+[00:15:17.646] Browser ERROR   {}
+[00:15:28.088] Server  ERROR   Error: fetch failed
+    at context.fetch (/Users/mac/Desktop/leenk/node_modules/next/dist/server/web/sandbox/context.js:322:60)
+    at /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:565:23
+    at _handleRequest (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:919:24)
+    at _request (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:906:24)
+    at /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4137:225
+    at SupabaseAuthClient._useSession (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4006:26)
+    at async SupabaseAuthClient._getUser (/Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4122:20)
+    at async /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:4106:20
+    at async /Users/mac/Desktop/leenk/.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_1b8e0626._.js:3954:28 {
+  
+}
+[00:15:28.675] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:15:28.675] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:15:28.914] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765152146618}
+[00:15:29.022] Browser WARN    Image with src "/logo.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[00:15:50.623] Browser ERROR   {}
+[00:36:16.574] Server  LOG      ✓ Compiled in 269ms
+[00:36:23.165] Server  LOG      ✓ Compiled in 142ms
+[00:36:41.143] Server  LOG      ✓ Compiled in 162ms
+[00:36:44.780] Server  LOG      ✓ Compiled in 118ms
+[00:37:00.999] Server  LOG      ✓ Compiled in 109ms
+[00:37:21.507] Server  LOG      ✓ Compiled in 172ms
+[00:37:23.096] Server  LOG      ✓ Compiled in 126ms
+[00:37:24.755] Server  LOG      ✓ Compiled in 60ms
+[00:37:26.378] Server  LOG      ✓ Compiled in 70ms
+[00:37:28.111] Server  LOG      ✓ Compiled in 62ms
+[00:37:29.924] Server  LOG      ✓ Compiled in 60ms
+[00:37:31.831] Server  LOG      ✓ Compiled in 165ms
+[00:38:23.296] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153520824}
+[00:38:23.296] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153521010}
+[00:38:32.522] Browser LOG     Business channel subscription status: CLOSED
+[00:38:32.522] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153530177}
+[00:38:33.735] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:38:42.628] Browser WARN    Image with src "https://gvliedhyogzxwcbpljrk.supabase.co/storage/v1/object/public/business_logo/66e61944-18e6-4a27-9d44-c385188d49c4/e46fc34d-4272-419d-b39e-7684db62c182.jpg" has "fill" and a height value of 0. This is likely because the parent element of the image has not been styled to have a set height.
+[00:39:54.209] Browser LOG     Business channel subscription status: CLOSED
+[00:39:54.210] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153611903}
+[00:39:55.351] Browser LOG     Business channel subscription status: CLOSED
+[00:39:55.351] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153613041}
+[00:39:56.285] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:39:57.001] Browser LOG     Business channel subscription status: CLOSED
+[00:39:57.001] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153614640}
+[00:39:57.195] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:39:57.195] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:39:57.195] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 {}
+[00:39:57.195] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 2/5) in 4000ms
+[00:39:59.459] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:40:01.711] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:40:01.711] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:40:02.570] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:40:03.879] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:40:03.879] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:40:03.879] Browser LOG     Business channel subscription status: CLOSED
+[00:40:03.879] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153621576}
+[00:40:04.619] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:40:13.039] Browser LOG     Business channel subscription status: CLOSED
+[00:40:13.039] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153630725}
+[00:40:13.231] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:40:13.231] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:40:13.231] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 {}
+[00:40:13.231] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 2/5) in 4000ms
+[00:40:14.221] Browser LOG     Business channel subscription status: CLOSED
+[00:40:14.221] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153631859}
+[00:40:14.221] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:40:14.489] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:40:15.233] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:40:15.233] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:40:15.488] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:40:44.978] Browser LOG     Business channel subscription status: CLOSED
+[00:40:44.978] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153662425}
+[00:40:45.075] Browser WARN    ⚠️ Real-time disconnected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 undefined
+[00:40:45.075] Browser LOG     🔄 Reconnecting conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 (attempt 1/5) in 2000ms
+[00:40:45.075] Browser WARN    ⚠️ Real-time disconnected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 {}
+[00:40:45.075] Browser LOG     🔄 Reconnecting conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 (attempt 2/5) in 4000ms
+[00:40:47.306] Browser LOG     ✅ Real-time connected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9
+[00:40:47.545] Browser WARN    ⚠️ Real-time disconnected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 undefined
+[00:40:47.545] Browser LOG     🔄 Reconnecting conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 (attempt 1/5) in 2000ms
+[00:40:49.764] Browser LOG     ✅ Real-time connected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9
+[00:40:50.308] Browser WARN    ⚠️ Real-time disconnected: conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 undefined
+[00:40:50.308] Browser LOG     🔄 Reconnecting conversation:2cd72858-9b9f-49d4-94fa-b7fb3b36b1a9 (attempt 1/5) in 2000ms
+[00:40:50.308] Browser LOG     Business channel subscription status: CLOSED
+[00:40:50.308] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153667967}
+[00:40:51.710] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:41:23.060] Server  LOG      ✓ Compiled in 83ms
+[00:41:27.977] Server  LOG      ✓ Compiled in 57ms
+[00:41:28.605] Browser ERROR   ./components/nav-content.tsx:4:1
+Export ProfileTab doesn't exist in target module
+  2 |
+  3 | import { memo } from "react"
+> 4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+
+The export ProfileTab was not found in module [project]/components/nav-tabs/profile-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:28.606] Browser ERROR   ./components/nav-content.tsx:4:1
+Export ProfileTab doesn't exist in target module
+  2 |
+  3 | import { memo } from "react"
+> 4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+
+The export ProfileTab was not found in module [project]/components/nav-tabs/profile-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:30.449] Server  LOG      ✓ Compiled in 84ms
+[00:41:32.882] Server  LOG      ✓ Compiled in 49ms
+[00:41:33.619] Server  ERROR    ⨯ ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+
+
+
+./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+
+
+[00:41:33.631] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:33.631] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:34.605] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:34.606] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:34.606] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:34.606] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:34.606] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:34.606] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:35.606] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:35.606] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:36.599] Server  ERROR    ⨯ ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+
+
+
+./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+
+
+[00:41:38.605] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:38.605] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:38.606] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:41:38.606] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:41:38.606] Browser LOG     Service Worker registered: {}
+[00:41:38.606] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:38.606] Browser ERROR   ./components/nav-content.tsx:5:1
+Export SettingsTab doesn't exist in target module
+  3 | import { memo } from "react"
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+> 5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+
+The export SettingsTab was not found in module [project]/components/nav-tabs/settings-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:38.606] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:41:38.607] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:41:38.607] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153715453}
+[00:41:38.931] Server  LOG      ✓ Compiled in 97ms
+[00:41:39.352] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:41:39.352] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:41:39.604] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:41:40.314] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:41:40.314] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:41:41.302] Server  LOG      ✓ Compiled in 63ms
+[00:41:46.343] Server  LOG      ✓ Compiled in 86ms
+[00:41:46.670] Browser ERROR   ./components/nav-content.tsx:6:1
+Export ClientsTab doesn't exist in target module
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+  5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+> 6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+  9 |
+
+The export ClientsTab was not found in module [project]/components/nav-tabs/clients-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:46.670] Browser ERROR   ./components/nav-content.tsx:6:1
+Export ClientsTab doesn't exist in target module
+  4 | import { ProfileTab } from "@/components/nav-tabs/profile-tab"
+  5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+> 6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+  9 |
+
+The export ClientsTab was not found in module [project]/components/nav-tabs/clients-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:48.923] Server  LOG      ✓ Compiled in 61ms
+[00:41:51.234] Server  LOG      ✓ Compiled in 54ms
+[00:41:51.606] Browser ERROR   ./components/nav-content.tsx:7:1
+Export BroadcastTab doesn't exist in target module
+   5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+   6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+>  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+   9 |
+  10 | interface NavContentProps {
+
+The export BroadcastTab was not found in module [project]/components/nav-tabs/broadcast-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:51.606] Browser ERROR   ./components/nav-content.tsx:7:1
+Export BroadcastTab doesn't exist in target module
+   5 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+   6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+>  7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+   9 |
+  10 | interface NavContentProps {
+
+The export BroadcastTab was not found in module [project]/components/nav-tabs/broadcast-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:41:53.564] Server  LOG      ✓ Compiled in 59ms
+[00:42:00.452] Server  LOG      ✓ Compiled in 127ms
+[00:42:00.560] Browser ERROR   ./components/nav-content.tsx:8:1
+Export BusinessToolsTab doesn't exist in target module
+   6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+   7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+>  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 |
+  10 | interface NavContentProps {
+  11 |   activeTab: string
+
+The export BusinessToolsTab was not found in module [project]/components/nav-tabs/business-tools-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:42:00.560] Browser ERROR   ./components/nav-content.tsx:8:1
+Export BusinessToolsTab doesn't exist in target module
+   6 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+   7 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+>  8 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 |
+  10 | interface NavContentProps {
+  11 |   activeTab: string
+
+The export BusinessToolsTab was not found in module [project]/components/nav-tabs/business-tools-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:42:05.514] Server  LOG      ✓ Compiled in 76ms
+[00:42:12.203] Server  LOG      ✓ Compiled in 60ms
+[00:42:16.763] Browser LOG     Business channel subscription status: CLOSED
+[00:42:16.763] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153754437}
+[00:42:16.936] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:42:16.936] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:42:16.936] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 {}
+[00:42:16.936] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 2/5) in 4000ms
+[00:42:18.758] Server  LOG      ✓ Compiled in 47ms
+[00:42:19.052] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:42:19.052] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:42:19.052] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 {}
+[00:42:19.052] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 2/5) in 4000ms
+[00:42:21.278] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[00:42:42.058] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:42:42.058] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:42:43.411] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[00:42:54.082] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:42:54.082] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:42:54.082] Browser LOG     Business channel subscription status: CLOSED
+[00:42:54.082] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153791750}
+[00:42:54.259] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:42:55.543] Browser LOG     Business channel subscription status: CLOSED
+[00:42:55.543] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153793241}
+[00:42:55.745] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:42:55.745] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:42:55.745] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 {}
+[00:42:55.745] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 2/5) in 4000ms
+[00:42:56.998] Browser LOG     Business channel subscription status: CLOSED
+[00:42:56.998] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153794705}
+[00:42:58.232] Browser LOG     Business channel subscription status: CLOSED
+[00:42:58.232] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/39271eeb-0d0d-4574-98d2-faae633b5362 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/39271eeb-0d0d-4574-98d2-faae633b5362","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153795929}
+[00:43:00.192] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:43:00.192] Browser WARN    ⚠️ Real-time disconnected: conversation:39271eeb-0d0d-4574-98d2-faae633b5362 undefined
+[00:43:00.192] Browser LOG     🔄 Reconnecting conversation:39271eeb-0d0d-4574-98d2-faae633b5362 (attempt 1/5) in 2000ms
+[00:43:00.192] Browser WARN    ⚠️ Real-time disconnected: conversation:39271eeb-0d0d-4574-98d2-faae633b5362 {}
+[00:43:00.192] Browser LOG     🔄 Reconnecting conversation:39271eeb-0d0d-4574-98d2-faae633b5362 (attempt 2/5) in 4000ms
+[00:43:04.605] Browser LOG     ✅ Real-time connected: conversation:39271eeb-0d0d-4574-98d2-faae633b5362
+[00:43:27.389] Browser WARN    ⚠️ Real-time disconnected: conversation:39271eeb-0d0d-4574-98d2-faae633b5362 undefined
+[00:43:27.390] Browser LOG     🔄 Reconnecting conversation:39271eeb-0d0d-4574-98d2-faae633b5362 (attempt 1/5) in 2000ms
+[00:43:27.525] Browser LOG     ✅ Real-time connected: conversation:39271eeb-0d0d-4574-98d2-faae633b5362
+[00:43:40.811] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:43:40.811] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:43:41.334] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:43:41.334] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:45:04.914] Server  LOG      ✓ Compiled in 270ms
+[00:45:19.072] Server  LOG      ✓ Compiled in 139ms
+[00:45:20.943] Server  LOG      ✓ Compiled in 681ms
+[00:45:21.915] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:45:21.915] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:45:23.040] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:45:23.041] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:45:23.376] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:45:23.376] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:45:25.605] Browser LOG     Service Worker registered: {}
+[00:45:25.605] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:45:25.605] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard/39271eeb-0d0d-4574-98d2-faae633b5362","route":"/dashboard/[conversationId]"}
+[00:45:25.605] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/39271eeb-0d0d-4574-98d2-faae633b5362 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/39271eeb-0d0d-4574-98d2-faae633b5362","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153942366}
+[00:45:26.605] Browser LOG     ✅ Real-time connected: conversation:39271eeb-0d0d-4574-98d2-faae633b5362
+[00:45:30.092] Server  LOG      ✓ Compiled in 80ms
+[00:45:32.051] Server  LOG      ✓ Compiled in 80ms
+[00:45:33.722] Server  LOG      ✓ Compiled in 109ms
+[00:46:18.674] Browser WARN    ⚠️ Real-time disconnected: conversation:39271eeb-0d0d-4574-98d2-faae633b5362 undefined
+[00:46:18.674] Browser LOG     🔄 Reconnecting conversation:39271eeb-0d0d-4574-98d2-faae633b5362 (attempt 1/5) in 2000ms
+[00:46:18.674] Browser LOG     Business channel subscription status: CLOSED
+[00:46:18.674] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765153996314}
+[00:46:18.812] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:46:46.188] Browser LOG     Service Worker registered: {}
+[00:46:46.188] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:46:46.188] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:46:46.188] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154023899}
+[00:46:51.609] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154029302}
+[00:46:59.112] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154036812}
+[00:47:00.694] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:47:07.098] Browser LOG     Business channel subscription status: CLOSED
+[00:47:07.098] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/settings color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/settings","o":"http://localhost:3000/dashboard/settings","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154044808}
+[00:47:19.538] Server  ERROR   AuthApiError: Invalid Refresh Token: Refresh Token Not Found
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 400,
+  code: 'refresh_token_not_found'
+}
+[00:47:19.570] Server  ERROR   AuthApiError: Invalid Refresh Token: Refresh Token Not Found
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 400,
+  code: 'refresh_token_not_found'
+}
+[00:47:19.988] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:19.988] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:20.334] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:47:20.668] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:20.668] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:20.967] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:20.967] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:21.145] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:21.145] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:21.435] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:47:21.435] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:47:21.435] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154058415}
+[00:47:21.435] Browser LOG     Service Worker registered: {}
+[00:47:21.499] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:21.499] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:21.834] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:47:22.125] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:47:22.377] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:47:22.620] Browser LOG     Service Worker registered: {}
+[00:47:22.620] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:47:22.620] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:47:22.620] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154060331}
+[00:47:23.704] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:23.705] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:23.866] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154061576}
+[00:47:43.309] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:43.309] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:47:43.548] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154081257}
+[00:47:45.384] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:47:58.386] Browser LOG     Service Worker registered: {}
+[00:47:58.386] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:47:58.386] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:47:58.386] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154096097}
+[00:48:00.563] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:48:09.579] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:48:09.727] Browser ERROR   uncaughtError: Error: Failed to load chunk /_next/static/chunks/e559b_next_5a2a3007._.js from module [project]/node_modules/.pnpm/next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-client.browser.development.js [app-client] (ecmascript)
+[00:48:12.666] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:48:12.777] Browser ERROR   uncaughtError: Error: Failed to load chunk /_next/static/chunks/e559b_next_5a2a3007._.js from module [project]/node_modules/.pnpm/next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-client.browser.development.js [app-client] (ecmascript)
+[00:48:22.559] Browser LOG     Business channel subscription status: CLOSED
+[00:48:22.559] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/192b3431-8a89-4c2b-bf09-84e08f069800","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154120260}
+[00:48:22.803] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:48:22.803] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:48:22.803] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 {}
+[00:48:22.803] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 2/5) in 4000ms
+[00:48:24.112] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:48:24.112] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:48:24.112] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 {}
+[00:48:24.112] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 2/5) in 4000ms
+[00:48:25.029] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:48:26.114] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:48:26.114] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:48:26.424] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:48:27.511] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:48:27.511] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:48:27.710] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:48:42.131] Browser LOG     Service Worker registered: {}
+[00:48:42.131] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:48:42.131] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:48:42.131] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154139842}
+[00:48:44.929] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:48:44.930] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:48:45.145] Browser ERROR   uncaughtError: Error: Module [project]/node_modules/next/dist/lib/framework/boundary-components.js [app-client] (ecmascript) was instantiated because it was required from module [project]/node_modules/.pnpm/next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-client.browser.development.js [app-client] (ecmascript), but the module factory is not available. It might have been deleted in an HMR update.
+[00:49:03.984] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:49:03.984] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:49:05.155] Browser LOG     Service Worker registered: {}
+[00:49:05.155] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:49:05.155] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/login","route":"/login"}
+[00:49:05.155] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154162807}
+[00:49:05.155] Browser WARN    Image with src "/logo.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[00:49:12.636] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:49:12.636] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:49:12.958] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154170666}
+[00:49:14.773] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:49:44.605] Browser LOG     🔔 Real-time event received: INSERT {"commit_timestamp":"2025-12-08T00:36:42.102Z","errors":null,"eventType":"INSERT","new":{"content":"Testing broadcast message","conversation_id":"192b3431-8a89-4c2b-bf09-84e08f069800","created_at":"2025-12-08T00:36:42.079748+00:00","id":"a67de0bc-e322-46e9-8e0e-f7dabd885e28","image_url":null,"reply_to_id":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"sent"},"old":{},"schema":"public","table":"messages"}
+[00:49:44.605] Browser LOG     📨 Processed message: {"conversationId":"192b3431-8a89-4c2b-bf09-84e08f069800","createdAt":"2025-12-08T00:36:42.079748+00:00","id":"a67de0bc-e322-46e9-8e0e-f7dabd885e28","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"Testing broadcast message"}
+[00:49:44.605] Browser LOG     ✅ Calling onMessageUpdate callback with message: a67de0bc-e322-46e9-8e0e-f7dabd885e28
+[00:49:44.605] Browser LOG     📨 Real-time message update received: {"conversationId":"192b3431-8a89-4c2b-bf09-84e08f069800","createdAt":"2025-12-08T00:36:42.079748+00:00","id":"a67de0bc-e322-46e9-8e0e-f7dabd885e28","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"Testing broadcast message"}
+[00:49:44.605] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:49:44.605] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:49:45.605] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:49:48.607] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:49:48.607] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:49:48.608] Browser LOG     ✅ Real-time connected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800
+[00:50:26.698] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:50:26.698] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:50:27.606] Browser LOG     Service Worker registered: {}
+[00:50:27.606] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:50:27.606] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:50:27.606] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154245313}
+[00:50:29.606] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:50:33.585] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:50:33.585] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:50:33.778] Browser WARN    ⚠️ Real-time disconnected: conversation:192b3431-8a89-4c2b-bf09-84e08f069800 undefined
+[00:50:33.778] Browser LOG     🔄 Reconnecting conversation:192b3431-8a89-4c2b-bf09-84e08f069800 (attempt 1/5) in 2000ms
+[00:50:33.778] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154251474}
+[00:50:34.402] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:50:34.402] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:50:34.402] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 {}
+[00:50:34.402] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 2/5) in 4000ms
+[00:50:36.655] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[00:51:00.522] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:51:00.522] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:51:01.445] Browser LOG     Business channel subscription status: CLOSED
+[00:51:01.445] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154278702}
+[00:51:01.770] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:51:01.770] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:51:01.773] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:51:01.773] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:51:01.773] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 {}
+[00:51:01.773] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 2/5) in 4000ms
+[00:51:02.605] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[00:51:03.875] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[00:51:29.496] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:51:29.496] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:51:30.758] Browser LOG     Service Worker registered: {}
+[00:51:30.861] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:51:30.861] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","route":"/dashboard/[conversationId]"}
+[00:51:30.861] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154308571}
+[00:51:33.890] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[00:51:51.391] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:51:51.391] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:51:51.784] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:51:51.784] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:51:51.784] Browser LOG     Business channel subscription status: CLOSED
+[00:51:51.784] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154329324}
+[00:51:51.885] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:53:16.011] Server  LOG      ✓ Compiled in 236ms
+[00:53:16.700] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:53:16.700] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:53:16.701] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[00:56:29.991] Server  LOG      ✓ Compiled in 238ms
+[00:56:30.610] Browser ERROR   ./components/nav-content.tsx:6:1
+Export BroadcastTab doesn't exist in target module
+  4 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+  5 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+> 6 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+  8 |
+  9 | interface NavContentProps {
+
+The export BroadcastTab was not found in module [project]/components/nav-tabs/broadcast-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:56:30.610] Browser ERROR   ./components/nav-content.tsx:6:1
+Export BroadcastTab doesn't exist in target module
+  4 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+  5 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+> 6 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+  8 |
+  9 | interface NavContentProps {
+
+The export BroadcastTab was not found in module [project]/components/nav-tabs/broadcast-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:56:30.610] Browser ERROR   ./components/nav-content.tsx:6:1
+Export BroadcastTab doesn't exist in target module
+  4 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+  5 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+> 6 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+  8 |
+  9 | interface NavContentProps {
+
+The export BroadcastTab was not found in module [project]/components/nav-tabs/broadcast-tab.tsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:56:30.610] Browser ERROR   ./components/nav-content.tsx:6:1
+Export BroadcastTab doesn't exist in target module
+  4 | import { SettingsTab } from "@/components/nav-tabs/settings-tab"
+  5 | import { ClientsTab } from "@/components/nav-tabs/clients-tab"
+> 6 | import { BroadcastTab } from "@/components/nav-tabs/broadcast-tab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import { BusinessToolsTab } from "@/components/nav-tabs/business-tools-tab"
+  8 |
+  9 | interface NavContentProps {
+
+The export BroadcastTab was not found in module [project]/components/nav-tabs/broadcast-tab.tsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./components/nav-content.tsx [Client Component Browser]
+    ./components/nav-drawer.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component Browser]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/nav-content.tsx [Client Component SSR]
+    ./components/nav-drawer.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Client Component SSR]
+    ./app/dashboard/[conversationId]/page.tsx [Server Component]
+[00:56:33.216] Server  LOG      ✓ Compiled in 128ms
+[00:56:34.066] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:56:34.067] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:56:34.242] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:56:34.242] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:56:34.556] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:56:34.557] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:56:34.586] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:56:34.586] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /dashboard/[conversationId]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[00:56:35.609] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154612585}
+[00:56:35.609] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154612586}
+[00:58:46.051] Server  LOG      ✓ Compiled in 75ms
+[00:58:46.605] Browser LOG     Business channel subscription status: CLOSED
+[00:58:46.605] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:58:46.605] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:58:46.605] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:58:46.605] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[00:59:11.283] Server  LOG      ✓ Compiled in 99ms
+[00:59:11.604] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:59:11.604] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:59:12.609] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[00:59:12.610] Browser LOG     Business channel subscription status: CLOSED
+[00:59:12.610] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:59:42.433] Server  LOG      ✓ Compiled in 172ms
+[00:59:43.605] Browser LOG     Business channel subscription status: CLOSED
+[00:59:43.605] Browser LOG     Business channel subscription status: CLOSED
+[00:59:43.605] Browser LOG     Business channel subscription status: SUBSCRIBED
+[00:59:43.606] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[00:59:43.606] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[00:59:43.606] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[00:59:55.681] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:59:56.027] Browser LOG     Service Worker registered: {}
+[00:59:56.027] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:59:56.027] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","route":"/dashboard/[conversationId]"}
+[00:59:56.027] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765154813718}
+[00:59:58.127] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[00:59:58.374] Server  LOG      ✓ Compiled in 103ms
+[01:00:12.865] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:00:12.865] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:00:12.930] Server  LOG      ✓ Compiled in 105ms
+[01:00:13.607] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:00:39.839] Server  LOG      ✓ Compiled in 121ms
+[01:00:40.606] Browser LOG     Business channel subscription status: CLOSED
+[01:00:40.606] Browser LOG     Business channel subscription status: SUBSCRIBED
+[01:01:20.613] Server  LOG      ✓ Compiled in 211ms
+[01:01:21.608] Browser LOG     Business channel subscription status: CLOSED
+[01:01:21.608] Browser LOG     Business channel subscription status: CLOSED
+[01:01:21.608] Browser LOG     Business channel subscription status: SUBSCRIBED
+[01:05:54.912] Server  LOG      ✓ Compiled in 168ms
+[01:05:58.781] Server  LOG      ✓ Compiled in 173ms
+[01:05:59.824] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:06:00.205] Browser LOG     Service Worker registered: {}
+[01:06:00.205] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[01:06:00.205] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[01:06:00.205] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765155177891}
+[01:06:01.680] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:06:02.131] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[01:06:02.131] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[01:06:02.131] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765155179806}
+[01:06:02.587] Browser LOG     Service Worker registered: {}
+[01:06:03.813] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:06:04.133] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[01:06:04.133] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[01:06:04.133] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765155181721}
+[01:06:04.133] Browser LOG     Service Worker registered: {}
+[01:06:06.111] Server  LOG      ✓ Compiled in 417ms
+[01:06:17.402] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /chat/[phone]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:06:17.402] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /chat/[phone]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:06:17.919] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:06:18.162] Browser LOG     Service Worker registered: {}
+[01:06:18.162] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[01:06:18.162] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/chat/90978222769","route":"/chat/[phone]"}
+[01:06:18.163] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/chat/90978222769 color: rgb(120, 120, 120) color: inherit {"dp":"/chat/[phone]","o":"http://localhost:3000/chat/90978222769","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765155195848}
+[01:06:29.502] Server  WARN     ⚠ Unsupported metadata themeColor is configured in metadata export in /chat/[phone]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:06:29.502] Server  WARN     ⚠ Unsupported metadata viewport is configured in metadata export in /chat/[phone]. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[01:06:29.624] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:06:29.808] Browser LOG     Service Worker registered: {}
+[01:06:29.808] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[01:06:29.808] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/chat/09078222769","route":"/chat/[phone]"}
+[01:06:29.808] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/chat/09078222769 color: rgb(120, 120, 120) color: inherit {"dp":"/chat/[phone]","o":"http://localhost:3000/chat/09078222769","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765155207495}
+[01:06:30.385] Browser LOG     Business online status: {"businessName":"Leenk","id":"66e61944-18e6-4a27-9d44-c385188d49c4","online":false,"onlineType":"boolean"}
+[01:06:30.884] Browser WARN    Image with src "/logo.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[01:06:53.185] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:06:53.610] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-08T00:53:51.311Z","errors":null,"eventType":"UPDATE","new":{"content":"Testing broadcast message","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:36:42.146899+00:00","id":"c38132b9-57cb-4cb6-beb3-748b2c534ffc","image_url":null,"reply_to_id":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"read"},"old":{"id":"c38132b9-57cb-4cb6-beb3-748b2c534ffc"},"schema":"public","table":"messages"}
+[01:06:53.610] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:36:42.146899+00:00","id":"c38132b9-57cb-4cb6-beb3-748b2c534ffc","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"Testing broadcast message"}
+[01:06:53.610] Browser LOG     ✅ Calling onMessageUpdate callback with message: c38132b9-57cb-4cb6-beb3-748b2c534ffc
+[01:06:53.610] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:36:42.146899+00:00","id":"c38132b9-57cb-4cb6-beb3-748b2c534ffc","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"read","text":"Testing broadcast message"}
+[01:07:04.613] Browser LOG     🔔 Real-time event received: INSERT {"commit_timestamp":"2025-12-08T00:54:01.954Z","errors":null,"eventType":"INSERT","new":{"content":"Hello\n","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","image_url":null,"reply_to_id":null,"sender_id":"customer","sender_type":"customer","status":"sent"},"old":{},"schema":"public","table":"messages"}
+[01:07:04.614] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"sent","text":"Hello\n"}
+[01:07:04.679] Browser LOG     🔔 Real-time event received: INSERT {"commit_timestamp":"2025-12-08T00:54:01.954Z","errors":null,"eventType":"INSERT","new":{"content":"Hello\n","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","image_url":null,"reply_to_id":null,"sender_id":"customer","sender_type":"customer","status":"sent"},"old":{},"schema":"public","table":"messages"}
+[01:07:04.679] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"sent","text":"Hello\n"}
+[01:07:04.679] Browser LOG     ✅ Calling onMessageUpdate callback with message: cc878e00-eeb9-4eff-b40a-24ae25782d30
+[01:07:04.679] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"sent","text":"Hello\n"}
+[01:07:05.916] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-08T00:54:03.873Z","errors":null,"eventType":"UPDATE","new":{"content":"Hello\n","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","image_url":null,"reply_to_id":null,"sender_id":"customer","sender_type":"customer","status":"delivered"},"old":{"id":"cc878e00-eeb9-4eff-b40a-24ae25782d30"},"schema":"public","table":"messages"}
+[01:07:05.917] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"delivered","text":"Hello\n"}
+[01:07:05.917] Browser LOG     ✅ Calling onMessageUpdate callback with message: cc878e00-eeb9-4eff-b40a-24ae25782d30
+[01:07:05.917] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"delivered","text":"Hello\n"}
+[01:07:06.383] Browser LOG     ✅ Message created on server: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"sent","text":"Hello\n"}
+[01:07:06.604] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:07:06.604] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:07:06.604] Browser LOG     ✅ Calling onMessageUpdate callback with message: cc878e00-eeb9-4eff-b40a-24ae25782d30
+[01:07:06.604] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"delivered","text":"Hello\n"}
+[01:07:06.604] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-08T00:54:03.873Z","errors":null,"eventType":"UPDATE","new":{"content":"Hello\n","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","image_url":null,"reply_to_id":null,"sender_id":"customer","sender_type":"customer","status":"delivered"},"old":{"id":"cc878e00-eeb9-4eff-b40a-24ae25782d30"},"schema":"public","table":"messages"}
+[01:07:06.604] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"delivered","text":"Hello\n"}
+[01:07:06.604] Browser LOG     ✅ Calling onMessageUpdate callback with message: cc878e00-eeb9-4eff-b40a-24ae25782d30
+[01:07:06.604] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"delivered","text":"Hello\n"}
+[01:07:06.604] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:07:42.605] Browser LOG     🔔 Real-time event received: INSERT {"commit_timestamp":"2025-12-08T00:54:39.396Z","errors":null,"eventType":"INSERT","new":{"content":"Thank you for contacting Leenk. How can I help you!?","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","image_url":null,"reply_to_id":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"sent"},"old":{},"schema":"public","table":"messages"}
+[01:07:42.605] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"Thank you for contacting Leenk. How can I help you!?"}
+[01:07:42.605] Browser LOG     ✅ Calling onMessageUpdate callback with message: 3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9
+[01:07:42.605] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"Thank you for contacting Leenk. How can I help you!?"}
+[01:07:42.605] Browser LOG     🔔 Real-time event received: INSERT {"commit_timestamp":"2025-12-08T00:54:39.396Z","errors":null,"eventType":"INSERT","new":{"content":"Thank you for contacting Leenk. How can I help you!?","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","image_url":null,"reply_to_id":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"sent"},"old":{},"schema":"public","table":"messages"}
+[01:07:42.605] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"sent","text":"Thank you for contacting Leenk. How can I help you!?"}
+[01:07:42.605] Browser LOG     ✅ Away message sent automatically to conversation: c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:07:43.607] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-08T00:54:41.362Z","errors":null,"eventType":"UPDATE","new":{"content":"Thank you for contacting Leenk. How can I help you!?","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","image_url":null,"reply_to_id":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"delivered"},"old":{"id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9"},"schema":"public","table":"messages"}
+[01:07:43.608] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"}
+[01:07:43.608] Browser LOG     ✅ Calling onMessageUpdate callback with message: 3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9
+[01:07:43.608] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"}
+[01:07:43.608] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-08T00:54:41.362Z","errors":null,"eventType":"UPDATE","new":{"content":"Thank you for contacting Leenk. How can I help you!?","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","image_url":null,"reply_to_id":null,"sender_id":"66e61944-18e6-4a27-9d44-c385188d49c4","sender_type":"business","status":"delivered"},"old":{"id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9"},"schema":"public","table":"messages"}
+[01:07:43.608] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"}
+[01:07:43.608] Browser LOG     ✅ Calling onMessageUpdate callback with message: 3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9
+[01:07:43.608] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"}
+[01:07:43.608] Browser LOG     ✅ Calling onMessageUpdate callback with message: 3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9
+[01:07:43.608] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"}
+[01:08:29.607] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:08:29.607] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:08:29.607] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:08:43.587] Browser LOG     Business channel subscription status: CLOSED
+[01:08:43.587] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9 color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/[conversationId]","o":"http://localhost:3000/dashboard/c795a09f-d8e6-4440-a38f-c5b09b6aeec9","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765155341264}
+[01:08:43.856] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:08:43.856] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:08:43.856] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 {}
+[01:08:43.856] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 2/5) in 4000ms
+[01:08:45.605] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-08T00:55:42.601Z","errors":null,"eventType":"UPDATE","new":{"content":"Hello\n","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","image_url":null,"reply_to_id":null,"sender_id":"customer","sender_type":"customer","status":"read"},"old":{"id":"cc878e00-eeb9-4eff-b40a-24ae25782d30"},"schema":"public","table":"messages"}
+[01:08:45.605] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"read","text":"Hello\n"}
+[01:08:45.605] Browser LOG     ✅ Calling onMessageUpdate callback with message: cc878e00-eeb9-4eff-b40a-24ae25782d30
+[01:08:45.605] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"read","text":"Hello\n"}
+[01:08:45.606] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-08T00:55:42.601Z","errors":null,"eventType":"UPDATE","new":{"content":"Hello\n","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","image_url":null,"reply_to_id":null,"sender_id":"customer","sender_type":"customer","status":"read"},"old":{"id":"cc878e00-eeb9-4eff-b40a-24ae25782d30"},"schema":"public","table":"messages"}
+[01:08:45.606] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"read","text":"Hello\n"}
+[01:08:45.606] Browser LOG     ✅ Calling onMessageUpdate callback with message: cc878e00-eeb9-4eff-b40a-24ae25782d30
+[01:08:45.606] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:01.739417+00:00","id":"cc878e00-eeb9-4eff-b40a-24ae25782d30","senderId":"customer","senderType":"customer","status":"read","text":"Hello\n"}
+[01:08:45.984] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:09:21.576] Server  LOG      ✓ Compiled in 176ms
+[01:09:21.924] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:09:21.924] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:09:22.114] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:09:22.614] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:09:22.614] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:09:22.614] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:09:22.614] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:09:22.614] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 {}
+[01:09:22.614] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 2/5) in 4000ms
+[01:09:24.194] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:09:31.086] Server  LOG      ✓ Compiled in 72ms
+[01:09:49.408] Server  LOG      ✓ Compiled in 251ms
+[01:09:49.744] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:09:49.744] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:09:49.958] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:09:50.612] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:09:50.612] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:09:50.612] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:09:50.612] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:09:50.612] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 {}
+[01:09:50.612] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 2/5) in 4000ms
+[01:09:52.246] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:09:54.494] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:09:54.495] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:09:54.495] Browser LOG     Business channel subscription status: CLOSED
+[01:09:54.495] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765155412038}
+[01:09:54.582] Browser LOG     Business channel subscription status: SUBSCRIBED
+[01:10:26.795] Browser LOG     🔔 Real-time event received: INSERT {"commit_timestamp":"2025-12-08T00:57:24.767Z","errors":null,"eventType":"INSERT","new":{"content":"I need some help with the subs\n","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","image_url":null,"reply_to_id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","sender_id":"customer","sender_type":"customer","status":"sent"},"old":{},"schema":"public","table":"messages"}
+[01:10:27.294] Browser LOG     ✅ Message created on server: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","replyToId":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"customer","senderType":"customer","status":"sent","text":"I need some help with the subs\n"}
+[01:10:27.468] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","replyTo":{"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"},"replyToId":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"customer","senderType":"customer","status":"sent","text":"I need some help with the subs\n"}
+[01:10:27.468] Browser LOG     ✅ Calling onMessageUpdate callback with message: 85734b64-03b8-452f-be97-f2797e1d8e3d
+[01:10:27.468] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","replyTo":{"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"},"replyToId":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"customer","senderType":"customer","status":"sent","text":"I need some help with the subs\n"}
+[01:10:27.607] Browser LOG     🔔 Real-time event received: INSERT {"commit_timestamp":"2025-12-08T00:57:24.767Z","errors":null,"eventType":"INSERT","new":{"content":"I need some help with the subs\n","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","image_url":null,"reply_to_id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","sender_id":"customer","sender_type":"customer","status":"sent"},"old":{},"schema":"public","table":"messages"}
+[01:10:27.607] Browser WARN    ⚠️ Real-time disconnected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 undefined
+[01:10:27.607] Browser LOG     🔄 Reconnecting conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9 (attempt 1/5) in 2000ms
+[01:10:27.607] Browser LOG     ✅ Real-time connected: conversation:c795a09f-d8e6-4440-a38f-c5b09b6aeec9
+[01:10:27.607] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","replyTo":{"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"},"replyToId":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"customer","senderType":"customer","status":"sent","text":"I need some help with the subs\n"}
+[01:10:28.140] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-08T00:57:26.245Z","errors":null,"eventType":"UPDATE","new":{"content":"I need some help with the subs\n","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","image_url":null,"reply_to_id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","sender_id":"customer","sender_type":"customer","status":"delivered"},"old":{"id":"85734b64-03b8-452f-be97-f2797e1d8e3d"},"schema":"public","table":"messages"}
+[01:10:28.457] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","replyTo":{"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"},"replyToId":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"customer","senderType":"customer","status":"delivered","text":"I need some help with the subs\n"}
+[01:10:28.457] Browser LOG     ✅ Calling onMessageUpdate callback with message: 85734b64-03b8-452f-be97-f2797e1d8e3d
+[01:10:28.457] Browser LOG     📨 Real-time message update received (customer): {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","replyTo":{"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"},"replyToId":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"customer","senderType":"customer","status":"delivered","text":"I need some help with the subs\n"}
+[01:10:28.609] Browser LOG     ✅ Calling onMessageUpdate callback with message: 85734b64-03b8-452f-be97-f2797e1d8e3d
+[01:10:28.609] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","replyTo":{"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"},"replyToId":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"customer","senderType":"customer","status":"delivered","text":"I need some help with the subs\n"}
+[01:10:28.609] Browser LOG     🔔 Real-time event received: UPDATE {"commit_timestamp":"2025-12-08T00:57:26.245Z","errors":null,"eventType":"UPDATE","new":{"content":"I need some help with the subs\n","conversation_id":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","created_at":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","image_url":null,"reply_to_id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","sender_id":"customer","sender_type":"customer","status":"delivered"},"old":{"id":"85734b64-03b8-452f-be97-f2797e1d8e3d"},"schema":"public","table":"messages"}
+[01:10:28.609] Browser LOG     📨 Processed message: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","replyTo":{"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"},"replyToId":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"customer","senderType":"customer","status":"delivered","text":"I need some help with the subs\n"}
+[01:10:28.609] Browser LOG     ✅ Calling onMessageUpdate callback with message: 85734b64-03b8-452f-be97-f2797e1d8e3d
+[01:10:28.609] Browser LOG     📨 Real-time message update received: {"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:57:24.754997+00:00","id":"85734b64-03b8-452f-be97-f2797e1d8e3d","replyTo":{"conversationId":"c795a09f-d8e6-4440-a38f-c5b09b6aeec9","createdAt":"2025-12-08T00:54:38.656758+00:00","id":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"66e61944-18e6-4a27-9d44-c385188d49c4","senderType":"business","status":"delivered","text":"Thank you for contacting Leenk. How can I help you!?"},"replyToId":"3d8f3109-d5c1-40e1-ad01-4f4d9918d6a9","senderId":"customer","senderType":"customer","status":"delivered","text":"I need some help with the subs\n"}

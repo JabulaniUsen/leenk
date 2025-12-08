@@ -1,5 +1,6 @@
 import { createClient } from "./client"
 import type { Business, Conversation, Message } from "../types"
+import { sendAwayMessageIfEnabled } from "../away-message"
 
 // Database types matching the schema
 interface DBBusiness {
@@ -11,6 +12,8 @@ interface DBBusiness {
   address: string | null
   business_logo: string | null
   online: boolean | null
+  away_message: string | null
+  away_message_enabled: boolean | null
   created_at: string
   updated_at: string
 }
@@ -49,6 +52,8 @@ function dbBusinessToApp(db: DBBusiness): Business {
     address: db.address || "",
     online: db.online ?? false, // Read actual online status from database
     createdAt: db.created_at,
+    awayMessage: db.away_message || undefined,
+    awayMessageEnabled: db.away_message_enabled ?? false,
   }
 }
 
@@ -77,6 +82,12 @@ function appBusinessToDB(business: Partial<Business>, passwordHash?: string): Pa
   }
   if (business.businessLogo !== undefined) {
     dbData.business_logo = business.businessLogo || null
+  }
+  if (business.awayMessage !== undefined) {
+    dbData.away_message = business.awayMessage.trim() || null
+  }
+  if (business.awayMessageEnabled !== undefined) {
+    dbData.away_message_enabled = business.awayMessageEnabled
   }
   
   return dbData
@@ -283,37 +294,85 @@ export const db = {
 
     if (error || !conversations || conversations.length === 0) return []
 
-    // Fetch messages for unread count calculation and last message preview
     const conversationIds = conversations.map((c) => c.id)
     
-    // Batch fetch messages in parallel for better performance
-    // Fetch all messages to calculate unread count accurately
-    const messagesPromises = conversationIds.map(async (conversationId) => {
-      const { data: messages, error: msgError } = await supabase
-        .from("messages")
-        .select("*")
-        .eq("conversation_id", conversationId)
-        .order("created_at", { ascending: false })
-      
-      // Return empty array on error (conversation might have no messages yet)
-      if (msgError || !messages) return { conversationId, messages: [] }
-      return { conversationId, messages: messages as DBMessage[] }
-    })
+    // Optimized: Fetch only last message per conversation + unread count in parallel
+    // This is much faster than fetching all messages
+    const [lastMessagesResults, unreadCountsResults] = await Promise.all([
+      // Fetch only the last message for preview
+      Promise.all(
+        conversationIds.map(async (conversationId) => {
+          const { data: messages } = await supabase
+            .from("messages")
+            .select("*")
+            .eq("conversation_id", conversationId)
+            .order("created_at", { ascending: false })
+            .limit(1) // Only get the last message for preview
+          
+          return { 
+            conversationId, 
+            lastMessage: messages && messages.length > 0 ? messages[0] as DBMessage : null 
+          }
+        })
+      ),
+      // Efficiently calculate unread counts using a count query
+      Promise.all(
+        conversationIds.map(async (conversationId) => {
+          const { count, error } = await supabase
+            .from("messages")
+            .select("*", { count: "exact", head: true })
+            .eq("conversation_id", conversationId)
+            .eq("sender_type", "customer")
+            .in("status", ["sent", "delivered"]) // Unread = sent or delivered from customer
+          
+          // If count query fails, fallback to fetching and counting
+          if (error || count === null) {
+            const { data: unreadMessages } = await supabase
+              .from("messages")
+              .select("id")
+              .eq("conversation_id", conversationId)
+              .eq("sender_type", "customer")
+              .in("status", ["sent", "delivered"])
+              .limit(1000) // Safety limit
+            
+            return { 
+              conversationId, 
+              unreadCount: unreadMessages?.length || 0 
+            }
+          }
+          
+          return { 
+            conversationId, 
+            unreadCount: count || 0 
+          }
+        })
+      )
+    ])
 
-    const messagesResults = await Promise.all(messagesPromises)
-    const messagesMap = new Map<string, DBMessage[]>()
+    // Create maps for quick lookup
+    const lastMessageMap = new Map<string, DBMessage>()
+    const unreadCountMap = new Map<string, number>()
     
-    messagesResults.forEach(({ conversationId, messages }) => {
-      if (messages.length > 0) {
-        // Reverse to get chronological order (oldest first)
-        messagesMap.set(conversationId, messages.reverse())
+    lastMessagesResults.forEach(({ conversationId, lastMessage }) => {
+      if (lastMessage) {
+        lastMessageMap.set(conversationId, lastMessage)
       }
     })
+    
+    unreadCountsResults.forEach(({ conversationId, unreadCount }) => {
+      unreadCountMap.set(conversationId, unreadCount)
+    })
 
+    // Convert to app format - only include last message, not all messages
     return Promise.all(
-      conversations.map((conv) =>
-        dbConversationToApp(conv as DBConversation, messagesMap.get(conv.id) || [])
-      )
+      conversations.map(async (conv) => {
+        const lastMessage = lastMessageMap.get(conv.id)
+        const messages = lastMessage ? [lastMessage] : []
+        const conversation = await dbConversationToApp(conv as DBConversation, messages)
+        // Add unread count to conversation
+        conversation.unreadCount = unreadCountMap.get(conv.id) || 0
+        return conversation
+      })
     )
   },
 
@@ -477,6 +536,22 @@ export const db = {
       .from("conversations")
       .update({ updated_at: new Date().toISOString() })
       .eq("id", message.conversationId)
+
+    // If this is a customer message, trigger away message check (async, don't block)
+    if (message.senderType === "customer") {
+      // Get business ID from conversation
+      const { data: convData } = await supabase
+        .from("conversations")
+        .select("business_id")
+        .eq("id", message.conversationId)
+        .single()
+      
+      if (convData?.business_id) {
+        // Send away message asynchronously (fire and forget - don't block message creation)
+        sendAwayMessageIfEnabled(message.conversationId, convData.business_id)
+          .catch((err) => console.error("Error sending away message:", err))
+      }
+    }
 
     return {
       id: data.id,
