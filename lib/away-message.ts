@@ -24,25 +24,33 @@ export async function sendAwayMessageIfEnabled(
       return // Away message not enabled or no message set
     }
 
-    // Check if we've already sent an away message in this conversation recently
-    // (to avoid spamming if customer sends multiple messages)
+    // Get conversation to check if this is the first interaction
     const conversation = await db.getConversationById(conversationId)
     if (!conversation) {
       console.warn("Conversation not found for away message:", conversationId)
       return
     }
 
-    // Check if we've sent an away message in the last 5 minutes
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
-    const recentAwayMessage = conversation.messages
-      .filter((m) => m.senderType === "business")
-      .find((m) => {
-        const messageTime = new Date(m.createdAt)
-        return messageTime > fiveMinutesAgo && m.text === business.awayMessage
-      })
+    // Only send away message if this is the customer's first time messaging
+    // Check if there are any previous business messages in this conversation
+    // If there are any business messages, it means they've interacted before
+    const businessMessages = conversation.messages.filter(
+      (m) => m.senderType === "business"
+    )
 
-    if (recentAwayMessage) {
-      // Already sent away message recently, don't send again
+    if (businessMessages.length > 0) {
+      // Business has already messaged this customer before, don't send away message
+      return
+    }
+
+    // Also check if we've already sent an away message (to prevent duplicates in race conditions)
+    // This handles the case where multiple customer messages arrive before the away message is created
+    const hasAwayMessage = conversation.messages.some(
+      (m) => m.senderType === "business" && m.text === business.awayMessage?.trim()
+    )
+
+    if (hasAwayMessage) {
+      // Away message already exists, don't send again
       return
     }
 
