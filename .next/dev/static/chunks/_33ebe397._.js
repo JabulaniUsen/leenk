@@ -3282,7 +3282,6 @@ function BusinessToolsTabComponent() {
     const { user, mutate: mutateAuth } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$hooks$2f$use$2d$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"])();
     const [awayMessage, setAwayMessage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const [awayMessageEnabled, setAwayMessageEnabled] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [aiAutomationEnabled, setAiAutomationEnabled] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [saving, setSaving] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const [success, setSuccess] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
@@ -3292,9 +3291,6 @@ function BusinessToolsTabComponent() {
                 // Load away message settings from database
                 setAwayMessage(user.business.awayMessage || "");
                 setAwayMessageEnabled(user.business.awayMessageEnabled || false);
-                // AI automation still uses localStorage (not implemented in DB yet)
-                const savedAiEnabled = localStorage.getItem(`ai_enabled_${user.business.id}`);
-                if (savedAiEnabled === "true") setAiAutomationEnabled(true);
                 setLoading(false);
             }
         }
@@ -3311,8 +3307,6 @@ function BusinessToolsTabComponent() {
                 awayMessage: awayMessage.trim() || undefined,
                 awayMessageEnabled
             });
-            // AI automation still uses localStorage (not implemented in DB yet)
-            localStorage.setItem(`ai_enabled_${user.business.id}`, aiAutomationEnabled.toString());
             // Refresh auth to get updated business data
             await mutateAuth();
             setSuccess("Settings saved successfully!");
@@ -3332,27 +3326,27 @@ function BusinessToolsTabComponent() {
                     className: "h-8 w-48"
                 }, void 0, false, {
                     fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                    lineNumber: 65,
+                    lineNumber: 57,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
                     className: "h-32 w-full"
                 }, void 0, false, {
                     fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                    lineNumber: 66,
+                    lineNumber: 58,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
                     className: "h-12 w-full"
                 }, void 0, false, {
                     fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                    lineNumber: 67,
+                    lineNumber: 59,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-            lineNumber: 64,
+            lineNumber: 56,
             columnNumber: 7
         }, this);
     }
@@ -3367,7 +3361,7 @@ function BusinessToolsTabComponent() {
                         children: "Business Tools"
                     }, void 0, false, {
                         fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                        lineNumber: 75,
+                        lineNumber: 67,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3375,13 +3369,13 @@ function BusinessToolsTabComponent() {
                         children: "Automate and enhance your customer service"
                     }, void 0, false, {
                         fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                        lineNumber: 76,
+                        lineNumber: 68,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                lineNumber: 74,
+                lineNumber: 66,
                 columnNumber: 7
             }, this),
             success && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3389,7 +3383,7 @@ function BusinessToolsTabComponent() {
                 children: success
             }, void 0, false, {
                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                lineNumber: 80,
+                lineNumber: 72,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3405,7 +3399,7 @@ function BusinessToolsTabComponent() {
                                         className: "w-5 h-5 text-primary"
                                     }, void 0, false, {
                                         fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                        lineNumber: 89,
+                                        lineNumber: 81,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3415,7 +3409,7 @@ function BusinessToolsTabComponent() {
                                                 children: "Away Message"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                                lineNumber: 91,
+                                                lineNumber: 83,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3423,19 +3417,19 @@ function BusinessToolsTabComponent() {
                                                 children: "Automatically send a message when you're away"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                                lineNumber: 92,
+                                                lineNumber: 84,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                        lineNumber: 90,
+                                        lineNumber: 82,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                lineNumber: 88,
+                                lineNumber: 80,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3443,22 +3437,22 @@ function BusinessToolsTabComponent() {
                                 className: "text-2xl text-primary",
                                 children: awayMessageEnabled ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$icons$2f$fa$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FaToggleOn"], {}, void 0, false, {
                                     fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                    lineNumber: 101,
+                                    lineNumber: 93,
                                     columnNumber: 35
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$icons$2f$fa$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FaToggleOff"], {}, void 0, false, {
                                     fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                    lineNumber: 101,
+                                    lineNumber: 93,
                                     columnNumber: 52
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                lineNumber: 97,
+                                lineNumber: 89,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                        lineNumber: 87,
+                        lineNumber: 79,
                         columnNumber: 9
                     }, this),
                     awayMessageEnabled && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3469,7 +3463,7 @@ function BusinessToolsTabComponent() {
                                 children: "Away Message"
                             }, void 0, false, {
                                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                lineNumber: 107,
+                                lineNumber: 99,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -3480,23 +3474,23 @@ function BusinessToolsTabComponent() {
                                 className: "w-full px-4 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                             }, void 0, false, {
                                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                lineNumber: 108,
+                                lineNumber: 100,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                        lineNumber: 106,
+                        lineNumber: 98,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                lineNumber: 86,
+                lineNumber: 78,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "space-y-4 p-4 bg-secondary/50 rounded-lg border border-border",
+                className: "space-y-4 p-4 bg-secondary/50 rounded-lg border border-border opacity-75",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex items-center justify-between",
@@ -3508,17 +3502,34 @@ function BusinessToolsTabComponent() {
                                         className: "w-5 h-5 text-primary"
                                     }, void 0, false, {
                                         fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                        lineNumber: 123,
+                                        lineNumber: 115,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                className: "font-semibold",
-                                                children: "AI Automation"
-                                            }, void 0, false, {
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center gap-2",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                        className: "font-semibold",
+                                                        children: "AI Automation"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
+                                                        lineNumber: 118,
+                                                        columnNumber: 17
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-xs bg-primary/20 text-primary px-2 py-0.5 rounded",
+                                                        children: "Coming Soon"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
+                                                        lineNumber: 119,
+                                                        columnNumber: 17
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
                                                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                                lineNumber: 125,
+                                                lineNumber: 117,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3526,63 +3537,60 @@ function BusinessToolsTabComponent() {
                                                 children: "Let AI handle common questions automatically"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                                lineNumber: 126,
+                                                lineNumber: 123,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                        lineNumber: 124,
+                                        lineNumber: 116,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                lineNumber: 122,
+                                lineNumber: 114,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                onClick: ()=>setAiAutomationEnabled(!aiAutomationEnabled),
-                                className: "text-2xl text-primary",
-                                children: aiAutomationEnabled ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$icons$2f$fa$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FaToggleOn"], {}, void 0, false, {
+                                disabled: true,
+                                className: "text-2xl text-primary opacity-50 cursor-not-allowed",
+                                title: "Coming soon",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$icons$2f$fa$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FaToggleOff"], {}, void 0, false, {
                                     fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                    lineNumber: 135,
-                                    columnNumber: 36
-                                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$icons$2f$fa$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FaToggleOff"], {}, void 0, false, {
-                                    fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                    lineNumber: 135,
-                                    columnNumber: 53
+                                    lineNumber: 133,
+                                    columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                                lineNumber: 131,
+                                lineNumber: 128,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                        lineNumber: 121,
+                        lineNumber: 113,
                         columnNumber: 9
                     }, this),
-                    aiAutomationEnabled && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "p-3 bg-primary/5 rounded-lg border border-primary/20",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                             className: "text-sm text-muted-foreground",
-                            children: "AI automation will automatically respond to common customer inquiries based on your business information."
+                            children: "AI automation will automatically respond to common customer inquiries based on your business information. This feature is coming soon!"
                         }, void 0, false, {
                             fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                            lineNumber: 141,
-                            columnNumber: 13
+                            lineNumber: 138,
+                            columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                        lineNumber: 140,
-                        columnNumber: 11
+                        lineNumber: 137,
+                        columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                lineNumber: 120,
+                lineNumber: 112,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3595,7 +3603,7 @@ function BusinessToolsTabComponent() {
                             className: "w-4 h-4 mr-2 animate-spin"
                         }, void 0, false, {
                             fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                            lineNumber: 155,
+                            lineNumber: 151,
                             columnNumber: 13
                         }, this),
                         "Saving..."
@@ -3606,7 +3614,7 @@ function BusinessToolsTabComponent() {
                             className: "w-4 h-4 mr-2"
                         }, void 0, false, {
                             fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                            lineNumber: 160,
+                            lineNumber: 156,
                             columnNumber: 13
                         }, this),
                         "Save Settings"
@@ -3614,17 +3622,17 @@ function BusinessToolsTabComponent() {
                 }, void 0, true)
             }, void 0, false, {
                 fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-                lineNumber: 148,
+                lineNumber: 144,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/nav-tabs/business-tools-tab.tsx",
-        lineNumber: 73,
+        lineNumber: 65,
         columnNumber: 5
     }, this);
 }
-_s(BusinessToolsTabComponent, "YNx9vXGmBYgKZTCjvW1Iti9MnPc=", false, function() {
+_s(BusinessToolsTabComponent, "60A7MdVapCp4rte6xYjzRyQemV0=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$hooks$2f$use$2d$auth$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"]
     ];
@@ -3941,29 +3949,30 @@ function NavDrawer({ isOpen, onClose, activeTab = "profile", onTabChange }) {
                                     const isActive = selectedTab === tab.id;
                                     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                         onClick: ()=>handleTabClick(tab.id),
-                                        className: `flex items-center gap-2 px-4 py-3 rounded-t-lg transition-colors relative whitespace-nowrap ${isActive ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-foreground"}`,
+                                        className: `flex items-center justify-center gap-2 px-3 md:px-4 py-3 rounded-t-lg transition-colors relative whitespace-nowrap ${isActive ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-foreground"}`,
+                                        title: tab.label,
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Icon, {
-                                                className: "w-4 h-4"
-                                            }, void 0, false, {
-                                                fileName: "[project]/components/nav-drawer.tsx",
-                                                lineNumber: 119,
-                                                columnNumber: 23
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "font-medium text-sm",
-                                                children: tab.label
+                                                className: "w-5 h-5 md:w-4 md:h-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/nav-drawer.tsx",
                                                 lineNumber: 120,
                                                 columnNumber: 23
                                             }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                className: "font-medium text-sm hidden md:inline",
+                                                children: tab.label
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/nav-drawer.tsx",
+                                                lineNumber: 121,
+                                                columnNumber: 23
+                                            }, this),
                                             tab.id === "broadcast" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "ml-1 text-xs bg-primary-foreground/20 px-1.5 py-0.5 rounded",
+                                                className: "hidden md:inline ml-1 text-xs bg-primary-foreground/20 px-1.5 py-0.5 rounded",
                                                 children: "Soon"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/nav-drawer.tsx",
-                                                lineNumber: 122,
+                                                lineNumber: 123,
                                                 columnNumber: 25
                                             }, this),
                                             isActive && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -3971,7 +3980,7 @@ function NavDrawer({ isOpen, onClose, activeTab = "profile", onTabChange }) {
                                                 className: "absolute bottom-0 left-0 right-0 h-0.5 bg-primary-foreground"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/nav-drawer.tsx",
-                                                lineNumber: 127,
+                                                lineNumber: 128,
                                                 columnNumber: 25
                                             }, this)
                                         ]
@@ -3997,12 +4006,12 @@ function NavDrawer({ isOpen, onClose, activeTab = "profile", onTabChange }) {
                                 activeTab: selectedTab
                             }, void 0, false, {
                                 fileName: "[project]/components/nav-drawer.tsx",
-                                lineNumber: 140,
+                                lineNumber: 141,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/nav-drawer.tsx",
-                            lineNumber: 139,
+                            lineNumber: 140,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4016,25 +4025,25 @@ function NavDrawer({ isOpen, onClose, activeTab = "profile", onTabChange }) {
                                         className: "w-5 h-5 mr-3"
                                     }, void 0, false, {
                                         fileName: "[project]/components/nav-drawer.tsx",
-                                        lineNumber: 150,
+                                        lineNumber: 151,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         children: "Logout"
                                     }, void 0, false, {
                                         fileName: "[project]/components/nav-drawer.tsx",
-                                        lineNumber: 151,
+                                        lineNumber: 152,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/nav-drawer.tsx",
-                                lineNumber: 145,
+                                lineNumber: 146,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/nav-drawer.tsx",
-                            lineNumber: 144,
+                            lineNumber: 145,
                             columnNumber: 13
                         }, this)
                     ]

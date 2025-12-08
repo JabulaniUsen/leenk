@@ -110,16 +110,17 @@ export function NavDrawer({ isOpen, onClose, activeTab = "profile", onTabChange 
                     <button
                       key={tab.id}
                       onClick={() => handleTabClick(tab.id)}
-                      className={`flex items-center gap-2 px-4 py-3 rounded-t-lg transition-colors relative whitespace-nowrap ${
+                      className={`flex items-center justify-center gap-2 px-3 md:px-4 py-3 rounded-t-lg transition-colors relative whitespace-nowrap ${
                         isActive
                           ? "bg-primary text-primary-foreground"
                           : "hover:bg-secondary text-foreground"
                       }`}
+                      title={tab.label}
                     >
-                      <Icon className="w-4 h-4" />
-                      <span className="font-medium text-sm">{tab.label}</span>
+                      <Icon className="w-5 h-5 md:w-4 md:h-4" />
+                      <span className="font-medium text-sm hidden md:inline">{tab.label}</span>
                       {tab.id === "broadcast" && (
-                        <span className="ml-1 text-xs bg-primary-foreground/20 px-1.5 py-0.5 rounded">
+                        <span className="hidden md:inline ml-1 text-xs bg-primary-foreground/20 px-1.5 py-0.5 rounded">
                           Soon
                         </span>
                       )}

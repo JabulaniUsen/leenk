@@ -11,7 +11,6 @@ function BusinessToolsTabComponent() {
   const { user, mutate: mutateAuth } = useAuth()
   const [awayMessage, setAwayMessage] = useState("")
   const [awayMessageEnabled, setAwayMessageEnabled] = useState(false)
-  const [aiAutomationEnabled, setAiAutomationEnabled] = useState(false)
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const [success, setSuccess] = useState("")
@@ -21,10 +20,6 @@ function BusinessToolsTabComponent() {
       // Load away message settings from database
       setAwayMessage(user.business.awayMessage || "")
       setAwayMessageEnabled(user.business.awayMessageEnabled || false)
-      
-      // AI automation still uses localStorage (not implemented in DB yet)
-      const savedAiEnabled = localStorage.getItem(`ai_enabled_${user.business.id}`)
-      if (savedAiEnabled === "true") setAiAutomationEnabled(true)
       
       setLoading(false)
     }
@@ -42,9 +37,6 @@ function BusinessToolsTabComponent() {
         awayMessage: awayMessage.trim() || undefined,
         awayMessageEnabled,
       })
-
-      // AI automation still uses localStorage (not implemented in DB yet)
-      localStorage.setItem(`ai_enabled_${user.business.id}`, aiAutomationEnabled.toString())
 
       // Refresh auth to get updated business data
       await mutateAuth()
@@ -117,32 +109,36 @@ function BusinessToolsTabComponent() {
       </div>
 
       {/* AI Automation */}
-      <div className="space-y-4 p-4 bg-secondary/50 rounded-lg border border-border">
+      <div className="space-y-4 p-4 bg-secondary/50 rounded-lg border border-border opacity-75">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <FaRobot className="w-5 h-5 text-primary" />
             <div>
-              <h3 className="font-semibold">AI Automation</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold">AI Automation</h3>
+                <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">
+                  Coming Soon
+                </span>
+              </div>
               <p className="text-sm text-muted-foreground">
                 Let AI handle common questions automatically
               </p>
             </div>
           </div>
           <button
-            onClick={() => setAiAutomationEnabled(!aiAutomationEnabled)}
-            className="text-2xl text-primary"
+            disabled
+            className="text-2xl text-primary opacity-50 cursor-not-allowed"
+            title="Coming soon"
           >
-            {aiAutomationEnabled ? <FaToggleOn /> : <FaToggleOff />}
+            <FaToggleOff />
           </button>
         </div>
 
-        {aiAutomationEnabled && (
-          <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
-            <p className="text-sm text-muted-foreground">
-              AI automation will automatically respond to common customer inquiries based on your business information.
-            </p>
-          </div>
-        )}
+        <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+          <p className="text-sm text-muted-foreground">
+            AI automation will automatically respond to common customer inquiries based on your business information. This feature is coming soon!
+          </p>
+        </div>
       </div>
 
       <Button
