@@ -18,15 +18,24 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true)
-    // Check for saved theme preference or default to light
-    const savedTheme = localStorage.getItem("theme") as Theme | null
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+    // Only access localStorage and window on client side
+    if (typeof window === "undefined") return
     
-    if (savedTheme) {
-      setThemeState(savedTheme)
-    } else if (prefersDark) {
-      setThemeState("dark")
-    } else {
+    try {
+      // Check for saved theme preference or default to light
+      const savedTheme = localStorage.getItem("theme") as Theme | null
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+      
+      if (savedTheme) {
+        setThemeState(savedTheme)
+      } else if (prefersDark) {
+        setThemeState("dark")
+      } else {
+        setThemeState("light")
+      }
+    } catch (error) {
+      // Silently fail if theme detection fails
+      console.warn("Failed to load theme preference:", error)
       setThemeState("light")
     }
   }, [])

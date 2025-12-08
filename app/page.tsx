@@ -68,18 +68,26 @@ export default function Home() {
   const [currency, setCurrency] = useState<'NGN' | 'USD'>('USD')
 
   useEffect(() => {
-    // Try to detect user's country from timezone or browser
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const isAfrican = AFRICAN_COUNTRIES.some(country => 
-      timezone.includes(country) || navigator.language.includes(country.toLowerCase())
-    )
+    // Only run on client side
+    if (typeof window === "undefined") return
     
-    // Check if browser language suggests African country
-    const lang = navigator.language.toLowerCase()
-    const isAfricanLang = lang.includes('ng') || lang.includes('gh') || lang.includes('ke')
-    
-    if (isAfrican || isAfricanLang) {
-      setCurrency('NGN')
+    try {
+      // Try to detect user's country from timezone or browser
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+      const isAfrican = AFRICAN_COUNTRIES.some(country => 
+        timezone.includes(country) || navigator.language.includes(country.toLowerCase())
+      )
+      
+      // Check if browser language suggests African country
+      const lang = navigator.language.toLowerCase()
+      const isAfricanLang = lang.includes('ng') || lang.includes('gh') || lang.includes('ke')
+      
+      if (isAfrican || isAfricanLang) {
+        setCurrency('NGN')
+      }
+    } catch (error) {
+      // Silently fail if timezone/language detection fails
+      console.warn("Failed to detect currency preference:", error)
     }
   }, [])
 
