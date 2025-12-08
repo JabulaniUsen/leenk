@@ -3,8 +3,8 @@
 import type { Message } from "@/lib/types"
 import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion"
 import Image from "next/image"
-import { FaCheckCircle, FaReply } from "react-icons/fa"
-import { useState, useRef } from "react"
+import { FaCheckCircle, FaReply, FaEdit, FaTrash, FaEllipsisV } from "react-icons/fa"
+import { useState, useRef, useEffect } from "react"
 import { ImageViewerModal } from "@/components/image-viewer-modal"
 
 interface ChatBubbleProps {
@@ -12,15 +12,19 @@ interface ChatBubbleProps {
   isOwn: boolean
   index: number
   onReply?: (message: Message) => void
+  onEdit?: (message: Message) => void
+  onDelete?: (messageId: string) => void
 }
 
-export function ChatBubble({ message, isOwn, index, onReply }: ChatBubbleProps) {
+export function ChatBubble({ message, isOwn, index, onReply, onEdit, onDelete }: ChatBubbleProps) {
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false)
+  const [showMenu, setShowMenu] = useState(false)
   const x = useMotionValue(0)
   // Make reply indicator appear with just a slight swipe (15px)
   const opacity = useTransform(x, [-15, 0], [1, 0])
   const scale = useTransform(x, [-15, 0], [1, 0.8])
   const containerRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     // Trigger reply with just a slight swipe (15px instead of 50px)
@@ -29,6 +33,19 @@ export function ChatBubble({ message, isOwn, index, onReply }: ChatBubbleProps) 
     }
     x.set(0)
   }
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false)
+      }
+    }
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [showMenu])
 
   const getStatusIndicator = () => {
     if (!isOwn) return null
@@ -51,7 +68,16 @@ export function ChatBubble({ message, isOwn, index, onReply }: ChatBubbleProps) 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-3 relative`}
+      className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-3 relative group`}
+      onMouseEnter={() => isOwn && setShowMenu(true)}
+      onMouseLeave={() => isOwn && setShowMenu(false)}
+      onClick={(e) => {
+        // On mobile, toggle menu on click
+        if (isOwn && (onEdit || onDelete) && window.innerWidth < 768) {
+          e.stopPropagation()
+          setShowMenu(!showMenu)
+        }
+      }}
     >
       {/* Swipe indicator */}
       {!isOwn && onReply && (
@@ -64,6 +90,42 @@ export function ChatBubble({ message, isOwn, index, onReply }: ChatBubbleProps) 
         </motion.div>
       )}
 
+      {/* Edit/Delete Menu for own messages */}
+      {isOwn && (onEdit || onDelete) && showMenu && (
+        <div
+          ref={menuRef}
+          className="absolute right-full mr-2 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20 flex flex-col min-w-[100px]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {onEdit && message.text && (
+            <button
+              onClick={() => {
+                onEdit(message)
+                setShowMenu(false)
+              }}
+              className="px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
+            >
+              <FaEdit className="w-3 h-3" />
+              Edit
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={() => {
+                if (confirm("Are you sure you want to delete this message?")) {
+                  onDelete(message.id)
+                }
+                setShowMenu(false)
+              }}
+              className="px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400 rounded-b-lg"
+            >
+              <FaTrash className="w-3 h-3" />
+              Delete
+            </button>
+          )}
+        </div>
+      )}
+
       <motion.div
         drag={!isOwn && onReply ? "x" : false}
         dragConstraints={{ left: -30, right: 0 }} // Reduced max drag distance
@@ -71,7 +133,7 @@ export function ChatBubble({ message, isOwn, index, onReply }: ChatBubbleProps) 
         dragMomentum={false} // No momentum - stops immediately when released
         onDragEnd={handleDragEnd}
         style={{ x }}
-        className={`max-w-[80%] md:max-w-md lg:max-w-lg px-3 md:px-4 py-2 rounded-lg cursor-pointer ${
+        className={`max-w-[80%] md:max-w-md lg:max-w-lg px-3 md:px-4 py-2 rounded-lg cursor-pointer relative ${
           isOwn
             ? "bg-[var(--chat-sent)] text-[var(--chat-sent-text)] rounded-br-none ml-auto dark:bg-[var(--chat-sent)] dark:text-[var(--chat-sent-text)]"
             : "bg-[var(--chat-received)] text-[var(--chat-received-text)] rounded-bl-none dark:bg-[var(--chat-received)] dark:text-[var(--chat-received-text)]"

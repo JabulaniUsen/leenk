@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       .from("conversations")
       .select("*")
       .eq("id", conversationId)
-      .single()
+      .maybeSingle() // Use maybeSingle() to handle missing conversations gracefully
 
     if (convError || !conversation) {
       return NextResponse.json({ error: "Conversation not found" }, { status: 404 })
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       .from("messages")
       .select("*")
       .eq("id", messageId)
-      .single()
+      .maybeSingle() // Use maybeSingle() to handle missing messages gracefully
 
     if (msgError || !message) {
       return NextResponse.json({ error: "Message not found" }, { status: 404 })
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       .from("businesses")
       .select("*")
       .eq("id", conversation.business_id)
-      .single()
+      .maybeSingle() // Use maybeSingle() to handle missing businesses gracefully
 
     if (businessError || !business) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 })

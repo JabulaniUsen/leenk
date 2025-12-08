@@ -1,6 +1,7 @@
 import { createClient } from "./client"
 import type { Business, Conversation, Message } from "../types"
 import { sendAwayMessageIfEnabled } from "../away-message"
+import { monitorRequest } from "../egress-monitor"
 
 // Database types matching the schema
 interface DBBusiness {
@@ -14,6 +15,7 @@ interface DBBusiness {
   online: boolean | null
   away_message: string | null
   away_message_enabled: boolean | null
+  is_admin: boolean | null
   created_at: string
   updated_at: string
 }
@@ -54,6 +56,7 @@ function dbBusinessToApp(db: DBBusiness): Business {
     createdAt: db.created_at,
     awayMessage: db.away_message || undefined,
     awayMessageEnabled: db.away_message_enabled ?? false,
+    isAdmin: db.is_admin ?? false,
   }
 }
 
@@ -179,9 +182,9 @@ export const db = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from("businesses")
-      .select("*")
+      .select("id, email, password_hash, business_name, phone, address, business_logo, online, away_message, away_message_enabled, is_admin, created_at, updated_at")
       .eq("id", id)
-      .single()
+      .maybeSingle() // Use maybeSingle() to handle missing businesses gracefully
 
     if (error || !data) return null
     return dbBusinessToApp(data as DBBusiness)
@@ -191,9 +194,9 @@ export const db = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from("businesses")
-      .select("*")
+      .select("id, email, password_hash, business_name, phone, address, business_logo, online, away_message, away_message_enabled, is_admin, created_at, updated_at")
       .eq("email", email)
-      .single()
+      .maybeSingle() // Use maybeSingle() to handle missing businesses gracefully
 
     if (error || !data) return null
     return dbBusinessToApp(data as DBBusiness)
@@ -203,9 +206,9 @@ export const db = {
     const supabase = createClient()
     const { data, error } = await supabase
       .from("businesses")
-      .select("*")
+      .select("id, email, password_hash, business_name, phone, address, business_logo, online, away_message, away_message_enabled, is_admin, created_at, updated_at")
       .eq("phone", phone)
-      .single()
+      .maybeSingle() // Use maybeSingle() to handle missing businesses gracefully
 
     if (error || !data) return null
     return dbBusinessToApp(data as DBBusiness)
@@ -250,7 +253,7 @@ export const db = {
       .update(dbData)
       .eq("id", id)
       .select()
-      .single()
+      .maybeSingle() // Use maybeSingle() to handle missing businesses gracefully
 
     if (error) {
       // If error is about missing 'online' column, try again without it
@@ -262,7 +265,7 @@ export const db = {
           .update(dbData)
           .eq("id", id)
           .select()
-          .single()
+          .maybeSingle() // Use maybeSingle() to handle missing businesses gracefully
         
         if (retryError) {
           console.error("Error updating business:", retryError)
@@ -288,23 +291,26 @@ export const db = {
     const supabase = createClient()
     const { data: conversations, error } = await supabase
       .from("conversations")
-      .select("*")
+      .select("id, business_id, customer_phone, customer_name, customer_email, created_at, updated_at, pinned")
       .eq("business_id", businessId)
       .order("updated_at", { ascending: false })
 
-    if (error || !conversations || conversations.length === 0) return []
+    if (error || !conversations || conversations.length === 0) {
+      monitorRequest("getConversationsByBusinessId", [])
+      return []
+    }
 
     const conversationIds = conversations.map((c) => c.id)
     
     // Optimized: Fetch only last message per conversation + unread count in parallel
     // This is much faster than fetching all messages
     const [lastMessagesResults, unreadCountsResults] = await Promise.all([
-      // Fetch only the last message for preview
+      // Fetch only the last message for preview - use selective fields
       Promise.all(
         conversationIds.map(async (conversationId) => {
           const { data: messages } = await supabase
             .from("messages")
-            .select("*")
+            .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
             .eq("conversation_id", conversationId)
             .order("created_at", { ascending: false })
             .limit(1) // Only get the last message for preview
@@ -320,12 +326,12 @@ export const db = {
         conversationIds.map(async (conversationId) => {
           const { count, error } = await supabase
             .from("messages")
-            .select("*", { count: "exact", head: true })
+            .select("id", { count: "exact", head: true })
             .eq("conversation_id", conversationId)
             .eq("sender_type", "customer")
             .in("status", ["sent", "delivered"]) // Unread = sent or delivered from customer
           
-          // If count query fails, fallback to fetching and counting
+          // If count query fails, fallback to fetching and counting (but only IDs)
           if (error || count === null) {
             const { data: unreadMessages } = await supabase
               .from("messages")
@@ -364,7 +370,7 @@ export const db = {
     })
 
     // Convert to app format - only include last message, not all messages
-    return Promise.all(
+    const result = await Promise.all(
       conversations.map(async (conv) => {
         const lastMessage = lastMessageMap.get(conv.id)
         const messages = lastMessage ? [lastMessage] : []
@@ -374,30 +380,94 @@ export const db = {
         return conversation
       })
     )
+    
+    monitorRequest("getConversationsByBusinessId", result)
+    return result
   },
 
   async getConversationById(id: string): Promise<Conversation | null> {
     const supabase = createClient()
     const { data: conversation, error } = await supabase
       .from("conversations")
-      .select("*")
+      .select("id, business_id, customer_phone, customer_name, customer_email, created_at, updated_at, pinned")
       .eq("id", id)
-      .single()
+      .maybeSingle() // Use maybeSingle() to handle missing conversations gracefully
 
     if (error || !conversation) return null
 
-    // Limit initial message fetch to 100 most recent messages for performance
+    // Reduced initial message fetch to 25 most recent messages for performance
+    // Use selective fields instead of select("*")
     const { data: messages } = await supabase
       .from("messages")
-      .select("*")
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
       .eq("conversation_id", id)
       .order("created_at", { ascending: false })
-      .limit(100)
+      .limit(25)
 
     // Reverse to get chronological order (oldest first)
     const sortedMessages = messages ? [...messages].reverse() : []
 
     return dbConversationToApp(conversation as DBConversation, (sortedMessages as DBMessage[]) || [])
+  },
+
+  // Paginated message loading for infinite scroll
+  async getMessagesPaginated(
+    conversationId: string,
+    beforeMessageId?: string,
+    limit: number = 25
+  ): Promise<Message[]> {
+    const supabase = createClient()
+    
+    let query = supabase
+      .from("messages")
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: false })
+      .limit(limit)
+
+    // If beforeMessageId is provided, fetch messages before that message
+    if (beforeMessageId) {
+      const { data: beforeMessage, error: beforeError } = await supabase
+        .from("messages")
+        .select("created_at")
+        .eq("id", beforeMessageId)
+        .maybeSingle() // Use maybeSingle() instead of single() to handle 0 rows gracefully
+      
+      // Only apply filter if message exists and no error
+      if (!beforeError && beforeMessage) {
+        query = query.lt("created_at", beforeMessage.created_at)
+      } else {
+        // If message not found, return empty array (no more messages to load)
+        monitorRequest("getMessagesPaginated", [])
+        return []
+      }
+    }
+
+    const { data: messages, error } = await query
+
+    if (error || !messages) {
+      monitorRequest("getMessagesPaginated", [])
+      return []
+    }
+
+    // Reverse to get chronological order (oldest first)
+    const sortedMessages = [...messages].reverse()
+
+    // Convert to app format
+    const result = sortedMessages.map((m) => ({
+      id: m.id,
+      conversationId: m.conversation_id,
+      senderType: m.sender_type,
+      senderId: m.sender_id,
+      text: m.content || undefined,
+      imageUrl: m.image_url || undefined,
+      status: (m.status || "sent") as "sent" | "delivered" | "read",
+      createdAt: m.created_at,
+      replyToId: m.reply_to_id || undefined,
+    }))
+    
+    monitorRequest("getMessagesPaginated", result)
+    return result
   },
 
   async getConversationByBusinessAndEmail(
@@ -407,20 +477,25 @@ export const db = {
     const supabase = createClient()
     const { data: conversation, error } = await supabase
       .from("conversations")
-      .select("*")
+      .select("id, business_id, customer_phone, customer_name, customer_email, created_at, updated_at, pinned")
       .eq("business_id", businessId)
       .eq("customer_email", customerEmail)
-      .single()
+      .maybeSingle() // Use maybeSingle() to handle missing conversations gracefully
 
     if (error || !conversation) return null
 
+    // Only fetch last 25 messages instead of all messages
     const { data: messages } = await supabase
       .from("messages")
-      .select("*")
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
       .eq("conversation_id", conversation.id)
-      .order("created_at", { ascending: true })
+      .order("created_at", { ascending: false })
+      .limit(25)
 
-    return dbConversationToApp(conversation as DBConversation, (messages as DBMessage[]) || [])
+    // Reverse to get chronological order (oldest first)
+    const sortedMessages = messages ? [...messages].reverse() : []
+
+    return dbConversationToApp(conversation as DBConversation, (sortedMessages as DBMessage[]) || [])
   },
 
   async createConversation(conversation: Conversation): Promise<Conversation> {
@@ -471,19 +546,14 @@ export const db = {
       .from("conversations")
       .update(dbData)
       .eq("id", id)
-      .select()
-      .single()
+      .select("id, business_id, customer_phone, customer_name, customer_email, created_at, updated_at, pinned")
+      .maybeSingle() // Use maybeSingle() to handle missing conversations gracefully
 
     if (error || !data) return null
 
-    // Get messages
-    const { data: messages } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("conversation_id", id)
-      .order("created_at", { ascending: true })
-
-    return dbConversationToApp(data as DBConversation, (messages as DBMessage[]) || [])
+    // Don't fetch all messages on update - just return conversation without messages
+    // Messages will be loaded separately via getConversationById or getMessagesPaginated
+    return dbConversationToApp(data as DBConversation, [])
   },
 
   async updateMessageStatus(id: string, status: "sent" | "delivered" | "read"): Promise<void> {
@@ -513,6 +583,40 @@ export const db = {
       .in("status", ["sent", "delivered"])
   },
 
+  async updateMessage(id: string, updates: { text?: string }): Promise<Message | null> {
+    const supabase = createClient()
+    const dbData: any = {}
+    if (updates.text !== undefined) {
+      dbData.content = updates.text
+    }
+
+    const { data, error } = await supabase
+      .from("messages")
+      .update(dbData)
+      .eq("id", id)
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
+      .maybeSingle()
+
+    if (error || !data) return null
+
+    return {
+      id: data.id,
+      conversationId: data.conversation_id,
+      senderType: data.sender_type,
+      senderId: data.sender_id,
+      text: data.content || undefined,
+      imageUrl: data.image_url || undefined,
+      status: (data.status || "sent") as "sent" | "delivered" | "read",
+      createdAt: data.created_at,
+      replyToId: data.reply_to_id || undefined,
+    }
+  },
+
+  async deleteMessage(id: string): Promise<void> {
+    const supabase = createClient()
+    await supabase.from("messages").delete().eq("id", id)
+  },
+
   // Messages
   async createMessage(message: Message): Promise<Message> {
     const supabase = createClient()
@@ -527,7 +631,11 @@ export const db = {
       reply_to_id: message.replyToId || null,
     }
 
-    const { data, error } = await supabase.from("messages").insert(dbData).select().single()
+    const { data, error } = await supabase
+      .from("messages")
+      .insert(dbData)
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
+      .single()
 
     if (error) throw error
 
@@ -540,13 +648,13 @@ export const db = {
     // If this is a customer message, trigger away message check (async, don't block)
     if (message.senderType === "customer") {
       // Get business ID from conversation
-      const { data: convData } = await supabase
+      const { data: convData, error: convError } = await supabase
         .from("conversations")
         .select("business_id")
         .eq("id", message.conversationId)
-        .single()
+        .maybeSingle() // Use maybeSingle() to handle missing conversations gracefully
       
-      if (convData?.business_id) {
+      if (!convError && convData?.business_id) {
         // Send away message asynchronously (fire and forget - don't block message creation)
         sendAwayMessageIfEnabled(message.conversationId, convData.business_id)
           .catch((err) => console.error("Error sending away message:", err))

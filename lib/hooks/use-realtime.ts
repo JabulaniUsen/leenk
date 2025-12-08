@@ -97,14 +97,14 @@ export function useRealtime() {
                 replyToId: dbMessage.reply_to_id || undefined,
               }
 
-              // If this message is a reply, fetch the original message
+              // If this message is a reply, fetch the original message (only needed fields)
               if (dbMessage.reply_to_id) {
                 try {
                   const { data: replyToMessage, error: replyError } = await supabase
                     .from("messages")
-                    .select("*")
+                    .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at")
                     .eq("id", dbMessage.reply_to_id)
-                    .single()
+                    .maybeSingle() // Use maybeSingle() to handle missing messages gracefully
 
                   if (!replyError && replyToMessage) {
                     newMessage.replyTo = {
@@ -137,13 +137,13 @@ export function useRealtime() {
                   // If this is a customer message, check and send away message if enabled
                   if (newMessage.senderType === "customer" && senderType === "business") {
                     // Get business ID from the conversation
-                    const { data: convData } = await supabase
+                    const { data: convData, error: convError } = await supabase
                       .from("conversations")
                       .select("business_id")
                       .eq("id", newMessage.conversationId)
-                      .single()
+                      .maybeSingle() // Use maybeSingle() to handle missing conversations gracefully
                     
-                    if (convData?.business_id) {
+                    if (!convError && convData?.business_id) {
                       // Send away message asynchronously (don't block)
                       sendAwayMessageIfEnabled(newMessage.conversationId, convData.business_id)
                         .catch((err) => console.error("Error in away message:", err))

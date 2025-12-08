@@ -16,6 +16,8 @@ interface MessageInputProps {
   disabled?: boolean
   replyTo?: Message | null
   onCancelReply?: () => void
+  editingMessage?: Message | null
+  onCancelEdit?: () => void
 }
 
 export function MessageInput({ 
@@ -24,7 +26,9 @@ export function MessageInput({
   onTyping, 
   disabled,
   replyTo,
-  onCancelReply
+  onCancelReply,
+  editingMessage,
+  onCancelEdit
 }: MessageInputProps) {
   const [message, setMessage] = useState("")
   const [previewImage, setPreviewImage] = useState<string | null>(null)
@@ -43,6 +47,25 @@ export function MessageInput({
     }
   }, [replyTo])
 
+  // Set message text when editing
+  useEffect(() => {
+    if (editingMessage?.text && textareaRef.current) {
+      setMessage(editingMessage.text)
+      // Small delay to ensure the edit preview is rendered
+      setTimeout(() => {
+        textareaRef.current?.focus()
+        // Move cursor to end
+        textareaRef.current?.setSelectionRange(
+          editingMessage.text.length,
+          editingMessage.text.length
+        )
+      }, 100)
+    } else if (!editingMessage) {
+      // Clear message when not editing
+      setMessage("")
+    }
+  }, [editingMessage])
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -59,6 +82,9 @@ export function MessageInput({
       if (onCancelReply) {
         onCancelReply()
       }
+      if (onCancelEdit) {
+        onCancelEdit()
+      }
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current)
       }
@@ -67,6 +93,10 @@ export function MessageInput({
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value)
+    // If user clears the input while editing, cancel edit mode
+    if (editingMessage && !e.target.value.trim() && onCancelEdit) {
+      onCancelEdit()
+    }
     if (onTyping && e.target.value.trim()) {
       onTyping()
     }
@@ -124,8 +154,33 @@ export function MessageInput({
       animate={{ opacity: 1, y: 0 }}
       className="p-2 md:p-4 flex flex-col gap-2"
     >
+      {/* Edit Message Preview */}
+      {editingMessage && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-yellow-500/10 dark:bg-yellow-500/20 rounded-lg border-l-4 border-l-yellow-500">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-yellow-600 dark:text-yellow-400 mb-1">
+              Editing message
+            </p>
+            {editingMessage.text && (
+              <p className="text-xs text-muted-foreground truncate line-through opacity-70">
+                {editingMessage.text}
+              </p>
+            )}
+          </div>
+          {onCancelEdit && (
+            <button
+              onClick={onCancelEdit}
+              className="p-1 hover:bg-secondary-foreground/10 rounded-full transition-colors"
+              aria-label="Cancel edit"
+            >
+              <FaTimes className="w-4 h-4 text-muted-foreground" />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Reply Preview */}
-      {replyTo && (
+      {replyTo && !editingMessage && (
         <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-lg border-l-4 border-l-primary">
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-primary mb-1">

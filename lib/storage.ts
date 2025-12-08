@@ -1,6 +1,8 @@
-import type { Business, Conversation, AuthUser } from "./types"
+import type { Business, Conversation, AuthUser, Message } from "./types"
 import { db } from "./supabase/db"
 import { auth } from "./auth"
+import { messageCache, conversationCache } from "./indexeddb-cache"
+import { monitorRequest } from "./egress-monitor"
 
 export const storage = {
   // Businesses
@@ -35,11 +37,81 @@ export const storage = {
 
   // Conversations
   getConversationsByBusinessId: async (businessId: string): Promise<Conversation[]> => {
-    return await db.getConversationsByBusinessId(businessId)
+    // Always fetch from server to ensure we have the latest data
+    // Cache is used for instant display while fetching, but we always want fresh data
+    try {
+      const conversations = await db.getConversationsByBusinessId(businessId)
+      
+      // Save to cache for next time (async, don't block)
+      conversationCache.saveConversations(conversations).catch(console.error)
+      
+      monitorRequest("getConversationsByBusinessId", conversations)
+      return conversations
+    } catch (error) {
+      console.error("Error fetching conversations:", error)
+      // If server fetch fails, try cache as fallback
+      const cached = await conversationCache.getConversations(businessId)
+      if (cached.length > 0) {
+        console.log("Using cached conversations as fallback")
+        return cached
+      }
+      // If both fail, return empty array
+      return []
+    }
   },
 
   getConversationById: async (id: string): Promise<Conversation | null> => {
-    return await db.getConversationById(id)
+    // Always fetch from server to ensure we have the latest conversation data
+    // Cache is used for instant display while fetching, but we always want fresh data
+    try {
+      const conversation = await db.getConversationById(id)
+      
+      if (conversation) {
+        // Save to cache for next time (async, don't block)
+        messageCache.saveMessages(id, conversation.messages).catch(console.error)
+        monitorRequest("getConversationById", conversation)
+      }
+      
+      return conversation
+    } catch (error) {
+      console.error("Error fetching conversation:", error)
+      // If server fetch fails, try cache as fallback
+      const cachedMessages = await messageCache.getMessages(id, 25)
+      if (cachedMessages.length > 0) {
+        console.log("Using cached messages as fallback")
+        // Still need to fetch conversation metadata
+        try {
+          const conversation = await db.getConversationById(id)
+          if (conversation) {
+            return {
+              ...conversation,
+              messages: cachedMessages,
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching conversation metadata:", err)
+        }
+      }
+      // If both fail, return null
+      return null
+    }
+  },
+
+  getMessagesPaginated: async (
+    conversationId: string,
+    beforeMessageId?: string,
+    limit: number = 25
+  ): Promise<Message[]> => {
+    // For pagination, always fetch from server (cache is for initial load)
+    const messages = await db.getMessagesPaginated(conversationId, beforeMessageId, limit)
+    
+    // Save to cache
+    if (messages.length > 0) {
+      await messageCache.saveMessages(conversationId, messages)
+    }
+    
+    monitorRequest("getMessagesPaginated", messages)
+    return messages
   },
 
   createConversation: async (conversation: Conversation): Promise<void> => {

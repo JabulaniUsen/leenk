@@ -119,11 +119,6 @@ export function NavDrawer({ isOpen, onClose, activeTab = "profile", onTabChange 
                     >
                       <Icon className="w-5 h-5 md:w-4 md:h-4" />
                       <span className="font-medium text-sm hidden md:inline">{tab.label}</span>
-                      {tab.id === "broadcast" && (
-                        <span className="hidden md:inline ml-1 text-xs bg-primary-foreground/20 px-1.5 py-0.5 rounded">
-                          Soon
-                        </span>
-                      )}
                       {isActive && (
                         <motion.div
                           layoutId="activeTab"

@@ -9,6 +9,7 @@ export interface Business {
   createdAt: string
   awayMessage?: string
   awayMessageEnabled?: boolean
+  isAdmin?: boolean
 }
 
 export interface Conversation {

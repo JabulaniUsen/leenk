@@ -49,9 +49,13 @@ export default function CustomerChatPage() {
   const [isTyping, setIsTyping] = useState(false)
   const [otherUserTyping, setOtherUserTyping] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null)
   const [replyTo, setReplyTo] = useState<Message | null>(null)
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false)
+  const [hasMoreMessages, setHasMoreMessages] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const otherUserTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -296,17 +300,83 @@ export default function CustomerChatPage() {
   // Removed aggressive polling - rely on real-time updates only
   // Real-time connection handles all updates efficiently
 
-  // Auto-scroll to bottom when messages change - optimized to prevent jank
+  // Auto-scroll to bottom when new messages arrive (not when loading older)
   useEffect(() => {
-    if (!messagesEndRef.current || !currentConversation?.messages) return
+    if (!messagesEndRef.current || !currentConversation?.messages || isLoadingOlder) return
     
-    // Use requestAnimationFrame for smooth scrolling
-    const scrollTimeout = setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" })
-    }, 50)
-    
-    return () => clearTimeout(scrollTimeout)
-  }, [currentConversation?.messages.length]) // Only trigger on length change, not content
+    // Only auto-scroll if we're near the bottom (within 100px)
+    const container = messagesContainerRef.current
+    if (container) {
+      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100
+      if (isNearBottom) {
+        const scrollTimeout = setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+        }, 50)
+        return () => clearTimeout(scrollTimeout)
+      }
+    }
+  }, [currentConversation?.messages.length, isLoadingOlder]) // Only trigger on length change, not content
+
+  // Infinite scroll: Load older messages when scrolling to top
+  useEffect(() => {
+    const container = messagesContainerRef.current
+    if (!container || !currentConversation || isLoadingOlder || !hasMoreMessages) return
+
+    const handleScroll = async () => {
+      // Check if user scrolled near the top (within 200px)
+      if (container.scrollTop < 200) {
+        const oldestMessage = currentConversation.messages[0]
+        if (!oldestMessage) return
+
+        setIsLoadingOlder(true)
+        try {
+          const olderMessages = await storage.getMessagesPaginated(
+            currentConversation.id,
+            oldestMessage.id,
+            25
+          )
+
+          if (olderMessages.length === 0) {
+            setHasMoreMessages(false)
+          } else {
+            // Preserve scroll position
+            const scrollHeightBefore = container.scrollHeight
+            const scrollTop = container.scrollTop
+
+            // Add older messages to the beginning
+            setCurrentConversation((prev) => {
+              if (!prev) return prev
+              const combined = [...olderMessages, ...prev.messages]
+              // Remove duplicates
+              const unique = combined.filter((msg, idx, arr) => 
+                arr.findIndex(m => m.id === msg.id) === idx
+              )
+              return {
+                ...prev,
+                messages: unique.sort(
+                  (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                ),
+              }
+            })
+
+            // Restore scroll position after DOM update
+            requestAnimationFrame(() => {
+              const scrollHeightAfter = container.scrollHeight
+              const heightDiff = scrollHeightAfter - scrollHeightBefore
+              container.scrollTop = scrollTop + heightDiff
+            })
+          }
+        } catch (error) {
+          console.error("Error loading older messages:", error)
+        } finally {
+          setIsLoadingOlder(false)
+        }
+      }
+    }
+
+    container.addEventListener("scroll", handleScroll, { passive: true })
+    return () => container.removeEventListener("scroll", handleScroll)
+  }, [currentConversation, isLoadingOlder, hasMoreMessages])
 
   // Mark messages as read when conversation is viewed - silent update
   useEffect(() => {
@@ -353,6 +423,38 @@ export default function CustomerChatPage() {
     if (isSending) return
 
     setIsSending(true)
+
+    // If editing a message, update it instead of creating a new one
+    if (editingMessage) {
+      try {
+        // Optimistic update
+        setCurrentConversation((prev) => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            messages: prev.messages.map(m => 
+              m.id === editingMessage.id ? { ...m, text } : m
+            ),
+          }
+        })
+
+        // Update in database
+        await db.updateMessage(editingMessage.id, { text })
+        setEditingMessage(null)
+      } catch (error) {
+        console.error("Failed to update message:", error)
+        setError("Failed to update message. Please try again.")
+        setTimeout(() => setError(""), 3000)
+        // Rollback on error
+        if (currentConversation?.id) {
+          const updated = await storage.getConversationById(currentConversation.id)
+          if (updated) setCurrentConversation(updated)
+        }
+      } finally {
+        setIsSending(false)
+      }
+      return
+    }
 
     const tempId = uuidv4()
     const newMessage: Message = {
@@ -416,6 +518,45 @@ export default function CustomerChatPage() {
     } finally {
       setIsSending(false)
       setReplyTo(null)
+    }
+  }
+
+  const handleEditMessage = (message: Message) => {
+    if (!message.text) return
+    // Set the editing message - MessageInput will handle populating the field
+    setEditingMessage(message)
+    // Clear reply if any
+    setReplyTo(null)
+  }
+
+  const handleCancelEdit = () => {
+    setEditingMessage(null)
+  }
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!currentConversation) return
+
+    try {
+      // Optimistic update - remove message from UI
+      setCurrentConversation((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          messages: prev.messages.filter(m => m.id !== messageId),
+        }
+      })
+
+      // Delete from database
+      await db.deleteMessage(messageId)
+    } catch (error) {
+      console.error("Failed to delete message:", error)
+      // Rollback on error - re-fetch conversation
+      if (currentConversation.id) {
+        const updated = await storage.getConversationById(currentConversation.id)
+        if (updated) setCurrentConversation(updated)
+      }
+      setError("Failed to delete message. Please try again.")
+      setTimeout(() => setError(""), 3000)
     }
   }
 
@@ -744,10 +885,16 @@ export default function CustomerChatPage() {
 
       {/* Messages */}
       <motion.div
+        ref={messagesContainerRef}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 relative z-0"
       >
+        {isLoadingOlder && (
+          <div className="flex justify-center py-2">
+            <div className="text-sm text-muted-foreground">Loading older messages...</div>
+          </div>
+        )}
         {!currentConversation || currentConversation.messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-muted-foreground text-center">
             <p>Start a conversation with {business.businessName}</p>
@@ -761,6 +908,8 @@ export default function CustomerChatPage() {
                 isOwn={msg.senderType === "customer"} 
                 index={idx}
                 onReply={setReplyTo}
+                onEdit={handleEditMessage}
+                onDelete={handleDeleteMessage}
               />
             ))}
             {otherUserTyping && <TypingIndicator isOwn={false} />}
@@ -778,6 +927,8 @@ export default function CustomerChatPage() {
           disabled={isSending || !currentConversation}
           replyTo={replyTo}
           onCancelReply={() => setReplyTo(null)}
+          editingMessage={editingMessage}
+          onCancelEdit={handleCancelEdit}
         />
       </div>
     </main>
