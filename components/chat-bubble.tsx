@@ -6,6 +6,7 @@ import Image from "next/image"
 import { FaCheckCircle, FaReply, FaEdit, FaTrash, FaEllipsisV } from "react-icons/fa"
 import { useState, useRef, useEffect } from "react"
 import { ImageViewerModal } from "@/components/image-viewer-modal"
+import { linkifyText } from "@/lib/utils"
 
 interface ChatBubbleProps {
   message: Message
@@ -159,7 +160,11 @@ export function ChatBubble({ message, isOwn, index, onReply, onEdit, onDelete }:
           </div>
         )}
 
-        {message.text && <p className="text-sm md:text-base break-words">{message.text}</p>}
+        {message.text && (
+          <p className="text-sm md:text-base break-words">
+            {linkifyText(message.text)}
+          </p>
+        )}
         {message.imageUrl && (
           <div 
             className="relative w-48 h-48 rounded-lg overflow-hidden mb-2 cursor-pointer hover:opacity-90 transition-opacity"
