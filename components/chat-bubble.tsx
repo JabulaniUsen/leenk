@@ -20,31 +20,52 @@ interface ChatBubbleProps {
 export function ChatBubble({ message, isOwn, index, onReply, onEdit, onDelete }: ChatBubbleProps) {
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const x = useMotionValue(0)
   // Make reply indicator appear with just a slight swipe (15px)
-  const opacity = useTransform(x, [-15, 0], [1, 0])
-  const scale = useTransform(x, [-15, 0], [1, 0.8])
+  // For own messages, show when dragging right (positive x), for others when dragging left (negative x)
+  const opacity = useTransform(x, isOwn ? [15, 0] : [-15, 0], [1, 0])
+  const scale = useTransform(x, isOwn ? [15, 0] : [-15, 0], [1, 0.8])
   const containerRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    // Trigger reply with just a slight swipe (15px instead of 50px)
-    if (info.offset.x < -15 && onReply) {
-      onReply(message)
+    // Trigger reply with just a slight swipe
+    // For own messages, swipe right (positive x), for others swipe left (negative x)
+    if (onReply) {
+      if (isOwn && info.offset.x > 15) {
+        onReply(message)
+      } else if (!isOwn && info.offset.x < -15) {
+        onReply(message)
+      }
     }
     x.set(0)
   }
 
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   // Close menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowMenu(false)
       }
     }
     if (showMenu) {
       document.addEventListener("mousedown", handleClickOutside)
-      return () => document.removeEventListener("mousedown", handleClickOutside)
+      document.addEventListener("touchstart", handleClickOutside)
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside)
+        document.removeEventListener("touchstart", handleClickOutside)
+      }
     }
   }, [showMenu])
 
@@ -63,6 +84,14 @@ export function ChatBubble({ message, isOwn, index, onReply, onEdit, onDelete }:
     }
   }
 
+  const handleMessageClick = (e: React.MouseEvent | React.TouchEvent) => {
+    // On mobile, toggle menu on click/touch for own messages
+    if (isOwn && (onEdit || onDelete || onReply) && isMobile) {
+      e.stopPropagation()
+      setShowMenu(!showMenu)
+    }
+  }
+
   return (
     <motion.div
       ref={containerRef}
@@ -70,41 +99,65 @@ export function ChatBubble({ message, isOwn, index, onReply, onEdit, onDelete }:
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-3 relative group`}
-      onMouseEnter={() => isOwn && setShowMenu(true)}
-      onMouseLeave={() => isOwn && setShowMenu(false)}
-      onClick={(e) => {
-        // On mobile, toggle menu on click
-        if (isOwn && (onEdit || onDelete) && window.innerWidth < 768) {
-          e.stopPropagation()
-          setShowMenu(!showMenu)
-        }
-      }}
+      onMouseEnter={() => !isMobile && isOwn && (onEdit || onDelete || onReply) && setShowMenu(true)}
+      onMouseLeave={() => !isMobile && isOwn && setShowMenu(false)}
+      onClick={handleMessageClick}
+      onTouchEnd={handleMessageClick}
     >
       {/* Swipe indicator */}
-      {!isOwn && onReply && (
+      {onReply && (
         <motion.div
           style={{ opacity, scale, x }}
-          className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 text-primary z-10"
+          className={`absolute ${isOwn ? 'right-0' : 'left-0'} top-1/2 -translate-y-1/2 flex items-center gap-2 text-primary z-10`}
         >
           <FaReply className="w-5 h-5" />
           <span className="text-sm font-medium">Reply</span>
         </motion.div>
       )}
 
-      {/* Edit/Delete Menu for own messages */}
-      {isOwn && (onEdit || onDelete) && showMenu && (
+      {/* Edit/Delete/Reply Menu for own messages */}
+      {isOwn && (onEdit || onDelete || onReply) && showMenu && (
         <div
           ref={menuRef}
-          className="absolute right-full mr-2 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20 flex flex-col min-w-[100px]"
+          className={`absolute ${
+            isMobile 
+              ? 'right-0 top-full mt-2' 
+              : 'right-full mr-2 top-1/2 -translate-y-1/2'
+          } bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20 flex flex-col min-w-[120px]`}
           onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
         >
+          {onReply && (
+            <button
+              onClick={() => {
+                onReply(message)
+                setShowMenu(false)
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault()
+                onReply(message)
+                setShowMenu(false)
+              }}
+              className="px-4 py-3 text-sm text-left active:bg-gray-100 dark:active:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-t-lg touch-manipulation"
+            >
+              <FaReply className="w-3 h-3" />
+              Reply
+            </button>
+          )}
           {onEdit && message.text && (
             <button
               onClick={() => {
                 onEdit(message)
                 setShowMenu(false)
               }}
-              className="px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
+              onTouchEnd={(e) => {
+                e.preventDefault()
+                onEdit(message)
+                setShowMenu(false)
+              }}
+              className={`px-4 py-3 text-sm text-left active:bg-gray-100 dark:active:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 touch-manipulation ${
+                !onReply ? 'rounded-t-lg' : ''
+              }`}
             >
               <FaEdit className="w-3 h-3" />
               Edit
@@ -118,7 +171,14 @@ export function ChatBubble({ message, isOwn, index, onReply, onEdit, onDelete }:
                 }
                 setShowMenu(false)
               }}
-              className="px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400 rounded-b-lg"
+              onTouchEnd={(e) => {
+                e.preventDefault()
+                if (confirm("Are you sure you want to delete this message?")) {
+                  onDelete(message.id)
+                }
+                setShowMenu(false)
+              }}
+              className="px-4 py-3 text-sm text-left active:bg-gray-100 dark:active:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400 rounded-b-lg touch-manipulation"
             >
               <FaTrash className="w-3 h-3" />
               Delete
@@ -128,8 +188,8 @@ export function ChatBubble({ message, isOwn, index, onReply, onEdit, onDelete }:
       )}
 
       <motion.div
-        drag={!isOwn && onReply ? "x" : false}
-        dragConstraints={{ left: -30, right: 0 }} // Reduced max drag distance
+        drag={onReply ? "x" : false}
+        dragConstraints={isOwn ? { left: 0, right: 30 } : { left: -30, right: 0 }} // For own messages, drag right; for others, drag left
         dragElastic={0} // No elastic - stiff feel
         dragMomentum={false} // No momentum - stops immediately when released
         onDragEnd={handleDragEnd}
@@ -139,7 +199,15 @@ export function ChatBubble({ message, isOwn, index, onReply, onEdit, onDelete }:
             ? "bg-[var(--chat-sent)] text-[var(--chat-sent-text)] rounded-br-none ml-auto dark:bg-[var(--chat-sent)] dark:text-[var(--chat-sent-text)]"
             : "bg-[var(--chat-received)] text-[var(--chat-received-text)] rounded-bl-none dark:bg-[var(--chat-received)] dark:text-[var(--chat-received-text)]"
         }`}
-        onClick={() => !isOwn && onReply && onReply(message)}
+        onClick={(e) => {
+          // Trigger reply if menu is not shown and onReply is available
+          if (onReply && !(isMobile && isOwn && showMenu)) {
+            // For own messages on mobile, don't reply if menu is showing
+            if (!isOwn || !isMobile || !showMenu) {
+              onReply(message)
+            }
+          }
+        }}
       >
         {/* Reply preview */}
         {message.replyTo && (
