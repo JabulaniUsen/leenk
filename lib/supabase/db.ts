@@ -1,5 +1,4 @@
 import { createClient } from "./client"
-import { createClient as createServerClient } from "./server"
 import type { Business, Conversation, Message } from "../types"
 import { sendAwayMessageIfEnabled } from "../away-message"
 import { monitorRequest } from "../egress-monitor"
@@ -717,6 +716,7 @@ export const db = {
 }
 
 // Helper function to send email notification to business when they receive a customer message
+// This function is server-only and uses dynamic imports to prevent client bundling
 async function sendBusinessEmailNotificationHelper(
   businessId: string,
   customerName: string | undefined,
@@ -724,9 +724,15 @@ async function sendBusinessEmailNotificationHelper(
   messageText: string | undefined,
   conversationId: string
 ): Promise<void> {
+  // Only run on server-side
+  if (typeof window !== "undefined") {
+    return
+  }
+
   try {
-    // Get business details directly from database using server client
-    const supabase = await createServerClient()
+    // Use regular client for database query (works server-side)
+    const supabase = createClient()
+    
     const { data: businessData, error: businessError } = await supabase
       .from("businesses")
       .select("id, email, business_name")
@@ -743,8 +749,8 @@ async function sendBusinessEmailNotificationHelper(
     const dashboardUrl = `${baseUrl}/dashboard/${conversationId}`
 
     // Send email notification (dynamic import to avoid bundling nodemailer in client)
-    const { sendBusinessNotificationEmail } = await import("../email")
-    await sendBusinessNotificationEmail(
+    const emailModule = await import("../email")
+    await emailModule.sendBusinessNotificationEmail(
       businessData.email,
       businessData.business_name || "Business",
       customerName,
@@ -754,7 +760,7 @@ async function sendBusinessEmailNotificationHelper(
     )
   } catch (error) {
     console.error("Error in sendBusinessEmailNotificationHelper:", error)
-    throw error
+    // Don't throw - email failures shouldn't break message creation
   }
 }
 
