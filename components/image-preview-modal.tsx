@@ -1,12 +1,13 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { FaTimes, FaPaperPlane, FaTimesCircle, FaPen } from "react-icons/fa"
+import { FaTimes, FaPaperPlane, FaTimesCircle, FaPen, FaCrop } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { ImageAnnotation } from "@/components/image-annotation"
+import { ImageCrop } from "@/components/image-crop"
 
 interface ImagePreviewModalProps {
   imageUrl: string | null
@@ -26,17 +27,21 @@ export function ImagePreviewModal({
   const [isLoading, setIsLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
   const [showAnnotation, setShowAnnotation] = useState(false)
+  const [showCrop, setShowCrop] = useState(false)
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null)
+  const [croppedImageUrl, setCroppedImageUrl] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
     return () => setMounted(false)
   }, [])
 
-  // Reset annotated image when imageUrl changes (new image selected)
+  // Reset annotated/cropped image when imageUrl changes (new image selected)
   useEffect(() => {
     setAnnotatedImageUrl(null)
+    setCroppedImageUrl(null)
     setShowAnnotation(false)
+    setShowCrop(false)
     setIsLoading(true)
   }, [imageUrl])
 
@@ -46,10 +51,17 @@ export function ImagePreviewModal({
       setShowAnnotation(false)
     }
   }, [annotatedImageUrl])
+
+  useEffect(() => {
+    if (croppedImageUrl) {
+      // Update the image URL when crop is done
+      setShowCrop(false)
+    }
+  }, [croppedImageUrl])
   
   if (!imageUrl || !mounted) return null
 
-  const currentImageUrl = annotatedImageUrl || imageUrl
+  const currentImageUrl = croppedImageUrl || annotatedImageUrl || imageUrl
 
   const modalContent = (
     <AnimatePresence>
@@ -98,11 +110,22 @@ export function ImagePreviewModal({
             {/* Annotation overlay */}
             {showAnnotation && (
               <ImageAnnotation
-                imageUrl={imageUrl}
+                imageUrl={currentImageUrl}
                 onImageUpdate={(annotatedUrl) => {
                   setAnnotatedImageUrl(annotatedUrl)
                 }}
                 onClose={() => setShowAnnotation(false)}
+              />
+            )}
+
+            {/* Crop overlay */}
+            {showCrop && (
+              <ImageCrop
+                imageUrl={croppedImageUrl || annotatedImageUrl || imageUrl}
+                onImageUpdate={(croppedUrl) => {
+                  setCroppedImageUrl(croppedUrl)
+                }}
+                onClose={() => setShowCrop(false)}
               />
             )}
           </div>
@@ -115,7 +138,7 @@ export function ImagePreviewModal({
                 onRemove()
                 onClose()
               }}
-              disabled={isSending || showAnnotation}
+              disabled={isSending || showAnnotation || showCrop}
               className="bg-black/70 hover:bg-black/90 text-white border-white/20"
             >
               <FaTimesCircle className="w-4 h-4 mr-2" />
@@ -123,8 +146,17 @@ export function ImagePreviewModal({
             </Button>
             <Button
               variant="outline"
+              onClick={() => setShowCrop(true)}
+              disabled={isSending || showAnnotation || showCrop}
+              className="bg-black/70 hover:bg-black/90 text-white border-white/20"
+            >
+              <FaCrop className="w-4 h-4 mr-2" />
+              Crop
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => setShowAnnotation(true)}
-              disabled={isSending || showAnnotation}
+              disabled={isSending || showAnnotation || showCrop}
               className="bg-black/70 hover:bg-black/90 text-white border-white/20"
             >
               <FaPen className="w-4 h-4 mr-2" />
@@ -132,10 +164,10 @@ export function ImagePreviewModal({
             </Button>
             <Button
               onClick={() => {
-                // Send the annotated image if available, otherwise send the original
+                // Send the cropped/annotated image if available, otherwise send the original
                 onSend(currentImageUrl)
               }}
-              disabled={isSending || showAnnotation}
+              disabled={isSending || showAnnotation || showCrop}
               className="bg-primary hover:opacity-90"
             >
               {isSending ? (
