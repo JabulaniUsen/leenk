@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useState } from "react"
+import { memo, useState, useEffect } from "react"
 import { FaBullhorn, FaPaperPlane, FaUsers, FaCheckCircle, FaExclamationCircle, FaSpinner } from "react-icons/fa"
 import { motion } from "framer-motion"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
@@ -16,6 +16,7 @@ function BroadcastTabComponent() {
   const { conversations, isLoading: isLoadingConversations } = useConversations(user?.business?.id)
   const [message, setMessage] = useState("")
   const [isSending, setIsSending] = useState(false)
+  const [cachedConversationCount, setCachedConversationCount] = useState(0)
   const [result, setResult] = useState<{
     success: boolean
     sentCount: number
@@ -25,6 +26,16 @@ function BroadcastTabComponent() {
   } | null>(null)
 
   const conversationCount = conversations.length
+
+  // Preserve last known count so UI doesn't flicker to 0 while typing/re-rendering
+  useEffect(() => {
+    if (conversationCount > 0) {
+      setCachedConversationCount(conversationCount)
+    }
+  }, [conversationCount])
+
+  const effectiveConversationCount = conversationCount > 0 ? conversationCount : cachedConversationCount
+  const hasRecipients = !isLoadingConversations && effectiveConversationCount > 0
   const hasMessage = message.trim().length > 0
 
   const handleSendBroadcast = async () => {
@@ -106,17 +117,19 @@ function BroadcastTabComponent() {
               <span className="text-muted-foreground">
                 {isLoadingConversations ? (
                   "Loading conversations..."
-                ) : (
+                ) : effectiveConversationCount > 0 ? (
                   <>
                     This message will be sent to{" "}
                     <span className="font-semibold text-foreground">
-                      {conversationCount} conversation{conversationCount !== 1 ? "s" : ""}
+                      {effectiveConversationCount} conversation{effectiveConversationCount !== 1 ? "s" : ""}
                     </span>
                   </>
+                ) : (
+                  "No conversations available"
                 )}
               </span>
             </div>
-            {conversationCount === 0 && (
+            {!isLoadingConversations && effectiveConversationCount === 0 && (
               <Alert variant="default" className="mt-4">
                 <FaExclamationCircle className="h-4 w-4" />
                 <AlertTitle>No conversations found</AlertTitle>
@@ -142,7 +155,7 @@ function BroadcastTabComponent() {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your broadcast message here..."
               rows={8}
-              disabled={isSending || conversationCount === 0 || isLoadingConversations}
+              // Keep editable even while sending; button handles disable state
               className="resize-none"
             />
             <div className="mt-2 text-xs text-muted-foreground text-right">
@@ -151,13 +164,15 @@ function BroadcastTabComponent() {
           </CardContent>
           <CardFooter className="flex justify-between items-center">
             <div className="text-sm text-muted-foreground">
-              {conversationCount > 0
-                ? `${conversationCount} recipient${conversationCount !== 1 ? "s" : ""} will receive this message`
+              {isLoadingConversations
+                ? "Loading recipients..."
+                : effectiveConversationCount > 0
+                ? `${effectiveConversationCount} recipient${effectiveConversationCount !== 1 ? "s" : ""} will receive this message`
                 : "No recipients available"}
             </div>
             <Button
               onClick={handleSendBroadcast}
-              disabled={!hasMessage || isSending || conversationCount === 0}
+              disabled={!hasMessage || isSending || !hasRecipients}
               className="gap-2"
             >
               {isSending ? (
