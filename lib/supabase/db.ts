@@ -2,6 +2,7 @@ import { createClient } from "./client"
 import type { Business, Conversation, Message } from "../types"
 import { sendAwayMessageIfEnabled } from "../away-message"
 import { monitorRequest } from "../egress-monitor"
+import { sendBusinessNotificationEmail } from "../email"
 
 // Database types matching the schema
 interface DBBusiness {
@@ -666,12 +667,12 @@ export const db = {
       .update({ updated_at: new Date().toISOString() })
       .eq("id", message.conversationId)
 
-    // If this is a customer message, trigger away message check (async, don't block)
+    // If this is a customer message, trigger away message check and send email notification (async, don't block)
     if (message.senderType === "customer") {
-      // Get business ID from conversation
+      // Get business ID and customer info from conversation
       const { data: convData, error: convError } = await supabase
         .from("conversations")
-        .select("business_id")
+        .select("business_id, customer_name, customer_phone")
         .eq("id", message.conversationId)
         .maybeSingle() // Use maybeSingle() to handle missing conversations gracefully
       
@@ -679,6 +680,15 @@ export const db = {
         // Send away message asynchronously (fire and forget - don't block message creation)
         sendAwayMessageIfEnabled(message.conversationId, convData.business_id)
           .catch((err) => console.error("Error sending away message:", err))
+        
+        // Send email notification to business (fire and forget - don't block message creation)
+        sendBusinessEmailNotificationHelper(
+          convData.business_id,
+          convData.customer_name || undefined,
+          convData.customer_phone,
+          message.text || undefined,
+          message.conversationId
+        ).catch((err) => console.error("Error sending business email notification:", err))
       }
     }
 
@@ -704,5 +714,46 @@ export const db = {
 
     if (error) throw error
   },
+}
+
+// Helper function to send email notification to business when they receive a customer message
+async function sendBusinessEmailNotificationHelper(
+  businessId: string,
+  customerName: string | undefined,
+  customerPhone: string,
+  messageText: string | undefined,
+  conversationId: string
+): Promise<void> {
+  try {
+    // Get business details directly from database
+    const supabase = createClient()
+    const { data: businessData, error: businessError } = await supabase
+      .from("businesses")
+      .select("id, email, business_name")
+      .eq("id", businessId)
+      .maybeSingle()
+
+    if (businessError || !businessData || !businessData.email) {
+      console.warn("Business not found or has no email:", businessId)
+      return
+    }
+
+    // Construct dashboard URL
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+    const dashboardUrl = `${baseUrl}/dashboard/${conversationId}`
+
+    // Send email notification
+    await sendBusinessNotificationEmail(
+      businessData.email,
+      businessData.business_name || "Business",
+      customerName,
+      customerPhone,
+      messageText,
+      dashboardUrl
+    )
+  } catch (error) {
+    console.error("Error in sendBusinessEmailNotificationHelper:", error)
+    throw error
+  }
 }
 
