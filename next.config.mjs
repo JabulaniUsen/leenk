@@ -6,6 +6,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Turbopack configuration (Next.js 16 default)
+  // Empty config silences the warning - Turbopack handles server-only modules automatically
+  turbopack: {},
+  // Webpack configuration for non-Turbopack builds (fallback)
   webpack: (config, { isServer }) => {
     // Exclude nodemailer from client bundle
     if (!isServer) {
