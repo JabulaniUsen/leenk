@@ -1,8 +1,8 @@
 import { createClient } from "./client"
+import { createClient as createServerClient } from "./server"
 import type { Business, Conversation, Message } from "../types"
 import { sendAwayMessageIfEnabled } from "../away-message"
 import { monitorRequest } from "../egress-monitor"
-import { sendBusinessNotificationEmail } from "../email"
 
 // Database types matching the schema
 interface DBBusiness {
@@ -725,8 +725,8 @@ async function sendBusinessEmailNotificationHelper(
   conversationId: string
 ): Promise<void> {
   try {
-    // Get business details directly from database
-    const supabase = createClient()
+    // Get business details directly from database using server client
+    const supabase = await createServerClient()
     const { data: businessData, error: businessError } = await supabase
       .from("businesses")
       .select("id, email, business_name")
@@ -742,7 +742,8 @@ async function sendBusinessEmailNotificationHelper(
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     const dashboardUrl = `${baseUrl}/dashboard/${conversationId}`
 
-    // Send email notification
+    // Send email notification (dynamic import to avoid bundling nodemailer in client)
+    const { sendBusinessNotificationEmail } = await import("../email")
     await sendBusinessNotificationEmail(
       businessData.email,
       businessData.business_name || "Business",

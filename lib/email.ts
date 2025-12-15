@@ -1,5 +1,10 @@
 import nodemailer from "nodemailer"
 
+// Ensure this module is only used server-side
+if (typeof window !== "undefined") {
+  throw new Error("Email module can only be used server-side")
+}
+
 // Create transporter for Google SMTP
 export function createEmailTransporter() {
   return nodemailer.createTransport({
