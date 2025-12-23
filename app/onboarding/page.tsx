@@ -214,7 +214,7 @@ export default function OnboardingPage() {
           </div>
 
           {/* Form Section */}
-          <div className="p-6 md:p-8">
+          <div className="p-6">
             <form onSubmit={handleComplete} className="space-y-5">
               {error && (
                 <motion.div

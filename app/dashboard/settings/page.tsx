@@ -164,8 +164,8 @@ export default function SettingsPage() {
             <Skeleton className="h-8 w-48 mb-2" />
             <Skeleton className="h-4 w-64 mb-8" />
             <div className="space-y-6">
-              <div className="flex flex-col items-center mb-6 md:mb-8 pb-6 md:pb-8 border-b border-border">
-                <Skeleton className="w-24 h-24 md:w-32 md:h-32 rounded-full mb-4" />
+              <div className="flex flex-col items-center mb-6 pb-6 border-b border-border">
+                <Skeleton className="w-24 h-24 rounded-full mb-4" />
                 <Skeleton className="h-10 w-32" />
               </div>
               <Skeleton className="h-10 w-full" />

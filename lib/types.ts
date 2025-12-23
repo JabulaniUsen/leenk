@@ -31,7 +31,8 @@ export interface Message {
   senderId?: string
   text?: string
   imageUrl?: string
-  status: "sent" | "delivered" | "read"
+  status: "sent" | "delivered" | "read" // Keep for backward compatibility
+  readAt?: string // New: timestamp when message was read (nullable)
   createdAt: string
   replyToId?: string
   replyTo?: Message // The original message being replied to

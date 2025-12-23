@@ -18,6 +18,7 @@ import { Avatar } from "@/components/avatar"
 import { useRealtime } from "@/lib/hooks/use-realtime"
 import { useBusinessByPhone } from "@/lib/hooks/use-business"
 import { createClient } from "@/lib/supabase/client"
+import { getOrCreateChatSession, getCurrentSessionId, validateSession } from "@/lib/chat-session"
 import Image from "next/image"
 
 const CUSTOMER_EMAIL_STORAGE_KEY = "leenk_customer_email"
@@ -144,7 +145,9 @@ export default function CustomerChatPage() {
       )
 
       if (existingConversation) {
-        // Conversation exists, use it
+        // Conversation exists, create/get session for it
+        await getOrCreateChatSession(existingConversation.id, customerEmail.trim())
+        
         // Update name if provided and different
         if (customerName.trim() && existingConversation.customerName !== customerName.trim()) {
           await storage.updateConversation(existingConversation.id, {
@@ -190,7 +193,7 @@ export default function CustomerChatPage() {
         id: uuidv4(),
         businessId: business.id,
         customerEmail: customerEmail.trim(),
-        customerName: customerName.trim() || null,
+        customerName: customerName.trim() || undefined,
         createdAt: new Date().toISOString(),
         lastMessageAt: new Date().toISOString(),
         messages: [],
@@ -199,6 +202,9 @@ export default function CustomerChatPage() {
       await storage.createConversation(newConversation)
       const created = await storage.getConversationById(newConversation.id)
       if (created) {
+        // Create chat session for the new conversation
+        await getOrCreateChatSession(created.id, customerEmail.trim())
+        
         setCurrentConversation(created)
         setShowEmailPrompt(false)
         setShowNameInput(false)
@@ -210,6 +216,9 @@ export default function CustomerChatPage() {
           customerEmail.trim()
         )
         if (existingConversation) {
+          // Create/get session for the found conversation
+          await getOrCreateChatSession(existingConversation.id, customerEmail.trim())
+          
           setCurrentConversation(existingConversation)
           setShowEmailPrompt(false)
           setShowNameInput(false)
@@ -589,6 +598,16 @@ export default function CustomerChatPage() {
     setIsTyping(false)
 
     try {
+      // Validate session before sending message
+      const sessionId = getCurrentSessionId()
+      if (!sessionId || !await validateSession(sessionId, currentConversation.id)) {
+        // Session invalid, try to recreate it
+        const session = await getOrCreateChatSession(currentConversation.id, customerEmail)
+        if (!session) {
+          throw new Error("Session expired. Please refresh the page.")
+        }
+      }
+
       // Send message to server
       const createdMessage = await db.createMessage(newMessage)
       console.log("✅ Message created on server:", createdMessage)
@@ -699,6 +718,16 @@ export default function CustomerChatPage() {
     setIsTyping(false)
 
     try {
+      // Validate session before sending image
+      const sessionId = getCurrentSessionId()
+      if (!sessionId || !await validateSession(sessionId, currentConversation.id)) {
+        // Session invalid, try to recreate it
+        const session = await getOrCreateChatSession(currentConversation.id, customerEmail)
+        if (!session) {
+          throw new Error("Session expired. Please refresh the page.")
+        }
+      }
+
       const createdMessage = await db.createMessage(newMessage)
       console.log("✅ Image message created on server:", createdMessage)
       
@@ -824,7 +853,7 @@ export default function CustomerChatPage() {
             </div>
 
             {/* Form Section */}
-            <div className="p-6 md:p-8">
+            <div className="p-6">
               <form onSubmit={handleStartChat} className="space-y-5">
                 {error && (
                   <motion.div
@@ -942,7 +971,7 @@ export default function CustomerChatPage() {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4"
+            className="border-b border-border bg-card/80 backdrop-blur-sm p-3"
           >
             <div className="flex items-center gap-3">
               <Avatar src={business.businessLogo} name={business.businessName} size="md" />
@@ -967,7 +996,7 @@ export default function CustomerChatPage() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4"
+        className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3"
       >
         <div className="flex items-center gap-3">
           <Avatar src={business.businessLogo} name={business.businessName} size="md" />
@@ -994,7 +1023,7 @@ export default function CustomerChatPage() {
         ref={messagesContainerRef}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 relative z-0"
+        className="flex-1 overflow-y-auto p-3 space-y-2 relative z-0"
       >
         {isLoadingOlder && (
           <div className="flex justify-center py-2">

@@ -1,61 +1,334 @@
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useRef, useState, useCallback } from "react"
 import { createClient } from "../supabase/client"
 import { db } from "../supabase/db"
-import type { Message, Conversation } from "../types"
-import { storage } from "../storage"
+import type { Message } from "../types"
 import { sendAwayMessageIfEnabled } from "../away-message"
 
 type TypingCallback = (senderType: "business" | "customer") => void
 type RealtimeChannel = Parameters<ReturnType<typeof createClient>["removeChannel"]>[0]
 
-const maxReconnectAttempts = 5
+// Cache for reply-to messages to avoid repeated queries
+const replyToCache = new Map<string, Message>()
 
+/**
+ * CORRECT REALTIME PATTERNS:
+ * 
+ * 1. One channel = one purpose (immutable bindings)
+ * 2. Channel names must be unique per binding set
+ * 3. Never retry binding mismatch errors (fatal config issue)
+ * 4. Stable channel creation (only conversationId in deps)
+ * 5. Realtime = invalidation signal, not source of truth
+ */
 export function useRealtime() {
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "disconnected" | "connecting">("connecting")
   const channelsRef = useRef<Map<string, RealtimeChannel>>(new Map())
-  const typingCallbacksRef = useRef<Map<string, TypingCallback>>(new Map())
-  const reconnectAttemptsRef = useRef<Map<string, number>>(new Map())
-  const heartbeatIntervalsRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
-  const reconnectTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
-  const typingBroadcastThrottlesRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
 
+  /**
+   * Clean up a channel completely
+   * Must unsubscribe before removing to prevent binding conflicts
+   */
   const cleanupChannel = useCallback((channelName: string) => {
-    const supabase = createClient()
     const channel = channelsRef.current.get(channelName)
     if (channel) {
+      try {
+        channel.unsubscribe()
+        const supabase = createClient()
       supabase.removeChannel(channel)
+      } catch (error) {
+        console.warn(`Error cleaning up channel ${channelName}:`, error)
+      }
       channelsRef.current.delete(channelName)
     }
-    
-    const interval = heartbeatIntervalsRef.current.get(channelName)
-    if (interval) {
-      clearInterval(interval)
-      heartbeatIntervalsRef.current.delete(channelName)
-    }
-    
-    const timer = reconnectTimersRef.current.get(channelName)
-    if (timer) {
-      clearTimeout(timer)
-      reconnectTimersRef.current.delete(channelName)
-    }
-    
-    reconnectAttemptsRef.current.delete(channelName)
   }, [])
 
-  const setupConversationChannel = useCallback((
+  /**
+   * Clean up ALL channels for a conversation (including old naming patterns)
+   * This prevents binding mismatches from old channel names
+   */
+  const cleanupAllConversationChannels = useCallback((conversationId: string) => {
+    const supabase = createClient()
+    const oldChannelName = `conversation:${conversationId}`
+    const newChannelNames = [
+      `conversation:${conversationId}:messages`,
+      `conversation:${conversationId}:meta`,
+      `conversation:${conversationId}:typing`,
+    ]
+
+    // Clean up old channel name (backward compatibility)
+    const oldChannel = channelsRef.current.get(oldChannelName)
+    if (oldChannel) {
+      try {
+        oldChannel.unsubscribe()
+        supabase.removeChannel(oldChannel)
+        channelsRef.current.delete(oldChannelName)
+        console.log(`🧹 Cleaned up old channel: ${oldChannelName}`)
+      } catch (error) {
+        console.warn(`Error cleaning up old channel ${oldChannelName}:`, error)
+      }
+    }
+
+    // Also try to remove from Supabase's internal registry if it exists
+    try {
+      // Get all channels from Supabase client and remove any matching
+      const allChannels = supabase.getChannels()
+      allChannels.forEach((ch: any) => {
+        const chName = ch.topic?.replace('realtime:', '') || ''
+        if (chName === oldChannelName || newChannelNames.includes(chName)) {
+          try {
+            ch.unsubscribe()
+            supabase.removeChannel(ch)
+          } catch (e) {
+            // Ignore errors - channel might not exist
+          }
+        }
+      })
+    } catch (error) {
+      // Supabase client might not expose getChannels, ignore
+    }
+
+    // Clean up new channel names
+    newChannelNames.forEach(name => cleanupChannel(name))
+  }, [cleanupChannel])
+
+  /**
+   * Setup messages channel for a conversation
+   * Channel name: conversation:{id}:messages
+   * Purpose: Listen to message INSERT/UPDATE/DELETE events
+   */
+  const setupMessagesChannel = useCallback((
     conversationId: string,
-    senderType: "business" | "customer",
-    senderId: string,
-    onTyping?: TypingCallback,
     onMessageUpdate?: (message: Message) => void,
-    onMessageDelete?: (messageId: string) => void,
+    onMessageDelete?: (messageId: string) => void
+  ) => {
+    const supabase = createClient()
+    const channelName = `conversation:${conversationId}:messages`
+    
+    // Clean up ALL conversation channels first (including old naming)
+    // This prevents binding mismatches from old channel names
+    cleanupAllConversationChannels(conversationId)
+    
+    // Now create the new channel
+    const channel = supabase
+      .channel(channelName, {
+        config: {
+          broadcast: { self: true },
+            },
+          })
+          // Single binding: all message events for this conversation
+      .on(
+        "postgres_changes",
+        {
+              event: "*", // INSERT, UPDATE, DELETE
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        async (payload) => {
+              // REALTIME AS INVALIDATION: Fetch authoritative data from DB
+              if (payload.eventType === "DELETE") {
+                const deletedId = payload.old?.id
+                if (deletedId && onMessageDelete) {
+                  onMessageDelete(deletedId)
+                }
+                return
+              }
+
+              // For INSERT/UPDATE, fetch from database (source of truth)
+              const messageId = payload.new?.id || payload.old?.id
+              if (!messageId) return
+
+              try {
+                const { data: dbMessage, error: fetchError } = await supabase
+                  .from("messages")
+                  .select("id, conversation_id, sender_type, sender_id, content, image_url, status, read_at, created_at, reply_to_id")
+                  .eq("id", messageId)
+                  .maybeSingle()
+
+                if (fetchError || !dbMessage) {
+                  console.warn("Could not fetch message after realtime event:", fetchError)
+                  return
+                }
+
+                const message: Message = {
+                id: dbMessage.id,
+                conversationId: dbMessage.conversation_id,
+                senderType: dbMessage.sender_type,
+                senderId: dbMessage.sender_id,
+                text: dbMessage.content || undefined,
+                imageUrl: dbMessage.image_url || undefined,
+                status: (dbMessage.status || "sent") as "sent" | "delivered" | "read",
+                  readAt: dbMessage.read_at || undefined,
+                createdAt: dbMessage.created_at,
+                replyToId: dbMessage.reply_to_id || undefined,
+              }
+
+                // Fetch reply-to message if needed
+              if (dbMessage.reply_to_id) {
+                const cached = replyToCache.get(dbMessage.reply_to_id)
+                if (cached) {
+                    message.replyTo = cached
+                } else {
+                  try {
+                      const { data: replyToMessage } = await supabase
+                      .from("messages")
+                        .select("id, conversation_id, sender_type, sender_id, content, image_url, status, read_at, created_at")
+                      .eq("id", dbMessage.reply_to_id)
+                      .maybeSingle()
+
+                      if (replyToMessage) {
+                      const replyMsg: Message = {
+                        id: replyToMessage.id,
+                        conversationId: replyToMessage.conversation_id,
+                        senderType: replyToMessage.sender_type,
+                        senderId: replyToMessage.sender_id,
+                        text: replyToMessage.content || undefined,
+                        imageUrl: replyToMessage.image_url || undefined,
+                        status: (replyToMessage.status || "sent") as "sent" | "delivered" | "read",
+                          readAt: replyToMessage.read_at || undefined,
+                        createdAt: replyToMessage.created_at,
+                        }
+                        replyToCache.set(dbMessage.reply_to_id, replyMsg)
+                        message.replyTo = replyMsg
+                      }
+                    } catch (error) {
+                      console.error("Error fetching reply message:", error)
+                    }
+                  }
+                }
+
+                // Mark as delivered if from other user
+                if (message.senderType === "customer") {
+                  try {
+                    await db.updateMessageStatus(message.id, "delivered")
+                    message.status = "delivered"
+                    
+                    // Check if business should receive away message
+                    const { data: convData } = await supabase
+                      .from("conversations")
+                      .select("business_id")
+                      .eq("id", message.conversationId)
+                      .maybeSingle()
+                    
+                    if (convData?.business_id) {
+                      sendAwayMessageIfEnabled(message.conversationId, convData.business_id)
+                        .catch((err) => console.error("Error in away message:", err))
+                  }
+                } catch (error) {
+                  console.error("Error updating message status:", error)
+                }
+              }
+
+                if (onMessageUpdate) {
+                  onMessageUpdate(message)
+              }
+            } catch (error) {
+              console.error("❌ Error processing real-time message:", error)
+              }
+            }
+          )
+          .subscribe((status, err) => {
+            if (status === "SUBSCRIBED") {
+              setConnectionStatus("connected")
+              channelsRef.current.set(channelName, channel)
+              console.log(`✅ Messages channel connected: ${channelName}`)
+            } else if (status === "CHANNEL_ERROR") {
+              const errorMessage = err?.message || String(err || "")
+              const isBindingMismatch = errorMessage?.includes("mismatch") || 
+                                       errorMessage?.includes("binding")
+              
+              if (isBindingMismatch) {
+                console.error(`❌ Fatal binding mismatch for ${channelName}. This is a configuration error - not retrying.`)
+                cleanupChannel(channelName)
+                return // DO NOT retry - this is a developer bug
+              }
+              
+              console.warn(`⚠️ Messages channel error: ${channelName}`, err)
+              setConnectionStatus("disconnected")
+            } else if (status === "CLOSED" || status === "TIMED_OUT") {
+              console.warn(`⚠️ Messages channel closed: ${channelName}`)
+              setConnectionStatus("disconnected")
+            }
+          })
+
+    return () => {
+      cleanupChannel(channelName)
+    }
+  }, [cleanupChannel, cleanupAllConversationChannels])
+
+  /**
+   * Setup conversation metadata channel
+   * Channel name: conversation:{id}:meta
+   * Purpose: Listen to conversation UPDATE events
+   */
+  const setupConversationMetaChannel = useCallback((
+    conversationId: string,
     onConversationUpdate?: () => void
   ) => {
     const supabase = createClient()
-    const channelName = `conversation:${conversationId}`
+    const channelName = `conversation:${conversationId}:meta`
     
-    // Clean up existing channel if any
-    cleanupChannel(channelName)
+    // Clean up old channels first
+    cleanupAllConversationChannels(conversationId)
+    
+    const channel = supabase
+      .channel(channelName, {
+        config: {
+          broadcast: { self: true },
+        },
+      })
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "conversations",
+          filter: `id=eq.${conversationId}`,
+        },
+        () => {
+          if (onConversationUpdate) {
+            onConversationUpdate()
+          }
+        }
+      )
+      .subscribe((status, err) => {
+        if (status === "SUBSCRIBED") {
+          channelsRef.current.set(channelName, channel)
+          console.log(`✅ Conversation meta channel connected: ${channelName}`)
+        } else if (status === "CHANNEL_ERROR") {
+          const errorMessage = err?.message || String(err || "")
+          const isBindingMismatch = errorMessage?.includes("mismatch") || 
+                                   errorMessage?.includes("binding")
+          
+          if (isBindingMismatch) {
+            console.error(`❌ Fatal binding mismatch for ${channelName}. Not retrying.`)
+            cleanupChannel(channelName)
+            return
+          }
+          console.warn(`⚠️ Conversation meta channel error: ${channelName}`, err)
+        }
+      })
+
+    return () => {
+      cleanupChannel(channelName)
+    }
+  }, [cleanupChannel, cleanupAllConversationChannels])
+
+  /**
+   * Setup typing broadcast channel
+   * Channel name: conversation:{id}:typing
+   * Purpose: Broadcast-only (no postgres_changes) for typing indicators
+   */
+  const setupTypingChannel = useCallback((
+    conversationId: string,
+    senderType: "business" | "customer",
+    senderId: string,
+    onTyping?: TypingCallback
+  ) => {
+    const supabase = createClient()
+    const channelName = `conversation:${conversationId}:typing`
+    
+    // Clean up old channels first
+    cleanupAllConversationChannels(conversationId)
     
     const channel = supabase
       .channel(channelName, {
@@ -65,231 +338,57 @@ export function useRealtime() {
         },
       })
       .on("broadcast", { event: "typing" }, (payload) => {
-        // Only trigger callback if it's from the other user
         const otherSenderType = senderType === "business" ? "customer" : "business"
         if (payload.payload.senderType === otherSenderType && onTyping) {
           onTyping(payload.payload.senderType)
         }
       })
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        async (payload) => {
-          // Handle INSERT events
-          if (payload.eventType === "INSERT") {
-            try {
-              const dbMessage = payload.new as any
-              const newMessage: Message = {
-                id: dbMessage.id,
-                conversationId: dbMessage.conversation_id,
-                senderType: dbMessage.sender_type,
-                senderId: dbMessage.sender_id,
-                text: dbMessage.content || undefined,
-                imageUrl: dbMessage.image_url || undefined,
-                status: (dbMessage.status || "sent") as "sent" | "delivered" | "read",
-                createdAt: dbMessage.created_at,
-                replyToId: dbMessage.reply_to_id || undefined,
-              }
-
-              // If this message is a reply, fetch the original message (only needed fields)
-              if (dbMessage.reply_to_id) {
-                try {
-                  const { data: replyToMessage, error: replyError } = await supabase
-                    .from("messages")
-                    .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at")
-                    .eq("id", dbMessage.reply_to_id)
-                    .maybeSingle()
-
-                  if (!replyError && replyToMessage) {
-                    newMessage.replyTo = {
-                      id: replyToMessage.id,
-                      conversationId: replyToMessage.conversation_id,
-                      senderType: replyToMessage.sender_type,
-                      senderId: replyToMessage.sender_id,
-                      text: replyToMessage.content || undefined,
-                      imageUrl: replyToMessage.image_url || undefined,
-                      status: (replyToMessage.status || "sent") as "sent" | "delivered" | "read",
-                      createdAt: replyToMessage.created_at,
-                    }
-                  }
-                } catch (replyError) {
-                  console.error("Error fetching reply message:", replyError)
-                }
-              }
-
-              console.log("📨 Processed message:", newMessage)
-
-              // Mark as delivered if it's a new message from the other user
-              const otherSenderType = senderType === "business" ? "customer" : "business"
-              if (newMessage.senderType === otherSenderType) {
-                try {
-                  await db.updateMessageStatus(newMessage.id, "delivered")
-                  newMessage.status = "delivered"
-                  
-                  if (newMessage.senderType === "customer" && senderType === "business") {
-                    const { data: convData, error: convError } = await supabase
-                      .from("conversations")
-                      .select("business_id")
-                      .eq("id", newMessage.conversationId)
-                      .maybeSingle()
-                    
-                    if (!convError && convData?.business_id) {
-                      sendAwayMessageIfEnabled(newMessage.conversationId, convData.business_id)
-                        .catch((err) => console.error("Error in away message:", err))
-                    }
-                  }
-                } catch (error) {
-                  console.error("Error updating message status:", error)
-                }
-              }
-
-              if (newMessage.id && newMessage.conversationId && onMessageUpdate) {
-                onMessageUpdate(newMessage)
-              }
-            } catch (error) {
-              console.error("❌ Error processing real-time message:", error)
-            }
-          }
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        async (payload) => {
-          // Handle UPDATE events
-          if (payload.eventType === "UPDATE") {
-            try {
-              const dbMessage = payload.new as any
-              const updatedMessage: Message = {
-                id: dbMessage.id,
-                conversationId: dbMessage.conversation_id,
-                senderType: dbMessage.sender_type,
-                senderId: dbMessage.sender_id,
-                text: dbMessage.content || undefined,
-                imageUrl: dbMessage.image_url || undefined,
-                status: (dbMessage.status || "sent") as "sent" | "delivered" | "read",
-                createdAt: dbMessage.created_at,
-                replyToId: dbMessage.reply_to_id || undefined,
-              }
-
-              if (updatedMessage.id && updatedMessage.conversationId && onMessageUpdate) {
-                onMessageUpdate(updatedMessage)
-              }
-            } catch (error) {
-              console.error("❌ Error processing real-time message update:", error)
-            }
-          }
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "DELETE",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload) => {
-          // Handle DELETE events
-          const deletedId = payload.old?.id
-          if (deletedId && onMessageDelete) {
-            onMessageDelete(deletedId)
-          }
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "conversations",
-          filter: `id=eq.${conversationId}`,
-        },
-        async () => {
-          if (onConversationUpdate) {
-            onConversationUpdate()
-          }
-        }
-      )
-      .subscribe((status, err) => {
+      .subscribe((status) => {
         if (status === "SUBSCRIBED") {
-          setConnectionStatus("connected")
-          reconnectAttemptsRef.current.set(channelName, 0)
           channelsRef.current.set(channelName, channel)
-          if (onTyping) {
-            typingCallbacksRef.current.set(channelName, onTyping)
-          }
-
-          console.log(`✅ Real-time connected: ${channelName}`)
-
-          // Set up heartbeat to keep connection alive
-          const interval = setInterval(() => {
-            try {
-              channel.send({
-                type: "presence",
-                event: "heartbeat",
-                payload: { user_id: senderId, timestamp: Date.now() },
-              })
-            } catch (error) {
-              console.error("Heartbeat error:", error)
-            }
-          }, 30000)
-          heartbeatIntervalsRef.current.set(channelName, interval)
-        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
-          console.warn(`⚠️ Real-time disconnected: ${channelName}`, err)
-          setConnectionStatus("disconnected")
-          
-          const interval = heartbeatIntervalsRef.current.get(channelName)
-          if (interval) {
-            clearInterval(interval)
-            heartbeatIntervalsRef.current.delete(channelName)
-          }
-
-          // Attempt reconnection with exponential backoff
-          const attempts = reconnectAttemptsRef.current.get(channelName) || 0
-          if (attempts < maxReconnectAttempts) {
-            reconnectAttemptsRef.current.set(channelName, attempts + 1)
-            const delay = Math.min(1000 * Math.pow(2, attempts + 1), 30000)
-            
-            console.log(`🔄 Reconnecting ${channelName} (attempt ${attempts + 1}/${maxReconnectAttempts}) in ${delay}ms`)
-            
-            const timer = setTimeout(() => {
-              setupConversationChannel(conversationId, senderType, senderId, onTyping, onMessageUpdate, onMessageDelete, onConversationUpdate)
-            }, delay)
-            reconnectTimersRef.current.set(channelName, timer)
-          } else {
-            console.error(`❌ Max reconnection attempts reached for ${channelName}`)
-          }
+          console.log(`✅ Typing channel connected: ${channelName}`)
         }
       })
 
     return () => {
-      typingCallbacksRef.current.delete(channelName)
       cleanupChannel(channelName)
     }
-  }, [cleanupChannel])
+  }, [cleanupChannel, cleanupAllConversationChannels])
 
+  /**
+   * Convenience function that sets up all channels for a conversation
+   * This maintains backward compatibility while using split channels internally
+   */
+  const setupConversationChannel = useCallback((
+    conversationId: string,
+    senderType: "business" | "customer",
+    senderId: string,
+    onTyping?: TypingCallback,
+    onMessageUpdate?: (message: Message) => void,
+    onMessageDelete?: (messageId: string) => void,
+    onConversationUpdate?: () => void
+  ) => {
+    // Setup all three channels separately
+    const cleanupMessages = setupMessagesChannel(conversationId, onMessageUpdate, onMessageDelete)
+    const cleanupMeta = setupConversationMetaChannel(conversationId, onConversationUpdate)
+    const cleanupTyping = setupTypingChannel(conversationId, senderType, senderId, onTyping)
+
+    // Return combined cleanup function
+    return () => {
+      cleanupMessages()
+      cleanupMeta()
+      cleanupTyping()
+    }
+  }, [setupMessagesChannel, setupConversationMetaChannel, setupTypingChannel])
+
+  /**
+   * Broadcast typing indicator
+   */
   const broadcastTyping = useCallback((conversationId: string, senderType: "business" | "customer") => {
-    const channelName = `conversation:${conversationId}`
+    const channelName = `conversation:${conversationId}:typing`
     const channel = channelsRef.current.get(channelName)
     
     if (!channel) return
-    
-    // Throttle broadcasts to once per second
-    const throttleKey = `${channelName}:${senderType}`
-    if (typingBroadcastThrottlesRef.current.has(throttleKey)) {
-      return
-    }
     
     channel.send({
       type: "broadcast",
@@ -299,19 +398,34 @@ export function useRealtime() {
         conversationId,
       },
     })
-    
-    const timer = setTimeout(() => {
-      typingBroadcastThrottlesRef.current.delete(throttleKey)
-    }, 1000)
-    typingBroadcastThrottlesRef.current.set(throttleKey, timer)
   }, [])
 
+  /**
+   * Setup business-wide channel for conversation list updates
+   * Channel name: business:{id}
+   * Purpose: Listen to conversation metadata changes for the business
+   */
   const setupBusinessChannel = useCallback((businessId: string, onConversationsUpdate?: () => void) => {
     const supabase = createClient()
     const channelName = `business:${businessId}`
     
-    // Clean up existing channel if any
     cleanupChannel(channelName)
+    
+    let updateTimeout: NodeJS.Timeout | null = null
+    let pendingUpdate = false
+    
+    const throttledUpdate = () => {
+      pendingUpdate = true
+      if (updateTimeout) return
+      
+      updateTimeout = setTimeout(() => {
+        if (pendingUpdate && onConversationsUpdate) {
+          onConversationsUpdate()
+        }
+        pendingUpdate = false
+        updateTimeout = null
+      }, 2000)
+    }
     
     const channel = supabase
       .channel(channelName, {
@@ -322,79 +436,55 @@ export function useRealtime() {
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-        },
-        async () => {
-          // Refresh conversations list when new messages arrive
-          if (onConversationsUpdate) {
-            onConversationsUpdate()
-          }
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "messages",
-        },
-        async () => {
-          // Refresh conversations list when message status changes (e.g., marked as read)
-          if (onConversationsUpdate) {
-            onConversationsUpdate()
-          }
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
           event: "UPDATE",
           schema: "public",
           table: "conversations",
+          filter: `business_id=eq.${businessId}`,
         },
-        async () => {
-          // Refresh conversations list when conversations are updated
-          if (onConversationsUpdate) {
-            onConversationsUpdate()
-          }
-        }
+        throttledUpdate
       )
-      .subscribe((status) => {
-        console.log("Business channel subscription status:", status)
+      .subscribe((status, err) => {
+        if (status === "SUBSCRIBED") {
+          channelsRef.current.set(channelName, channel)
+          console.log(`✅ Business channel connected: ${channelName}`)
+        } else if (status === "CHANNEL_ERROR") {
+          const errorMessage = err?.message || String(err || "")
+          const isBindingMismatch = errorMessage?.includes("mismatch") || 
+                                   errorMessage?.includes("binding")
+          
+          if (isBindingMismatch) {
+            console.error(`❌ Fatal binding mismatch for ${channelName}. Not retrying.`)
+            cleanupChannel(channelName)
+            return
+          }
+          console.warn(`⚠️ Business channel error: ${channelName}`, err)
+        }
       })
-
-    channelsRef.current.set(channelName, channel)
     
     return () => {
+      if (updateTimeout) clearTimeout(updateTimeout)
       cleanupChannel(channelName)
     }
   }, [cleanupChannel])
 
+  /**
+   * Cleanup all channels
+   */
   const cleanup = useCallback(() => {
     channelsRef.current.forEach((_, channelName) => {
-      typingCallbacksRef.current.delete(channelName)
       cleanupChannel(channelName)
     })
-    typingBroadcastThrottlesRef.current.forEach((timer) => clearTimeout(timer))
-    typingBroadcastThrottlesRef.current.clear()
     setConnectionStatus("disconnected")
   }, [cleanupChannel])
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      cleanup()
-    }
-  }, [cleanup])
 
   return {
     connectionStatus,
     setupConversationChannel,
+    setupMessagesChannel,
+    setupConversationMetaChannel,
+    setupTypingChannel,
     broadcastTyping,
     setupBusinessChannel,
     cleanup,
   }
 }
-

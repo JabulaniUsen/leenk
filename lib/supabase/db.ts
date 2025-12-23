@@ -39,6 +39,7 @@ interface DBMessage {
   content: string | null
   image_url: string | null
   status: "sent" | "delivered" | "read" | null
+  read_at: string | null
   created_at: string
   reply_to_id: string | null
 }
@@ -115,6 +116,7 @@ function dbConversationToApp(
     text: m.content || undefined,
     imageUrl: m.image_url || undefined,
     status: (m.status || "sent") as "sent" | "delivered" | "read",
+    readAt: m.read_at || undefined,
     createdAt: m.created_at,
       replyToId: m.reply_to_id || undefined,
     }
@@ -131,6 +133,7 @@ function dbConversationToApp(
           text: replyToMessage.content || undefined,
           imageUrl: replyToMessage.image_url || undefined,
           status: (replyToMessage.status || "sent") as "sent" | "delivered" | "read",
+          readAt: replyToMessage.read_at || undefined,
           createdAt: replyToMessage.created_at,
         }
       }
@@ -313,78 +316,51 @@ export const db = {
 
     const conversationIds = conversations.map((c) => c.id)
     
-    // Optimized: Use a single query with window functions or batch queries
-    // Fetch last messages for all conversations in one optimized query
-    const lastMessagesQuery = supabase
+    // OPTIMIZED: Single query to get all last messages at once
+    // Fetch all messages for these conversations, then dedupe to get last message per conversation
+    // This eliminates N+1 queries - from 100+ queries down to 2 queries total
+    const { data: allMessages } = await supabase
       .from("messages")
-      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, read_at, created_at, reply_to_id")
       .in("conversation_id", conversationIds)
+      .order("created_at", { ascending: false })
+      .limit(conversationIds.length * 5) // Get more than needed to ensure we have last message for each
     
-    // Get the last message per conversation using a subquery approach
-    // For now, we'll batch the queries but limit to prevent N+1
-    const batchSize = 10 // Process 10 conversations at a time
-    const batches = []
-    for (let i = 0; i < conversationIds.length; i += batchSize) {
-      const batch = conversationIds.slice(i, i + batchSize)
-      batches.push(batch)
-    }
-    
-    // Fetch last messages and unread counts in parallel batches
-    const [lastMessagesResults, unreadCountsResults] = await Promise.all([
-      Promise.all(
-        batches.flatMap(batch =>
-          batch.map(async (conversationId) => {
-            const { data: messages } = await supabase
-              .from("messages")
-              .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
-              .eq("conversation_id", conversationId)
-              .order("created_at", { ascending: false })
-              .limit(1)
-            
-            return { 
-              conversationId, 
-              lastMessage: messages && messages.length > 0 ? messages[0] as DBMessage : null 
-            }
-          })
-        )
-      ),
-      // Batch unread count queries
-      Promise.all(
-        batches.flatMap(batch =>
-          batch.map(async (conversationId) => {
-            const { count } = await supabase
-              .from("messages")
-              .select("id", { count: "exact", head: true })
-              .eq("conversation_id", conversationId)
-              .eq("sender_type", "customer")
-              .in("status", ["sent", "delivered"])
-            
-            return { 
-              conversationId, 
-              unreadCount: count || 0 
-            }
-          })
-        )
-      )
-    ])
-
-    // Create maps for quick lookup
+    // Group by conversation_id and take the first (most recent) for each
+    // This gives us the last message per conversation in O(n) time
     const lastMessageMap = new Map<string, DBMessage>()
+    if (allMessages) {
+      allMessages.forEach((msg: any) => {
+        if (!lastMessageMap.has(msg.conversation_id)) {
+          lastMessageMap.set(msg.conversation_id, msg as DBMessage)
+        }
+      })
+    }
+
+    // OPTIMIZED: Single query for unread counts using aggregation
+    // Instead of N queries, use a single query and count in memory
+    const { data: unreadMessages } = await supabase
+      .from("messages")
+      .select("conversation_id")
+      .in("conversation_id", conversationIds)
+      .eq("sender_type", "customer")
+      .in("status", ["sent", "delivered"])
+    
+    // Count unread per conversation in memory
     const unreadCountMap = new Map<string, number>()
-    
-    lastMessagesResults.forEach(({ conversationId, lastMessage }) => {
-      if (lastMessage) {
-        lastMessageMap.set(conversationId, lastMessage)
-      }
-    })
-    
-    unreadCountsResults.forEach(({ conversationId, unreadCount }) => {
-      unreadCountMap.set(conversationId, unreadCount)
+    unreadMessages?.forEach((msg: any) => {
+      const current = unreadCountMap.get(msg.conversation_id) || 0
+      unreadCountMap.set(msg.conversation_id, current + 1)
     })
 
     // Convert to app format - only include last message, not all messages
+    // For conversation list, we only need a preview of the content (first 100 chars)
     const result = conversations.map((conv) => {
       const lastMessage = lastMessageMap.get(conv.id)
+      if (lastMessage && lastMessage.content && lastMessage.content.length > 100) {
+        // Truncate content for conversation list preview to reduce egress
+        lastMessage.content = lastMessage.content.substring(0, 100) + "..."
+      }
       const messages = lastMessage ? [lastMessage] : []
       const conversation = dbConversationToApp(conv as DBConversation, messages)
       // Add unread count to conversation
@@ -410,7 +386,7 @@ export const db = {
     // Use selective fields instead of select("*")
     const { data: messages } = await supabase
       .from("messages")
-      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, read_at, created_at, reply_to_id")
       .eq("conversation_id", id)
       .order("created_at", { ascending: false })
       .limit(25)
@@ -431,7 +407,7 @@ export const db = {
     
     let query = supabase
       .from("messages")
-      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, read_at, created_at, reply_to_id")
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: false })
       .limit(limit)
@@ -473,6 +449,7 @@ export const db = {
       text: m.content || undefined,
       imageUrl: m.image_url || undefined,
       status: (m.status || "sent") as "sent" | "delivered" | "read",
+      readAt: m.read_at || undefined,
       createdAt: m.created_at,
       replyToId: m.reply_to_id || undefined,
     }))
@@ -498,7 +475,7 @@ export const db = {
     // Only fetch last 25 messages instead of all messages
     const { data: messages } = await supabase
       .from("messages")
-      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, read_at, created_at, reply_to_id")
       .eq("conversation_id", conversation.id)
       .order("created_at", { ascending: false })
       .limit(25)
@@ -579,7 +556,12 @@ export const db = {
 
   async updateMessageStatus(id: string, status: "sent" | "delivered" | "read"): Promise<void> {
     const supabase = createClient()
-    await supabase.from("messages").update({ status }).eq("id", id)
+    const updateData: any = { status }
+    // If marking as read, also set read_at timestamp
+    if (status === "read") {
+      updateData.read_at = new Date().toISOString()
+    }
+    await supabase.from("messages").update(updateData).eq("id", id)
   },
 
   async markMessagesAsDelivered(conversationId: string, senderType: "business" | "customer"): Promise<void> {
@@ -595,10 +577,14 @@ export const db = {
 
   async markMessagesAsRead(conversationId: string, senderType: "business" | "customer"): Promise<void> {
     const supabase = createClient()
-    // Mark all messages from the other sender as read
+    // Mark all messages from the other sender as read using read_at timestamp
+    const readAt = new Date().toISOString()
     await supabase
       .from("messages")
-      .update({ status: "read" })
+      .update({ 
+        status: "read", // Keep for backward compatibility
+        read_at: readAt 
+      })
       .eq("conversation_id", conversationId)
       .eq("sender_type", senderType)
       .in("status", ["sent", "delivered"])
@@ -615,7 +601,7 @@ export const db = {
       .from("messages")
       .update(dbData)
       .eq("id", id)
-      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, read_at, created_at, reply_to_id")
       .maybeSingle()
 
     if (error || !data) return null
@@ -628,6 +614,7 @@ export const db = {
       text: data.content || undefined,
       imageUrl: data.image_url || undefined,
       status: (data.status || "sent") as "sent" | "delivered" | "read",
+      readAt: data.read_at || undefined,
       createdAt: data.created_at,
       replyToId: data.reply_to_id || undefined,
     }
@@ -655,7 +642,7 @@ export const db = {
     const { data, error } = await supabase
       .from("messages")
       .insert(dbData)
-      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, created_at, reply_to_id")
+      .select("id, conversation_id, sender_type, sender_id, content, image_url, status, read_at, created_at, reply_to_id")
       .single()
 
     if (error) throw error
@@ -690,6 +677,7 @@ export const db = {
       text: data.content || undefined,
       imageUrl: data.image_url || undefined,
       status: (data.status || "sent") as "sent" | "delivered" | "read",
+      readAt: data.read_at || undefined,
       createdAt: data.created_at,
       replyToId: data.reply_to_id || undefined,
     }

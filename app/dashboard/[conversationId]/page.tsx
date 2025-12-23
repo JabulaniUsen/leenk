@@ -633,8 +633,8 @@ export default function ChatPage() {
   // Memoize sidebar to prevent re-renders when conversation changes
   const sidebarContent = useMemo(() => (
     <>
-      <div className="p-3 md:p-4 border-b border-border bg-card/80 backdrop-blur-sm">
-        <div className="flex items-center justify-between mb-3 md:mb-4">
+      <div className="p-3 border-b border-border bg-card/80 backdrop-blur-sm">
+        <div className="flex items-center justify-between mb-3">
           <Link href="/dashboard">
             <Image src="/logo.png" alt="Leenk" width={80} height={80} className="object-contain" />
           </Link>
@@ -681,29 +681,13 @@ export default function ChatPage() {
   // This prevents showing "not found" during initial load or navigation
   if (!currentConversation && !conversationLoading && !isNavigating && conversationId && !authLoading) {
     return (
-      <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
+      <main className="h-screen flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
         <Wallpaper />
-        {/* Sidebar - Hidden on mobile, shown on desktop */}
-        <div className="hidden md:flex w-80 border-r border-border flex-col bg-card/80 backdrop-blur-sm z-10">
-          <div className="p-4 border-b border-border">
-            <Link href="/dashboard">
-              <h1 className="text-2xl font-bold text-primary cursor-pointer hover:opacity-80">Leenk</h1>
-            </Link>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <ConversationList 
-              conversations={conversations} 
-              selectedId={conversationId}
-              onPin={handlePin}
-              onDelete={handleDelete}
-            />
-          </div>
-        </div>
-        {/* Empty state - Full screen on mobile with back button */}
+        {/* Empty state - Full screen (mobile view) */}
         <div className="flex-1 flex flex-col w-full">
-          <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4">
+          <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3">
             <Link href="/dashboard">
-              <Button variant="ghost" size="sm" className="md:hidden">
+              <Button variant="ghost" size="sm">
                 <FaChevronLeft className="w-5 h-5" />
               </Button>
             </Link>
@@ -724,26 +708,17 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
+    <main className="h-screen flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative">
       <Wallpaper businessLogo={user?.business?.businessLogo} />
-      {/* Sidebar - Hidden on mobile, shown on desktop - Memoized to prevent re-renders */}
-      <motion.aside
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="hidden md:flex w-80 border-r border-[#313d45] md:border-border flex-col bg-[#111b21] md:bg-card/80 backdrop-blur-sm z-10"
-      >
-        {sidebarContent}
-      </motion.aside>
-
-      {/* Chat Area - Full screen on mobile */}
+      {/* Chat Area - Always full screen (mobile view) */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)] relative z-10 w-full">
         {showConversationSkeleton ? (
           <>
             {/* Chat Header Skeleton */}
-            <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4 flex items-center justify-between">
+            <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Link href="/dashboard">
-                  <Button variant="ghost" size="sm" className="md:hidden">
+                  <Button variant="ghost" size="sm">
                     <FaChevronLeft className="w-5 h-5" />
                   </Button>
                 </Link>
@@ -755,7 +730,7 @@ export default function ChatPage() {
               </div>
             </div>
             {/* Messages Skeleton */}
-            <div className="flex-1 overflow-y-auto p-3 md:p-4">
+            <div className="flex-1 overflow-y-auto p-3">
               <ChatSkeleton />
             </div>
             {/* Input Skeleton */}
@@ -766,10 +741,10 @@ export default function ChatPage() {
         ) : currentConversation ? (
           <>
             {/* Chat Header - Fixed at top with back button on mobile */}
-            <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 md:p-4 flex items-center justify-between">
+            <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm p-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Link href="/dashboard">
-                  <Button variant="ghost" size="sm" className="md:hidden">
+                  <Button variant="ghost" size="sm">
                     <FaChevronLeft className="w-5 h-5" />
                   </Button>
                 </Link>
@@ -795,7 +770,7 @@ export default function ChatPage() {
             {/* Messages */}
             <div 
               ref={messagesContainerRef}
-              className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 relative z-0"
+              className="flex-1 overflow-y-auto p-3 space-y-2 relative z-0"
             >
               {isLoadingOlder && (
                 <div className="flex justify-center py-2">

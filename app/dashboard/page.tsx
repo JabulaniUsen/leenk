@@ -89,16 +89,16 @@ export default function DashboardPage() {
   // This makes the app feel instant even while data loads
 
   return (
-    <main className="h-screen flex flex-col md:flex-row bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)]">
-      {/* Sidebar - Full screen on mobile, sidebar on desktop */}
+    <main className="h-screen flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)]">
+      {/* Sidebar - Always full screen (mobile view) */}
       <motion.aside
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="w-full md:w-80 border-r border-[#313d45] md:border-border flex flex-col bg-[#111b21] md:bg-card"
+        className="w-full border-r border-[#313d45] flex flex-col bg-[#111b21]"
       >
         {/* Header - Render immediately, show skeleton if user not loaded */}
-        <div className="p-3 md:p-4 border-b border-border bg-card">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
+        <div className="p-3 border-b border-border bg-card">
+          <div className="flex items-center justify-between mb-3">
             <Image src="/logo.png" alt="Leenk" width={80} height={80} className="object-contain" />
             <Button
               variant="ghost"
@@ -145,18 +145,6 @@ export default function DashboardPage() {
           )}
         </div>
       </motion.aside>
-
-      {/* Main Content - Only show on desktop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="hidden md:flex flex-1 items-center justify-center p-4"
-      >
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Select a Conversation</h2>
-          <p className="text-muted-foreground">Click on a conversation to start chatting with your customers</p>
-        </div>
-      </motion.div>
 
       {/* Navigation Drawer */}
       <NavDrawer

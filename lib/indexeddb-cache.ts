@@ -47,6 +47,53 @@ async function openDB(): Promise<IDBDatabase> {
   })
 }
 
+// Helper function to deeply sanitize values for IndexedDB storage
+// Removes Promises and other non-serializable values
+function sanitizeValue(value: any): any {
+  // Handle null/undefined
+  if (value === null || value === undefined) {
+    return value
+  }
+
+  // Handle Promises - convert to undefined
+  if (value instanceof Promise) {
+    return undefined
+  }
+
+  // Handle primitives
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return value
+  }
+
+  // Handle Date objects - convert to ISO string
+  if (value instanceof Date) {
+    return value.toISOString()
+  }
+
+  // Handle arrays
+  if (Array.isArray(value)) {
+    return value.map(item => sanitizeValue(item))
+  }
+
+  // Handle objects
+  if (typeof value === "object") {
+    const sanitized: any = {}
+    for (const key in value) {
+      if (Object.prototype.hasOwnProperty.call(value, key)) {
+        const sanitizedVal = sanitizeValue(value[key])
+        // Only include if not undefined (to skip Promises)
+        if (sanitizedVal !== undefined) {
+          sanitized[key] = sanitizedVal
+        }
+      }
+    }
+    return sanitized
+  }
+
+  // For any other type, return undefined
+  return undefined
+}
+
 // Messages Cache
 export const messageCache = {
   // Save messages to cache
@@ -56,10 +103,23 @@ export const messageCache = {
       const transaction = db.transaction([MESSAGES_STORE], "readwrite")
       const store = transaction.objectStore(MESSAGES_STORE)
 
-      // Save each message
+      // Save each message - sanitize to remove Promises and non-serializable values
       for (const message of messages) {
+        const sanitizedMessage = sanitizeValue({
+          id: message.id,
+          conversationId: message.conversationId,
+          senderType: message.senderType,
+          senderId: message.senderId,
+          text: message.text,
+          imageUrl: message.imageUrl,
+          status: message.status,
+          createdAt: message.createdAt,
+          replyToId: message.replyToId,
+          // Don't include replyTo nested object - it can cause circular references
+        }) as Message
+
         await new Promise<void>((resolve, reject) => {
-          const request = store.put(message)
+          const request = store.put(sanitizedMessage)
           request.onsuccess = () => resolve()
           request.onerror = () => reject(request.error)
         })
@@ -232,9 +292,9 @@ export const conversationCache = {
       const store = transaction.objectStore(CONVERSATIONS_STORE)
 
       for (const conversation of conversations) {
-        // Sanitize conversation to ensure it's serializable
-        // Remove any non-serializable properties and ensure messages array is properly structured
-        const sanitizedConversation: Conversation = {
+        // Deeply sanitize conversation to ensure it's fully serializable
+        // This removes Promises, functions, and other non-cloneable values
+        const sanitizedConversation = sanitizeValue({
           id: conversation.id,
           businessId: conversation.businessId,
           customerEmail: conversation.customerEmail,
@@ -256,6 +316,11 @@ export const conversationCache = {
           })),
           unreadCount: conversation.unreadCount,
           pinned: conversation.pinned,
+        }) as Conversation
+
+        // Ensure messages is always an array (never undefined)
+        if (!sanitizedConversation.messages) {
+          sanitizedConversation.messages = []
         }
 
         await new Promise<void>((resolve, reject) => {
