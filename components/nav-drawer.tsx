@@ -48,7 +48,7 @@ export function NavDrawer({ isOpen, onClose, activeTab = "profile", onTabChange 
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop - Only covers the drawer area, not the conversations */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -56,7 +56,7 @@ export function NavDrawer({ isOpen, onClose, activeTab = "profile", onTabChange 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40 md:bg-black/30"
+            className="fixed right-0 top-0 h-full w-[85%] max-w-[400px] bg-black/30 z-30"
           />
         )}
       </AnimatePresence>
@@ -69,7 +69,7 @@ export function NavDrawer({ isOpen, onClose, activeTab = "profile", onTabChange 
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 h-full w-full md:w-[500px] bg-card border-l border-border z-50 shadow-2xl flex flex-col"
+            className="fixed right-0 top-0 h-full w-[85%] max-w-[400px] bg-card border-l border-border z-40 shadow-2xl flex flex-col"
           >
             {/* Header */}
             <div className="p-4 border-b border-border flex items-center justify-between bg-card flex-shrink-0">

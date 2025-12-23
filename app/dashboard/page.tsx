@@ -89,12 +89,12 @@ export default function DashboardPage() {
   // This makes the app feel instant even while data loads
 
   return (
-    <main className="h-screen flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)]">
+    <main className="h-screen max-w-3xl mx-auto flex flex-col bg-[var(--chat-bg)] dark:bg-[var(--chat-bg)]">
       {/* Sidebar - Always full screen (mobile view) */}
       <motion.aside
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="w-full border-r border-[#313d45] flex flex-col bg-[#111b21]"
+        className="w-full border-r border-[#313d45] flex flex-col bg-[#111b21] relative z-10"
       >
         {/* Header - Render immediately, show skeleton if user not loaded */}
         <div className="p-3 border-b border-border bg-card">
@@ -138,7 +138,7 @@ export default function DashboardPage() {
             <ConversationSkeleton />
           ) : (
             <ConversationList 
-              conversations={conversations} 
+              conversations={conversations || []} 
               onPin={handlePin}
               onDelete={handleDelete}
             />

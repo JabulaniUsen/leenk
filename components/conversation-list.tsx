@@ -96,7 +96,7 @@ export const ConversationList = memo(function ConversationList({ conversations, 
         >
           <Link href={`/dashboard/${conv.id}`}>
             <div
-              className={`p-3 md:p-4 border-b border-border hover:bg-secondary transition-colors cursor-pointer active:bg-secondary/50 ${
+              className={`p-3 border-b border-border hover:bg-secondary transition-colors cursor-pointer active:bg-secondary/50 ${
                 selectedId === conv.id ? "bg-secondary" : ""
                 } ${
                   hasUnread ? "bg-primary/10 hover:bg-primary/20 border-l-4 border-l-primary" : ""

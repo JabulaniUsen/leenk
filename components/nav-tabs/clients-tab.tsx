@@ -60,10 +60,13 @@ function ClientsTabComponent() {
 
       <div className="space-y-2">
         {conversations.map((conversation) => {
-          const lastMessage = conversation.messages[conversation.messages.length - 1]
-          const unreadCount = conversation.messages.filter(
-            (m) => m.senderType === "customer" && m.status !== "read"
-          ).length
+          // Get last message - messages array may be empty or contain only last message
+          const messages = conversation.messages || []
+          const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null
+          // Use unreadCount if available (from optimized query), otherwise calculate from messages
+          const unreadCount = conversation.unreadCount !== undefined 
+            ? conversation.unreadCount 
+            : messages.filter((m) => m.senderType === "customer" && (m.status !== "read" || !m.readAt)).length
 
           return (
             <button
