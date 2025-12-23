@@ -411,18 +411,8 @@ export default function ChatPage() {
         }
       }, false)
       
-      // Send email notification to customer (fire and forget - don't block UI)
-      fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversationId: currentConversation.id,
-          messageId: createdMessage.id,
-        }),
-      }).catch((emailError) => {
-        console.error("Failed to send email notification:", emailError)
-        // Don't fail the message send if email fails
-      })
+      // Email notification is automatically sent by db.createMessage (server-side)
+      // No need to call API endpoint here
       
       // Update conversations list cache silently
       mutateConversations(undefined, { revalidate: false })
@@ -493,18 +483,8 @@ export default function ChatPage() {
         }
       }, false)
       
-      // Send email notification to customer (fire and forget - don't block UI)
-      fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversationId: currentConversation.id,
-          messageId: createdMessage.id,
-        }),
-      }).catch((emailError) => {
-        console.error("Failed to send email notification:", emailError)
-        // Don't fail the message send if email fails
-      })
+      // Email notification is automatically sent by db.createMessage (server-side)
+      // No need to call API endpoint here
       
       // Update conversations list cache silently
       mutateConversations(undefined, { revalidate: false })

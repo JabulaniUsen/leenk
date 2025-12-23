@@ -677,6 +677,28 @@ export const db = {
         ).catch((err) => console.error("Error sending business email notification:", err))
       }
     }
+    
+    // If this is a business message, send email notification to customer (async, don't block)
+    if (message.senderType === "business") {
+      // Get conversation and business info
+      const { data: convData, error: convError } = await supabase
+        .from("conversations")
+        .select("business_id, customer_email, customer_name")
+        .eq("id", message.conversationId)
+        .maybeSingle()
+      
+      if (!convError && convData?.business_id && convData?.customer_email) {
+        // Send email notification to customer (fire and forget - don't block message creation)
+        sendCustomerEmailNotificationHelper(
+          convData.business_id,
+          convData.customer_email,
+          convData.customer_name || undefined,
+          message.text || undefined,
+          message.imageUrl || undefined,
+          message.conversationId
+        ).catch((err) => console.error("Error sending customer email notification:", err))
+      }
+    }
 
     return {
       id: data.id,
@@ -748,6 +770,55 @@ async function sendBusinessEmailNotificationHelper(
     )
   } catch (error) {
     console.error("Error in sendBusinessEmailNotificationHelper:", error)
+    // Don't throw - email failures shouldn't break message creation
+  }
+}
+
+// Helper function to send email notification to customer when business sends a message
+async function sendCustomerEmailNotificationHelper(
+  businessId: string,
+  customerEmail: string,
+  customerName: string | undefined,
+  messageText: string | undefined,
+  imageUrl: string | undefined,
+  conversationId: string
+): Promise<void> {
+  // Only run on server-side
+  if (typeof window !== "undefined") {
+    return
+  }
+
+  try {
+    // Use regular client for database query (works server-side)
+    const supabase = createClient()
+    
+    const { data: businessData, error: businessError } = await supabase
+      .from("businesses")
+      .select("id, phone, business_name")
+      .eq("id", businessId)
+      .maybeSingle()
+
+    if (businessError || !businessData || !businessData.phone) {
+      console.warn("Business not found or has no phone:", businessId)
+      return
+    }
+
+    // Construct chat URL
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+    const chatUrl = `${baseUrl}/chat/${businessData.phone}`
+
+    // Send email notification (dynamic import to avoid bundling nodemailer in client)
+    const emailModule = await import("../email")
+    // For image messages, pass undefined as messageText (email template will show "📷 [Image attachment]")
+    await emailModule.sendMessageNotificationEmail(
+      customerEmail,
+      customerName,
+      businessData.business_name || "Business",
+      imageUrl ? undefined : messageText, // Pass undefined for images, text for text messages
+      chatUrl
+    )
+  } catch (error) {
+    console.error("Error in sendCustomerEmailNotificationHelper:", error)
     // Don't throw - email failures shouldn't break message creation
   }
 }
